@@ -598,3 +598,4 @@ No Node/Bun? `curl -s --compressed <endpoint> -H 'Content-Type: application/json
 - `../../../lib/gql.mjs` + `../../../lib/gql-cli.mjs` — the canonical client + CLI (see "Canonical client" above).
 - `../../../src/functions.ts` — older reference `gql()` client with retry/backoff and pagination (SDK-coupled; prefer `lib/gql.mjs`).
 - Sibling skills: `geo-publish` / `geo-orchestrate` (writes this hands off to), `geo-press-review` (built on these reads).
+
