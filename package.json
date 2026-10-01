@@ -1,0 +1,13 @@
+{
+  "name": "geo-sdk-project",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dry-run": "node --experimental-strip-types scripts/ai-incident-schema.ts",
+    "publish": "node --env-file=.env --experimental-strip-types scripts/ai-incident-schema.ts"
+  },
+  "dependencies": {
+    "@geoprotocol/geo-sdk": "^0.20.0",
+    "viem": "^2.23.0"
+  }
+}

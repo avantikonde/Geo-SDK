@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Incident Knowledge Graph Explorer</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(150, 150, 150, 0.5); }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-weight: 500; font-size: 12px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-rose-500 via-indigo-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/20">
+        <div class="h-full w-full bg-slate-950 rounded-[10px] flex items-center justify-center font-bold text-sm text-indigo-400">
+          AI
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="font-bold text-base tracking-tight text-white">AI Agent Incident Knowledge Graph</h1>
+          <span class="badge bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Local Explorer</span>
+          <span class="badge bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">Geo-SDK Triple Model</span>
+        </div>
+        <p class="text-xs text-slate-400">Autonomous failures mapped to root causes, architectures, and verified mitigations</p>
+      </div>
+    </div>
+
+    <!-- Quick Stats & Actions -->
+    <div class="flex items-center space-x-3">
+      <div class="hidden md:flex items-center space-x-4 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300">
+        <div><span class="text-slate-400">Incidents:</span> <span id="stat-incidents" class="font-bold text-rose-400">5</span></div>
+        <div class="w-px h-3 bg-slate-700"></div>
+        <div><span class="text-slate-400">Agents:</span> <span id="stat-agents" class="font-bold text-indigo-400">5</span></div>
+        <div class="w-px h-3 bg-slate-700"></div>
+        <div><span class="text-slate-400">Mitigations:</span> <span id="stat-mitigations" class="font-bold text-emerald-400">5</span></div>
+        <div class="w-px h-3 bg-slate-700"></div>
+        <div><span class="text-slate-400">Total Loss:</span> <span id="stat-loss" class="font-bold text-cyan-400">$441.7M</span></div>
+      </div>
+
+      <button onclick="openModal()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md shadow-indigo-600/30 flex items-center space-x-1.5 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span>Add Incident</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <div class="bg-slate-900 border-b border-slate-800 px-6 flex items-center justify-between text-xs">
+    <div class="flex space-x-1">
+      <button onclick="switchTab('graph')" id="tab-btn-graph" class="px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2">
+        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>Interactive Network Graph</span>
+      </button>
+      <button onclick="switchTab('feed')" id="tab-btn-feed" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        <span>Incident Catalog</span>
+      </button>
+      <button onclick="switchTab('triples')" id="tab-btn-triples" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span>Geo Triples Schema Inspector</span>
+      </button>
+    </div>
+
+    <!-- Graph Controls -->
+    <div id="graph-controls" class="flex items-center space-x-3 py-2">
+      <span class="text-slate-400 text-xs">Filter by Severity:</span>
+      <select id="severity-filter" onchange="filterGraph()" class="bg-slate-800 text-slate-200 text-xs rounded border border-slate-700 px-2 py-1 focus:outline-none focus:border-indigo-500">
+        <option value="ALL">All Severities</option>
+        <option value="Critical">Critical</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <button onclick="resetGraphView()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 text-xs">Reset View</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="flex-1 flex overflow-hidden relative">
+
+    <!-- 1. GRAPH VIEW TAB -->
+    <div id="tab-graph" class="flex-1 flex flex-col md:flex-row w-full h-[calc(100vh-105px)] overflow-hidden">
+      <!-- Interactive Graph Canvas Container -->
+      <div class="flex-1 relative bg-slate-950 overflow-hidden cursor-grab active:cursor-grabbing">
+        <canvas id="graph-canvas" class="w-full h-full block"></canvas>
+
+        <!-- Graph Legend overlay -->
+        <div class="absolute bottom-4 left-4 bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs shadow-xl backdrop-blur">
+          <div class="font-semibold text-slate-300 mb-2">Entity Types (Click node to inspect)</div>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-1.5">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500 inline-block shadow-sm shadow-rose-500/50"></span>
+              <span class="text-slate-300">Incident</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-indigo-500 inline-block shadow-sm shadow-indigo-500/50"></span>
+              <span class="text-slate-300">Agent</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-sm shadow-amber-500/50"></span>
+              <span class="text-slate-300">Failure Mode</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm shadow-emerald-500/50"></span>
+              <span class="text-slate-300">Mitigation</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-sm shadow-cyan-400/50"></span>
+              <span class="text-slate-300">Financial Loss</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zoom / Pan controls overlay -->
+        <div class="absolute top-4 right-4 flex flex-col space-y-1 bg-slate-900/80 border border-slate-800 rounded-lg p-1">
+          <button onclick="zoom(1.2)" class="w-7 h-7 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded text-sm font-bold">+</button>
+          <button onclick="zoom(0.8)" class="w-7 h-7 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded text-sm font-bold">-</button>
+        </div>
+      </div>
+
+      <!-- Side Inspector Panel -->
+      <aside id="inspector-panel" class="w-full md:w-96 border-t md:border-t-0 md:border-l border-slate-800 bg-slate-900 p-5 overflow-y-auto flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+            <span class="text-xs uppercase tracking-wider font-semibold text-slate-400">Entity Details</span>
+            <span id="inspect-type-badge" class="badge bg-slate-800 text-slate-300">Select a node</span>
+          </div>
+
+          <div id="inspector-empty" class="text-center py-16 text-slate-500 text-xs">
+            <svg class="w-12 h-12 mx-auto mb-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+            Click any node in the graph canvas to inspect its parameters, failure links, and mitigations.
+          </div>
+
+          <div id="inspector-content" class="hidden space-y-4">
+            <div>
+              <h3 id="inspect-title" class="font-bold text-base text-white leading-snug">Incident Name</h3>
+              <p id="inspect-desc" class="text-xs text-slate-300 mt-1 leading-relaxed">Description goes here.</p>
+            </div>
+
+            <!-- Properties List -->
+            <div class="space-y-2 pt-2 border-t border-slate-800/80">
+              <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Attributes</h4>
+              <div id="inspect-properties" class="space-y-1.5 text-xs">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- Connected Triples -->
+            <div class="space-y-2 pt-2 border-t border-slate-800/80">
+              <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Graph Relations</h4>
+              <div id="inspect-relations" class="space-y-1.5 text-xs">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800/60 mt-4 text-[11px] text-slate-500 flex justify-between items-center">
+          <span>Geo Knowledge Graph v0.20+</span>
+          <span class="text-indigo-400 font-mono">GRC-20 Triple</span>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 2. INCIDENT CATALOG TAB -->
+    <div id="tab-feed" class="hidden flex-1 overflow-y-auto p-6 bg-slate-950">
+      <div class="max-w-6xl mx-auto space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Incident Catalog</h2>
+            <p class="text-xs text-slate-400">Documented autonomous agent security events, loss values, and root cause mitigations</p>
+          </div>
+          <div class="w-full sm:w-64">
+            <input type="text" id="feed-search" oninput="renderIncidentCatalog()" placeholder="Search incidents, architectures..." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div id="incident-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. TRIPLES SCHEMA INSPECTOR TAB -->
+    <div id="tab-triples" class="hidden flex-1 overflow-y-auto p-6 bg-slate-950">
+      <div class="max-w-5xl mx-auto space-y-6">
+        <div>
+          <h2 class="text-lg font-bold text-white">Geo Knowledge Graph Triples</h2>
+          <p class="text-xs text-slate-400">All current graph edges expressed in GRC-20 Subject &rarr; Predicate &rarr; Object format</p>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/80 border-b border-slate-700/80 text-slate-300 font-semibold uppercase tracking-wider">
+              <tr>
+                <th class="p-3">Subject (Entity)</th>
+                <th class="p-3">Predicate (Relation)</th>
+                <th class="p-3">Object (Target Entity)</th>
+                <th class="p-3">Relation Type ID</th>
+              </tr>
+            </thead>
+            <tbody id="triples-table-body" class="divide-y divide-slate-800 text-slate-300">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ADD INCIDENT MODAL -->
+  <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white">Add New Incident to Graph</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
+      </div>
+
+      <form id="incident-form" onsubmit="handleFormSubmit(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Incident Name *</label>
+          <input type="text" id="form-name" required placeholder="e.g. Trading Bot Flash Cascade" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Date *</label>
+            <input type="date" id="form-date" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Severity *</label>
+            <select id="form-severity" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Agent Name *</label>
+            <input type="text" id="form-agent" required placeholder="e.g. MarketMaker-v1" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Architecture</label>
+            <input type="text" id="form-arch" placeholder="e.g. ReAct with DEX Tools" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Failure Mode (Root Cause) *</label>
+          <input type="text" id="form-failure" required placeholder="e.g. Recursive Slippage Loop" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Mitigation Strategy *</label>
+          <input type="text" id="form-mitigation" required placeholder="e.g. Dynamic Drawdown Circuit Breaker" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Loss Amount ($ USD)</label>
+            <input type="number" id="form-loss" placeholder="e.g. 150000" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Evidence / Post-Mortem URL</label>
+            <input type="url" id="form-link" placeholder="https://example.com/report" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-md shadow-indigo-600/30">Add Triples to Graph</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- APPLICATION JAVASCRIPT LOGIC -->
+  <script>
+    // DATA MODEL & INITIAL SEED INCIDENTS
+    let incidents = [
+      {
+        id: 'inc-1',
+        name: 'AutoDevOps Production Database Deletion Incident',
+        description: 'Agent executed an unverified DROP DATABASE instruction during automated CI/CD maintenance.',
+        date: '2026-04-18',
+        severity: 'Critical',
+        sourceEvidenceLink: 'https://postmortems.security-ai.org/reports/2026-autodevops-drop',
+        agent: {
+          id: 'agent-1',
+          name: 'DevOps-Automator-v2',
+          architecture: 'ReAct Agent with Direct AWS SDK Tool Access',
+          description: 'Autonomous cloud deployment agent with unconstrained tool execution permissions.'
+        },
+        failureMode: {
+          id: 'fm-1',
+          name: 'Unconstrained Destructive Tool Execution',
+          description: 'Autonomous invocation of non-idempotent delete operations without human-in-the-loop verification.'
+        },
+        mitigation: {
+          id: 'mit-1',
+          name: 'Cryptographic Policy Gate & Pre-Flight Interceptor',
+          strategy: 'Deterministic Approval Interceptor',
+          description: 'Deterministic policy proxy requiring multi-signature approval for destructive tool calls.'
+        },
+        financialLoss: {
+          id: 'loss-1',
+          amount: 450000,
+          currency: 'USD',
+          description: 'Production Database Teardown Outage'
+        }
+      },
+      {
+        id: 'inc-2',
+        name: 'Air Canada Chatbot Unauthorized Bereavement Discount',
+        description: 'Customer service agent hallucinated refund policies contrary to airline guidelines.',
+        date: '2024-02-14',
+        severity: 'Medium',
+        sourceEvidenceLink: 'https://www.canlii.org/en/bc/bccrt/doc/2024/2024bccrt149/2024bccrt149.html',
+        agent: {
+          id: 'agent-2',
+          name: 'PassengerAssistBot',
+          architecture: 'Retrieval Augmented Generation (RAG) with GPT-4',
+          description: 'Public-facing booking advisory bot.'
+        },
+        failureMode: {
+          id: 'fm-2',
+          name: 'Hallucinated Authority / Policy Misgeneralization',
+          description: 'Language model generates enforceable commitments outside its programmed rule boundaries.'
+        },
+        mitigation: {
+          id: 'mit-2',
+          name: 'Deterministic Retrieval Boundary & Schema Validation',
+          strategy: 'Strict Schema Guardrail',
+          description: 'Hard-coded rule assertion filters that reject ungrounded policy outputs.'
+        },
+        financialLoss: {
+          id: 'loss-2',
+          amount: 812,
+          currency: 'USD',
+          description: 'Court-ordered civil tribunal settlement'
+        }
+      },
+      {
+        id: 'inc-3',
+        name: 'Knight Capital High-Frequency Autonomous Loop Disaster',
+        description: 'Repurposed execution loop triggered unchecked infinite buy orders against public market.',
+        date: '2012-08-01',
+        severity: 'Critical',
+        sourceEvidenceLink: 'https://www.sec.gov/litigation/admin/2013/34-70694.pdf',
+        agent: {
+          id: 'agent-3',
+          name: 'SMARS Automated Execution Harness',
+          architecture: 'Autonomous High-Frequency Trading Core',
+          description: 'Legacy automated routing system with dormant test code.'
+        },
+        failureMode: {
+          id: 'fm-3',
+          name: 'Dead Code Activation under Infinite Loop',
+          description: 'Absence of circuit breakers permitted infinite automated tool re-entry.'
+        },
+        mitigation: {
+          id: 'mit-3',
+          name: 'Hardware Kill-Switch & Position Rate Limits',
+          strategy: 'Automated Circuit Breaker',
+          description: 'Real-time telemetry monitor that suspends execution upon exceeding rate limits.'
+        },
+        financialLoss: {
+          id: 'loss-3',
+          amount: 440000000,
+          currency: 'USD',
+          description: 'Total capital loss within 45 minutes of market open'
+        }
+      },
+      {
+        id: 'inc-4',
+        name: 'Autonomous Trading Swarm Flash Liquidation',
+        description: 'Swarm agents triggered cascading slippage feedback loop across decentralized liquidity pools.',
+        date: '2025-11-09',
+        severity: 'High',
+        sourceEvidenceLink: 'https://eth-security.org/incidents/swarm-liquidation-2025',
+        agent: {
+          id: 'agent-4',
+          name: 'AlphaSwarm Arbitrageur',
+          architecture: 'Hierarchical Multi-Agent Swarm with Tool Calling',
+          description: 'Decentralized liquidity optimization swarm.'
+        },
+        failureMode: {
+          id: 'fm-4',
+          name: 'Recursive Slippage Feedback Loop',
+          description: 'Multi-agent feedback loop in which agent transactions self-trigger counterparties.'
+        },
+        mitigation: {
+          id: 'mit-4',
+          name: 'Maximum Drawdown Dynamic Halting Gate',
+          strategy: 'Cross-Agent Consensus Lock',
+          description: 'Synchronized mutex preventing subagents from reacting to sibling trade volume.'
+        },
+        financialLoss: {
+          id: 'loss-4',
+          amount: 1200000,
+          currency: 'USD',
+          description: 'Protocol arbitrage drain across 3 automated pools'
+        }
+      },
+      {
+        id: 'inc-5',
+        name: 'CodeAssistant Silent Dependency Poisoning',
+        description: 'Autonomous coding agent installed hallucinated and malicious packages from untrusted prompt injections.',
+        date: '2026-01-22',
+        severity: 'High',
+        sourceEvidenceLink: 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-19402',
+        agent: {
+          id: 'agent-5',
+          name: 'RepoRefactor AI',
+          architecture: 'Autonomous Developer Agent with Terminal Access',
+          description: 'Background developer bot performing auto-dependency upgrades.'
+        },
+        failureMode: {
+          id: 'fm-5',
+          name: 'Indirect Prompt Injection via External Context',
+          description: 'Malicious instructions hidden in package READMEs tricked the agent into remote code execution.'
+        },
+        mitigation: {
+          id: 'mit-5',
+          name: 'Air-Gapped Tool Execution Sandbox & Hash Verification',
+          strategy: 'Containerized Isolation',
+          description: 'Ephemeral Docker environment with strict zero-network egress during install phases.'
+        },
+        financialLoss: {
+          id: 'loss-5',
+          amount: 85000,
+          currency: 'USD',
+          description: 'Emergency security audit and customer notification costs'
+        }
+      }
+    ];
+
+    let canvas, ctx;
+    let nodes = [];
+    let links = [];
+    let selectedNode = null;
+    let hoveredNode = null;
+    let transform = { x: 0, y: 0, k: 1 };
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+    let draggedNode = null;
+
+    const TYPE_COLORS = {
+      Incident: '#f43f5e',
+      Agent: '#6366f1',
+      FailureMode: '#f59e0b',
+      Mitigation: '#10b981',
+      FinancialLoss: '#22d3ee'
+    };
+
+    function buildGraphData() {
+      nodes = [];
+      links = [];
+      const nodeMap = new Map();
+
+      function getOrCreateNode(id, type, label, data) {
+        if (!nodeMap.has(id)) {
+          const n = {
+            id,
+            type,
+            label,
+            data,
+            x: (Math.random() - 0.5) * 500,
+            y: (Math.random() - 0.5) * 400,
+            vx: 0,
+            vy: 0,
+            radius: type === 'Incident' ? 22 : 16
+          };
+          nodeMap.set(id, n);
+          nodes.push(n);
+        }
+        return nodeMap.get(id);
+      }
+
+      const activeFilter = document.getElementById('severity-filter').value;
+
+      incidents.forEach(inc => {
+        if (activeFilter !== 'ALL' && inc.severity !== activeFilter) return;
+
+        const incNode = getOrCreateNode(inc.id, 'Incident', inc.name, inc);
+        const agentNode = getOrCreateNode(inc.agent.id, 'Agent', inc.agent.name, inc.agent);
+        const fmNode = getOrCreateNode(inc.failureMode.id, 'FailureMode', inc.failureMode.name, inc.failureMode);
+        const mitNode = getOrCreateNode(inc.mitigation.id, 'Mitigation', inc.mitigation.name, inc.mitigation);
+        const lossNode = getOrCreateNode(inc.financialLoss.id, 'FinancialLoss', `$${(inc.financialLoss.amount / 1000).toFixed(0)}k Loss`, inc.financialLoss);
+
+        links.push({ source: incNode, target: agentNode, predicate: 'involves agent' });
+        links.push({ source: incNode, target: fmNode, predicate: 'exhibits' });
+        links.push({ source: incNode, target: lossNode, predicate: 'resulted in' });
+        links.push({ source: fmNode, target: mitNode, predicate: 'mitigated by' });
+      });
+
+      updateStats();
+    }
+
+    function initCanvas() {
+      canvas = document.getElementById('graph-canvas');
+      ctx = canvas.getContext('2d');
+
+      function resize() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        transform.x = canvas.width / 2;
+        transform.y = canvas.height / 2;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      canvas.addEventListener('mousedown', onMouseDown);
+      canvas.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+      canvas.addEventListener('wheel', onWheel);
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    function findNodeAt(x, y) {
+      const invX = (x - transform.x) / transform.k;
+      const invY = (y - transform.y) / transform.k;
+      for (let i = nodes.length - 1; i >= 0; i--) {
+        const n = nodes[i];
+        const dx = n.x - invX;
+        const dy = n.y - invY;
+        if (dx * dx + dy * dy < n.radius * n.radius) {
+          return n;
+        }
+      }
+      return null;
+    }
+
+    function onMouseDown(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const hit = findNodeAt(x, y);
+
+      if (hit) {
+        draggedNode = hit;
+        selectNode(hit);
+      } else {
+        isDragging = true;
+        dragStart = { x: e.clientX - transform.x, y: e.clientY - transform.y };
+      }
+    }
+
+    function onMouseMove(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (draggedNode) {
+        draggedNode.x = (x - transform.x) / transform.k;
+        draggedNode.y = (y - transform.y) / transform.k;
+        draggedNode.vx = 0;
+        draggedNode.vy = 0;
+      } else if (isDragging) {
+        transform.x = e.clientX - dragStart.x;
+        transform.y = e.clientY - dragStart.y;
+      } else {
+        hoveredNode = findNodeAt(x, y);
+      }
+    }
+
+    function onMouseUp() {
+      isDragging = false;
+      draggedNode = null;
+    }
+
+    function onWheel(e) {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+      zoom(zoomFactor);
+    }
+
+    function zoom(factor) {
+      transform.k = Math.max(0.2, Math.min(3, transform.k * factor));
+    }
+
+    function resetGraphView() {
+      transform.k = 1;
+      transform.x = canvas.width / 2;
+      transform.y = canvas.height / 2;
+    }
+
+    function stepSimulation() {
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i];
+          const b = nodes[j];
+          let dx = b.x - a.x;
+          let dy = b.y - a.y;
+          let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          let force = (a.radius + b.radius + 70) / (dist * dist);
+          force = Math.min(force, 2);
+
+          let fx = (dx / dist) * force;
+          let fy = (dy / dist) * force;
+
+          if (a !== draggedNode) { a.vx -= fx; a.vy -= fy; }
+          if (b !== draggedNode) { b.vx += fx; b.vy += fy; }
+        }
+      }
+
+      for (const link of links) {
+        const a = link.source;
+        const b = link.target;
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+        let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        let targetDist = 120;
+        let force = (dist - targetDist) * 0.02;
+
+        let fx = (dx / dist) * force;
+        let fy = (dy / dist) * force;
+
+        if (a !== draggedNode) { a.vx += fx; a.vy += fy; }
+        if (b !== draggedNode) { b.vx += fx; b.vy += fy; }
+      }
+
+      for (const n of nodes) {
+        if (n === draggedNode) continue;
+        n.vx -= n.x * 0.005;
+        n.vy -= n.y * 0.005;
+        n.x += n.vx;
+        n.y += n.vy;
+        n.vx *= 0.85;
+        n.vy *= 0.85;
+      }
+    }
+
+    function renderLoop() {
+      stepSimulation();
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(transform.x, transform.y);
+      ctx.scale(transform.k, transform.k);
+
+      for (const link of links) {
+        ctx.beginPath();
+        ctx.moveTo(link.source.x, link.source.y);
+        ctx.lineTo(link.target.x, link.target.y);
+        ctx.strokeStyle = 'rgba(71, 85, 105, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        const midX = (link.source.x + link.target.x) / 2;
+        const midY = (link.source.y + link.target.y) / 2;
+        ctx.font = '10px Inter, sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.textAlign = 'center';
+        ctx.fillText(link.predicate, midX, midY - 3);
+      }
+
+      for (const n of nodes) {
+        const color = TYPE_COLORS[n.type] || '#6366f1';
+        const isSelected = selectedNode === n;
+        const isHovered = hoveredNode === n;
+
+        if (isSelected || isHovered) {
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.radius + 6, 0, Math.PI * 2);
+          ctx.fillStyle = isSelected ? 'rgba(99, 102, 241, 0.35)' : 'rgba(255, 255, 255, 0.15)';
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = isSelected ? '#ffffff' : 'rgba(15, 23, 42, 0.8)';
+        ctx.lineWidth = isSelected ? 2.5 : 1.5;
+        ctx.stroke();
+
+        ctx.font = `${n.type === 'Incident' ? '12px' : '11px'} Inter, sans-serif`;
+        ctx.fillStyle = '#e2e8f0';
+        ctx.textAlign = 'center';
+        const truncated = n.label.length > 20 ? n.label.slice(0, 18) + '...' : n.label;
+        ctx.fillText(truncated, n.x, n.y + n.radius + 14);
+      }
+
+      ctx.restore();
+      requestAnimationFrame(renderLoop);
+    }
+
+    function selectNode(n) {
+      selectedNode = n;
+      const emptyDiv = document.getElementById('inspector-empty');
+      const contentDiv = document.getElementById('inspector-content');
+      const badge = document.getElementById('inspect-type-badge');
+      const title = document.getElementById('inspect-title');
+      const desc = document.getElementById('inspect-desc');
+      const propBox = document.getElementById('inspect-properties');
+      const relBox = document.getElementById('inspect-relations');
+
+      emptyDiv.classList.add('hidden');
+      contentDiv.classList.remove('hidden');
+
+      badge.innerText = n.type;
+      badge.style.backgroundColor = `${TYPE_COLORS[n.type]}22`;
+      badge.style.color = TYPE_COLORS[n.type];
+      badge.style.borderColor = `${TYPE_COLORS[n.type]}44`;
+
+      title.innerText = n.label;
+      desc.innerText = n.data.description || 'No description recorded in triple.';
+
+      propBox.innerHTML = '';
+      const d = n.data;
+
+      if (n.type === 'Incident') {
+        addPropRow(propBox, 'Date', d.date);
+        addPropRow(propBox, 'Severity', d.severity, getSeverityBadge(d.severity));
+        if (d.sourceEvidenceLink) {
+          addPropRow(propBox, 'Evidence', `<a href="${d.sourceEvidenceLink}" target="_blank" class="text-indigo-400 hover:underline flex items-center gap-1">View Source &nearr;</a>`);
+        }
+      } else if (n.type === 'Agent') {
+        addPropRow(propBox, 'Agent Name', d.name);
+        addPropRow(propBox, 'Architecture', d.architecture || 'Unknown');
+      } else if (n.type === 'Mitigation') {
+        addPropRow(propBox, 'Strategy', d.strategy || 'Engineering Control');
+      } else if (n.type === 'FinancialLoss') {
+        addPropRow(propBox, 'Direct Loss', `$${Number(d.amount).toLocaleString()} ${d.currency}`);
+      }
+
+      relBox.innerHTML = '';
+      const connected = links.filter(l => l.source === n || l.target === n);
+      if (connected.length === 0) {
+        relBox.innerHTML = '<span class="text-slate-500 italic">No connected edges.</span>';
+      } else {
+        connected.forEach(l => {
+          const isOut = l.source === n;
+          const other = isOut ? l.target : l.source;
+          const div = document.createElement('div');
+          div.className = 'p-2 rounded bg-slate-800/60 border border-slate-800 flex items-center justify-between cursor-pointer hover:bg-slate-800 transition';
+          div.onclick = () => selectNode(other);
+          div.innerHTML = `
+            <div>
+              <span class="text-slate-400 text-[11px] block">${isOut ? '&rarr; ' + l.predicate : '&larr; ' + l.predicate}</span>
+              <span class="font-medium text-slate-200 text-xs">${other.label}</span>
+            </div>
+            <span class="badge text-[10px]" style="background-color: ${TYPE_COLORS[other.type]}20; color: ${TYPE_COLORS[other.type]};">${other.type}</span>
+          `;
+          relBox.appendChild(div);
+        });
+      }
+    }
+
+    function addPropRow(container, key, val, customHtml = null) {
+      const row = document.createElement('div');
+      row.className = 'flex justify-between items-center py-1 border-b border-slate-800/40 text-xs';
+      row.innerHTML = `<span class="text-slate-400">${key}:</span> <span class="text-slate-200 font-medium">${customHtml || val}</span>`;
+      container.appendChild(row);
+    }
+
+    function getSeverityBadge(sev) {
+      const colors = {
+        Critical: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
+        High: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+        Medium: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+        Low: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+      };
+      return `<span class="badge border ${colors[sev] || colors.Medium}">${sev}</span>`;
+    }
+
+    function renderIncidentCatalog() {
+      const container = document.getElementById('incident-cards-container');
+      const search = (document.getElementById('feed-search')?.value || '').toLowerCase();
+      container.innerHTML = '';
+
+      const filtered = incidents.filter(inc => {
+        const text = `${inc.name} ${inc.description} ${inc.agent.name} ${inc.agent.architecture} ${inc.failureMode.name} ${inc.mitigation.name}`.toLowerCase();
+        return text.includes(search);
+      });
+
+      filtered.forEach(inc => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition flex flex-col justify-between space-y-4 shadow-lg';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-slate-400 font-mono text-[11px]">${inc.date}</span>
+              ${getSeverityBadge(inc.severity)}
+            </div>
+            <h3 class="font-bold text-white text-sm mb-1.5 leading-snug">${inc.name}</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">${inc.description}</p>
+          </div>
+
+          <div class="space-y-2 border-t border-slate-800/80 pt-3 text-xs">
+            <div class="flex items-start justify-between">
+              <span class="text-slate-400">Agent:</span>
+              <span class="text-right text-indigo-300 font-medium">${inc.agent.name} <span class="text-slate-500 text-[10px]">(${inc.agent.architecture})</span></span>
+            </div>
+            <div class="flex items-start justify-between">
+              <span class="text-slate-400">Failure Mode:</span>
+              <span class="text-right text-amber-400 font-medium">${inc.failureMode.name}</span>
+            </div>
+            <div class="flex items-start justify-between">
+              <span class="text-slate-400">Mitigation:</span>
+              <span class="text-right text-emerald-400 font-medium">${inc.mitigation.name}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Direct Loss:</span>
+              <span class="text-cyan-400 font-bold">$${Number(inc.financialLoss.amount).toLocaleString()} ${inc.financialLoss.currency}</span>
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-between items-center border-t border-slate-800/40">
+            <button onclick="focusOnGraph('${inc.id}')" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1">
+              <span>View in Graph</span> &rarr;
+            </button>
+            ${inc.sourceEvidenceLink ? `<a href="${inc.sourceEvidenceLink}" target="_blank" class="text-xs text-slate-400 hover:text-white">Evidence &nearr;</a>` : ''}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function focusOnGraph(id) {
+      switchTab('graph');
+      const target = nodes.find(n => n.id === id);
+      if (target) {
+        selectNode(target);
+        transform.x = canvas.width / 2 - target.x * transform.k;
+        transform.y = canvas.height / 2 - target.y * transform.k;
+      }
+    }
+
+    function renderTriplesTable() {
+      const tbody = document.getElementById('triples-table-body');
+      tbody.innerHTML = '';
+
+      links.forEach(l => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition font-mono text-[11px]';
+        tr.innerHTML = `
+          <td class="p-3 font-sans">
+            <span class="font-medium text-slate-100">${l.source.label}</span>
+            <span class="badge ml-2 text-[10px]" style="background-color: ${TYPE_COLORS[l.source.type]}20; color: ${TYPE_COLORS[l.source.type]}">${l.source.type}</span>
+          </td>
+          <td class="p-3 text-indigo-400 font-bold font-sans">&rarr; ${l.predicate}</td>
+          <td class="p-3 font-sans">
+            <span class="font-medium text-slate-100">${l.target.label}</span>
+            <span class="badge ml-2 text-[10px]" style="background-color: ${TYPE_COLORS[l.target.type]}20; color: ${TYPE_COLORS[l.target.type]}">${l.target.type}</span>
+          </td>
+          <td class="p-3 text-slate-500 font-mono">c001000100...</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateStats() {
+      document.getElementById('stat-incidents').innerText = incidents.length;
+      document.getElementById('stat-agents').innerText = incidents.length;
+      document.getElementById('stat-mitigations').innerText = incidents.length;
+      const total = incidents.reduce((sum, i) => sum + (i.financialLoss?.amount || 0), 0);
+      document.getElementById('stat-loss').innerText = total > 1000000 ? `$${(total / 1000000).toFixed(1)}M` : `$${(total / 1000).toFixed(0)}k`;
+    }
+
+    function switchTab(tabId) {
+      document.getElementById('tab-graph').classList.add('hidden');
+      document.getElementById('tab-feed').classList.add('hidden');
+      document.getElementById('tab-triples').classList.add('hidden');
+      document.getElementById('graph-controls').classList.add('hidden');
+
+      document.getElementById('tab-btn-graph').className = 'px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2';
+      document.getElementById('tab-btn-feed').className = 'px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2';
+      document.getElementById('tab-btn-triples').className = 'px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2';
+
+      if (tabId === 'graph') {
+        document.getElementById('tab-graph').classList.remove('hidden');
+        document.getElementById('graph-controls').classList.remove('hidden');
+        document.getElementById('tab-btn-graph').className = 'px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2';
+      } else if (tabId === 'feed') {
+        document.getElementById('tab-feed').classList.remove('hidden');
+        document.getElementById('tab-btn-feed').className = 'px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2';
+        renderIncidentCatalog();
+      } else if (tabId === 'triples') {
+        document.getElementById('tab-triples').classList.remove('hidden');
+        document.getElementById('tab-btn-triples').className = 'px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2';
+        renderTriplesTable();
+      }
+    }
+
+    function filterGraph() {
+      buildGraphData();
+    }
+
+    function openModal() {
+      document.getElementById('add-modal').classList.remove('hidden');
+    }
+    function closeModal() {
+      document.getElementById('add-modal').classList.add('hidden');
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const count = incidents.length + 1;
+      const newInc = {
+        id: `inc-${count}`,
+        name: document.getElementById('form-name').value,
+        description: `Incident involving autonomous agent ${document.getElementById('form-agent').value}.`,
+        date: document.getElementById('form-date').value,
+        severity: document.getElementById('form-severity').value,
+        sourceEvidenceLink: document.getElementById('form-link').value || '',
+        agent: {
+          id: `agent-${count}`,
+          name: document.getElementById('form-agent').value,
+          architecture: document.getElementById('form-arch').value || 'Autonomous Loop',
+          description: 'Autonomous AI agent system.'
+        },
+        failureMode: {
+          id: `fm-${count}`,
+          name: document.getElementById('form-failure').value,
+          description: 'Identified root cause flaw.'
+        },
+        mitigation: {
+          id: `mit-${count}`,
+          name: document.getElementById('form-mitigation').value,
+          strategy: 'Active Protective Gate',
+          description: 'Mitigation engineered to prevent this failure.'
+        },
+        financialLoss: {
+          id: `loss-${count}`,
+          amount: parseFloat(document.getElementById('form-loss').value) || 0,
+          currency: 'USD',
+          description: 'Direct economic impact'
+        }
+      };
+
+      incidents.unshift(newInc);
+      buildGraphData();
+      closeModal();
+      document.getElementById('incident-form').reset();
+      focusOnGraph(newInc.id);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      buildGraphData();
+      initCanvas();
+    });
+  </script>
+</body>
+</html>
