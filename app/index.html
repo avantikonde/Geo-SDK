@@ -6,97 +6,236 @@
   <title>AI Agent Incident Knowledge Graph Explorer</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
-    /* Custom scrollbars */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(150, 150, 150, 0.5); }
-    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-weight: 500; font-size: 12px; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.2); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.4); }
+
+    /* Keyframe Animations */
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.35; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.08); }
+    }
+    @keyframes slideFadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes modalPop {
+      0% { opacity: 0; transform: scale(0.92) translateY(16px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes bannerSlide {
+      0% { transform: translateY(-100%); opacity: 0; }
+      15% { transform: translateY(0); opacity: 1; }
+      85% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-100%); opacity: 0; }
+    }
+    @keyframes borderRotate {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .animate-slide-up { animation: slideFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-modal { animation: modalPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .glow-header {
+      background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #6366f1);
+      background-size: 300% 300%;
+      animation: borderRotate 8s ease infinite;
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.85);
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px -8px rgba(99, 102, 241, 0.18);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+<body class="bg-[#080d1a] text-slate-100 antialiased min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white overflow-hidden">
 
-  <!-- TOP HEADER -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-rose-500 via-indigo-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/20">
-        <div class="h-full w-full bg-slate-950 rounded-[10px] flex items-center justify-center font-bold text-sm text-indigo-400">
-          AI
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast-banner" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none hidden transition-all duration-300">
+    <div class="px-4 py-2.5 rounded-full bg-slate-900/95 border border-indigo-500/50 text-xs shadow-2xl flex items-center space-x-2.5 backdrop-blur-xl text-white">
+      <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping"></span>
+      <span id="toast-text" class="font-medium">Incident registered</span>
+    </div>
+  </div>
+
+  <!-- TOP APP HEADER -->
+  <header class="border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl sticky top-0 z-40 px-6 py-3 flex items-center justify-between shadow-lg">
+    <div class="flex items-center space-x-3.5">
+      <!-- Animated Logo Icon -->
+      <div class="relative group cursor-pointer" onclick="resetGraphView()">
+        <div class="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-rose-500 via-indigo-500 to-cyan-400 opacity-60 blur-sm group-hover:opacity-100 transition duration-500 animate-tilt"></div>
+        <div class="relative h-10 w-10 rounded-xl bg-slate-950 flex items-center justify-center border border-slate-800 text-indigo-400 font-extrabold text-sm shadow-inner">
+          <svg class="w-5 h-5 text-indigo-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         </div>
       </div>
+
       <div>
         <div class="flex items-center space-x-2">
-          <h1 class="font-bold text-base tracking-tight text-white">AI Agent Incident Knowledge Graph</h1>
-          <span class="badge bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Local Explorer</span>
-          <span class="badge bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">Geo-SDK Triple Model</span>
+          <h1 class="font-bold text-sm sm:text-base tracking-tight text-white flex items-center gap-1.5">
+            <span>AI Agent Incident Graph</span>
+            <span class="h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+          </h1>
+          <span class="badge bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">GRC-20 Semantic</span>
+          <span class="badge bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hidden sm:inline-flex">Trial Sandbox</span>
         </div>
-        <p class="text-xs text-slate-400">Autonomous failures mapped to root causes, architectures, and verified mitigations</p>
+        <p class="text-xs text-slate-400">Decentralized mapping of agentic flaws, architectures, and verified countermeasures</p>
       </div>
     </div>
 
     <!-- Quick Stats & Actions -->
     <div class="flex items-center space-x-3">
-      <div class="hidden md:flex items-center space-x-4 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300">
-        <div><span class="text-slate-400">Incidents:</span> <span id="stat-incidents" class="font-bold text-rose-400">5</span></div>
-        <div class="w-px h-3 bg-slate-700"></div>
-        <div><span class="text-slate-400">Agents:</span> <span id="stat-agents" class="font-bold text-indigo-400">5</span></div>
-        <div class="w-px h-3 bg-slate-700"></div>
-        <div><span class="text-slate-400">Mitigations:</span> <span id="stat-mitigations" class="font-bold text-emerald-400">5</span></div>
-        <div class="w-px h-3 bg-slate-700"></div>
-        <div><span class="text-slate-400">Total Loss:</span> <span id="stat-loss" class="font-bold text-cyan-400">$441.7M</span></div>
+      <!-- Live Metrics Pills -->
+      <div class="hidden xl:flex items-center space-x-3 px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-300 shadow-inner">
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+          <span class="text-slate-400">Incidents:</span>
+          <span id="stat-incidents" class="font-semibold text-white">5</span>
+        </div>
+        <div class="w-px h-3 bg-slate-800"></div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+          <span class="text-slate-400">Agents:</span>
+          <span id="stat-agents" class="font-semibold text-white">5</span>
+        </div>
+        <div class="w-px h-3 bg-slate-800"></div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span class="text-slate-400">Mitigations:</span>
+          <span id="stat-mitigations" class="font-semibold text-white">5</span>
+        </div>
+        <div class="w-px h-3 bg-slate-800"></div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+          <span class="text-slate-400">Total Loss:</span>
+          <span id="stat-loss" class="font-semibold text-cyan-300 font-mono">$441.7M</span>
+        </div>
       </div>
 
-      <button onclick="openModal()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md shadow-indigo-600/30 flex items-center space-x-1.5 transition">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        <span>Add Incident</span>
+      <!-- Quick Simulate Action Button -->
+      <button onclick="simulateLiveIncident()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-slate-200 border border-slate-700 text-xs font-medium flex items-center space-x-1.5 transition active:scale-95 shadow-sm" title="Simulate an incoming live agent failure event">
+        <span class="text-amber-400">⚡</span>
+        <span class="hidden md:inline">Simulate Event</span>
+      </button>
+
+      <!-- Add Incident Button -->
+      <button onclick="openModal()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-medium text-xs shadow-lg shadow-indigo-600/25 flex items-center space-x-1.5 transition active:scale-95">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+        <span>New Incident</span>
+      </button>
+
+      <!-- Audio Mute Toggle Button -->
+      <button onclick="toggleAudio()" id="btn-audio" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700/80 transition" title="Sound Effects Toggle">
+        <span id="audio-icon">🔊</span>
       </button>
     </div>
   </header>
 
-  <!-- NAVIGATION TABS -->
-  <div class="bg-slate-900 border-b border-slate-800 px-6 flex items-center justify-between text-xs">
+  <!-- NAVIGATION TABS & GRAPH CONTROLS -->
+  <div class="bg-slate-950/70 border-b border-slate-800/80 px-6 flex flex-wrap items-center justify-between text-xs gap-3 backdrop-blur-md">
     <div class="flex space-x-1">
-      <button onclick="switchTab('graph')" id="tab-btn-graph" class="px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2">
+      <button onclick="switchTab('graph')" id="tab-btn-graph" class="px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2 transition duration-200">
         <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span>Interactive Network Graph</span>
+        <span>Interactive Network</span>
       </button>
-      <button onclick="switchTab('feed')" id="tab-btn-feed" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2">
+      <button onclick="switchTab('feed')" id="tab-btn-feed" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2 transition duration-200">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
         <span>Incident Catalog</span>
       </button>
-      <button onclick="switchTab('triples')" id="tab-btn-triples" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2">
+      <button onclick="switchTab('triples')" id="tab-btn-triples" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2 transition duration-200">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        <span>Geo Triples Schema Inspector</span>
+        <span>Triples Inspector</span>
       </button>
     </div>
 
-    <!-- Graph Controls -->
-    <div id="graph-controls" class="flex items-center space-x-3 py-2">
-      <span class="text-slate-400 text-xs">Filter by Severity:</span>
-      <select id="severity-filter" onchange="filterGraph()" class="bg-slate-800 text-slate-200 text-xs rounded border border-slate-700 px-2 py-1 focus:outline-none focus:border-indigo-500">
-        <option value="ALL">All Severities</option>
-        <option value="Critical">Critical</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select>
-      <button onclick="resetGraphView()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 text-xs">Reset View</button>
+    <!-- Active Graph Toolbelt -->
+    <div id="graph-controls" class="flex items-center space-x-2 py-1.5 flex-wrap">
+      <div class="flex items-center space-x-1.5 bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1">
+        <span class="text-slate-400 text-xs">Severity:</span>
+        <select id="severity-filter" onchange="filterGraph()" class="bg-transparent text-slate-200 text-xs focus:outline-none cursor-pointer pr-1">
+          <option value="ALL">All Levels</option>
+          <option value="Critical">🔴 Critical</option>
+          <option value="High">🟠 High</option>
+          <option value="Medium">🔵 Medium</option>
+          <option value="Low">🟢 Low</option>
+        </select>
+      </div>
+
+      <!-- Entity Filter Pills (Toggle Types on/off) -->
+      <div class="hidden md:flex items-center space-x-1 bg-slate-900 border border-slate-800 rounded-xl p-1">
+        <button onclick="toggleTypeFilter('Incident')" id="toggle-type-Incident" class="px-2 py-0.5 rounded-lg text-[10px] font-semibold transition bg-rose-500/20 text-rose-300 border border-rose-500/40">Incident</button>
+        <button onclick="toggleTypeFilter('Agent')" id="toggle-type-Agent" class="px-2 py-0.5 rounded-lg text-[10px] font-semibold transition bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">Agent</button>
+        <button onclick="toggleTypeFilter('FailureMode')" id="toggle-type-FailureMode" class="px-2 py-0.5 rounded-lg text-[10px] font-semibold transition bg-amber-500/20 text-amber-300 border border-amber-500/40">Flaw</button>
+        <button onclick="toggleTypeFilter('Mitigation')" id="toggle-type-Mitigation" class="px-2 py-0.5 rounded-lg text-[10px] font-semibold transition bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Defense</button>
+        <button onclick="toggleTypeFilter('FinancialLoss')" id="toggle-type-FinancialLoss" class="px-2 py-0.5 rounded-lg text-[10px] font-semibold transition bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">Loss</button>
+      </div>
+
+      <!-- Simulation State Toggle -->
+      <button onclick="toggleSimulation()" id="btn-toggle-sim" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-800 text-xs flex items-center space-x-1.5 transition active:scale-95">
+        <span id="sim-icon">⏸️</span>
+        <span id="sim-text" class="hidden sm:inline">Pause</span>
+      </button>
+
+      <button onclick="fitToScreen()" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-800 text-xs transition active:scale-95" title="Center All Nodes on Screen">
+        Fit View
+      </button>
+      <button onclick="resetGraphView()" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-800 text-xs transition active:scale-95">
+        Reset
+      </button>
     </div>
   </div>
 
-  <!-- MAIN CONTENT AREA -->
+  <!-- MAIN CANVAS & VIEWPORT -->
   <main class="flex-1 flex overflow-hidden relative">
 
     <!-- 1. GRAPH VIEW TAB -->
-    <div id="tab-graph" class="flex-1 flex flex-col md:flex-row w-full h-[calc(100vh-105px)] overflow-hidden">
+    <div id="tab-graph" class="flex-1 flex flex-col md:flex-row w-full h-[calc(100vh-112px)] overflow-hidden">
       <!-- Interactive Graph Canvas Container -->
-      <div class="flex-1 relative bg-slate-950 overflow-hidden cursor-grab active:cursor-grabbing">
+      <div id="canvas-container" class="flex-1 relative bg-[#060a14] overflow-hidden cursor-grab active:cursor-grabbing select-none">
         <canvas id="graph-canvas" class="w-full h-full block"></canvas>
 
-        <!-- Graph Legend overlay -->
-        <div class="absolute bottom-4 left-4 bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs shadow-xl backdrop-blur">
-          <div class="font-semibold text-slate-300 mb-2">Entity Types (Click node to inspect)</div>
-          <div class="grid grid-cols-2 gap-x-4 gap-y-1.5">
+        <!-- Status Pill: Stable / Simulating -->
+        <div id="sim-status-pill" class="absolute top-4 left-4 bg-slate-900/90 border border-slate-800 rounded-full px-3 py-1 text-[11px] text-slate-400 flex items-center space-x-1.5 backdrop-blur-md pointer-events-none shadow-md">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+          <span id="sim-status-text">Physics Resting</span>
+        </div>
+
+        <!-- Animated Particle Flow Indicator -->
+        <div class="absolute top-4 left-40 hidden sm:flex items-center space-x-1.5 bg-slate-900/80 border border-slate-800 rounded-full px-3 py-1 text-[11px] text-slate-400 backdrop-blur-md pointer-events-none">
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+          <span>Active Triples Stream</span>
+        </div>
+
+        <!-- Graph Legend overlay with Glassmorphism -->
+        <div class="absolute bottom-4 left-4 bg-slate-950/85 border border-slate-800/90 rounded-2xl p-4 text-xs shadow-2xl backdrop-blur-xl max-w-xs transition-all duration-300">
+          <div class="font-bold text-slate-200 mb-2.5 flex items-center justify-between">
+            <span class="tracking-wide">Graph Entities</span>
+            <span class="text-[10px] text-slate-400 font-normal">Click node to inspect</span>
+          </div>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
             <div class="flex items-center space-x-2">
               <span class="w-3 h-3 rounded-full bg-rose-500 inline-block shadow-sm shadow-rose-500/50"></span>
               <span class="text-slate-300">Incident</span>
@@ -113,7 +252,7 @@
               <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm shadow-emerald-500/50"></span>
               <span class="text-slate-300">Mitigation</span>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 col-span-2">
               <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-sm shadow-cyan-400/50"></span>
               <span class="text-slate-300">Financial Loss</span>
             </div>
@@ -121,66 +260,86 @@
         </div>
 
         <!-- Zoom / Pan controls overlay -->
-        <div class="absolute top-4 right-4 flex flex-col space-y-1 bg-slate-900/80 border border-slate-800 rounded-lg p-1">
-          <button onclick="zoom(1.2)" class="w-7 h-7 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded text-sm font-bold">+</button>
-          <button onclick="zoom(0.8)" class="w-7 h-7 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded text-sm font-bold">-</button>
+        <div class="absolute top-4 right-4 flex flex-col space-y-1.5 bg-slate-950/85 border border-slate-800 rounded-2xl p-1.5 shadow-2xl backdrop-blur-xl">
+          <button onclick="zoom(1.2)" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-base font-bold transition active:scale-90" title="Zoom In">+</button>
+          <button onclick="zoom(0.8)" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-base font-bold transition active:scale-90" title="Zoom Out">-</button>
+          <button onclick="fitToScreen()" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition active:scale-90" title="Fit to Screen">⛶</button>
         </div>
       </div>
 
       <!-- Side Inspector Panel -->
-      <aside id="inspector-panel" class="w-full md:w-96 border-t md:border-t-0 md:border-l border-slate-800 bg-slate-900 p-5 overflow-y-auto flex flex-col justify-between">
+      <aside id="inspector-panel" class="w-full md:w-96 border-t md:border-t-0 md:border-l border-slate-800/90 bg-slate-950/95 p-5 overflow-y-auto flex flex-col justify-between shadow-2xl z-10 backdrop-blur-xl">
         <div>
           <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-            <span class="text-xs uppercase tracking-wider font-semibold text-slate-400">Entity Details</span>
+            <span class="text-xs uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              <span>Semantic Inspector</span>
+            </span>
             <span id="inspect-type-badge" class="badge bg-slate-800 text-slate-300">Select a node</span>
           </div>
 
-          <div id="inspector-empty" class="text-center py-16 text-slate-500 text-xs">
-            <svg class="w-12 h-12 mx-auto mb-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
-            Click any node in the graph canvas to inspect its parameters, failure links, and mitigations.
+          <!-- Empty placeholder -->
+          <div id="inspector-empty" class="text-center py-16 text-slate-500 text-xs animate-slide-up">
+            <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto mb-3.5 text-indigo-400 shadow-inner">
+              <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+            </div>
+            <p class="font-semibold text-slate-300 mb-1 text-sm">Interactive Node Inspector</p>
+            <p class="text-slate-400 leading-relaxed max-w-xs mx-auto">Click any node or pulse link in the network graph to inspect its parameters, evidence citations, and connected triples.</p>
           </div>
 
-          <div id="inspector-content" class="hidden space-y-4">
+          <!-- Populated Node Content -->
+          <div id="inspector-content" class="hidden space-y-4 animate-slide-up">
             <div>
               <h3 id="inspect-title" class="font-bold text-base text-white leading-snug">Incident Name</h3>
-              <p id="inspect-desc" class="text-xs text-slate-300 mt-1 leading-relaxed">Description goes here.</p>
+              <p id="inspect-desc" class="text-xs text-slate-300 mt-2 leading-relaxed bg-slate-900/80 p-3 rounded-xl border border-slate-800/80">Description goes here.</p>
             </div>
 
-            <!-- Properties List -->
+            <!-- Attributes Box -->
             <div class="space-y-2 pt-2 border-t border-slate-800/80">
-              <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Attributes</h4>
-              <div id="inspect-properties" class="space-y-1.5 text-xs">
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                <span>Attributes & Parameters</span>
+                <span class="text-[10px] text-indigo-400 font-mono">Entity Values</span>
+              </h4>
+              <div id="inspect-properties" class="space-y-2 text-xs">
                 <!-- Injected via JS -->
               </div>
             </div>
 
-            <!-- Connected Triples -->
+            <!-- Connected Triples Box -->
             <div class="space-y-2 pt-2 border-t border-slate-800/80">
-              <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Graph Relations</h4>
-              <div id="inspect-relations" class="space-y-1.5 text-xs">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                  <span>Connected Triples</span>
+                </h4>
+                <span class="text-[10px] text-slate-400">Click edge to navigate</span>
+              </div>
+              <div id="inspect-relations" class="space-y-2 text-xs">
                 <!-- Injected via JS -->
               </div>
             </div>
           </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-800/60 mt-4 text-[11px] text-slate-500 flex justify-between items-center">
-          <span>Geo Knowledge Graph v0.20+</span>
-          <span class="text-indigo-400 font-mono">GRC-20 Triple</span>
+        <div class="pt-4 border-t border-slate-800/80 mt-4 text-[11px] text-slate-400 flex justify-between items-center">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>Geo SDK Runtime</span>
+          </span>
+          <span class="text-indigo-400 font-mono">v0.20+ Testnet</span>
         </div>
       </aside>
     </div>
 
     <!-- 2. INCIDENT CATALOG TAB -->
-    <div id="tab-feed" class="hidden flex-1 overflow-y-auto p-6 bg-slate-950">
-      <div class="max-w-6xl mx-auto space-y-6">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div id="tab-feed" class="hidden flex-1 overflow-y-auto p-6 sm:p-8 bg-[#070b16]">
+      <div class="max-w-6xl mx-auto space-y-6 animate-slide-up">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800/80 pb-5">
           <div>
-            <h2 class="text-lg font-bold text-white">Incident Catalog</h2>
-            <p class="text-xs text-slate-400">Documented autonomous agent security events, loss values, and root cause mitigations</p>
+            <h2 class="text-xl font-bold text-white tracking-tight">Incident Catalog</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Comprehensive audit log of autonomous agent vulnerabilities, loss estimates, and verified mitigations</p>
           </div>
-          <div class="w-full sm:w-64">
-            <input type="text" id="feed-search" oninput="renderIncidentCatalog()" placeholder="Search incidents, architectures..." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+          <div class="w-full sm:w-80">
+            <input type="text" id="feed-search" oninput="renderIncidentCatalog()" placeholder="Search incidents, architectures, flaws..." class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition shadow-inner">
           </div>
         </div>
 
@@ -191,24 +350,24 @@
     </div>
 
     <!-- 3. TRIPLES SCHEMA INSPECTOR TAB -->
-    <div id="tab-triples" class="hidden flex-1 overflow-y-auto p-6 bg-slate-950">
-      <div class="max-w-5xl mx-auto space-y-6">
-        <div>
-          <h2 class="text-lg font-bold text-white">Geo Knowledge Graph Triples</h2>
-          <p class="text-xs text-slate-400">All current graph edges expressed in GRC-20 Subject &rarr; Predicate &rarr; Object format</p>
+    <div id="tab-triples" class="hidden flex-1 overflow-y-auto p-6 sm:p-8 bg-[#070b16]">
+      <div class="max-w-5xl mx-auto space-y-6 animate-slide-up">
+        <div class="border-b border-slate-800/80 pb-5">
+          <h2 class="text-xl font-bold text-white tracking-tight">Geo Knowledge Graph Triples</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Every verified semantic connection formatted as GRC-20 Subject &rarr; Predicate &rarr; Object</p>
         </div>
 
-        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-800/80 border-b border-slate-700/80 text-slate-300 font-semibold uppercase tracking-wider">
+            <thead class="bg-slate-800/60 border-b border-slate-700/80 text-slate-300 font-semibold uppercase tracking-wider">
               <tr>
-                <th class="p-3">Subject (Entity)</th>
-                <th class="p-3">Predicate (Relation)</th>
-                <th class="p-3">Object (Target Entity)</th>
-                <th class="p-3">Relation Type ID</th>
+                <th class="p-4">Subject (Entity)</th>
+                <th class="p-4">Predicate (Relation)</th>
+                <th class="p-4">Object (Target Node)</th>
+                <th class="p-4 text-right">Action</th>
               </tr>
             </thead>
-            <tbody id="triples-table-body" class="divide-y divide-slate-800 text-slate-300">
+            <tbody id="triples-table-body" class="divide-y divide-slate-800/80 text-slate-300">
               <!-- Injected via JS -->
             </tbody>
           </table>
@@ -219,70 +378,73 @@
   </main>
 
   <!-- ADD INCIDENT MODAL -->
-  <div id="add-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <h3 class="text-base font-bold text-white">Add New Incident to Graph</h3>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
+  <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-950 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative space-y-5 animate-modal">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div>
+          <h3 class="text-base font-bold text-white tracking-tight">Add New Incident to Graph</h3>
+          <p class="text-[11px] text-slate-400">Instantly attaches new triples to your local in-memory knowledge graph</p>
+        </div>
+        <button onclick="closeModal()" class="w-8 h-8 rounded-xl bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center text-lg font-bold transition active:scale-95">&times;</button>
       </div>
 
-      <form id="incident-form" onsubmit="handleFormSubmit(event)" class="space-y-3 text-xs">
+      <form id="incident-form" onsubmit="handleFormSubmit(event)" class="space-y-4 text-xs">
         <div>
-          <label class="block text-slate-300 font-medium mb-1">Incident Name *</label>
-          <input type="text" id="form-name" required placeholder="e.g. Trading Bot Flash Cascade" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+          <label class="block text-slate-300 font-medium mb-1.5">Incident Title *</label>
+          <input type="text" id="form-name" required placeholder="e.g. Autonomous DEX Liquidity Cascade" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 gap-3.5">
           <div>
-            <label class="block text-slate-300 font-medium mb-1">Date *</label>
-            <input type="date" id="form-date" required class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block text-slate-300 font-medium mb-1.5">Incident Date *</label>
+            <input type="date" id="form-date" required class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
           </div>
           <div>
-            <label class="block text-slate-300 font-medium mb-1">Severity *</label>
-            <select id="form-severity" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
-              <option value="Critical">Critical</option>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
+            <label class="block text-slate-300 font-medium mb-1.5">Severity *</label>
+            <select id="form-severity" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
+              <option value="Critical">🔴 Critical (Destroyed State / High Loss)</option>
+              <option value="High">🟠 High (Privilege Breach / Flash Loop)</option>
+              <option value="Medium">🔵 Medium (Hallucination / Bounded Loss)</option>
+              <option value="Low">🟢 Low (Minor Prompt Incoherence)</option>
             </select>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 gap-3.5">
           <div>
-            <label class="block text-slate-300 font-medium mb-1">Agent Name *</label>
-            <input type="text" id="form-agent" required placeholder="e.g. MarketMaker-v1" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block text-slate-300 font-medium mb-1.5">Agent Name *</label>
+            <input type="text" id="form-agent" required placeholder="e.g. ArbitrageBot-v3" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
           </div>
           <div>
-            <label class="block text-slate-300 font-medium mb-1">Architecture</label>
-            <input type="text" id="form-arch" placeholder="e.g. ReAct with DEX Tools" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block text-slate-300 font-medium mb-1.5">Agent Architecture</label>
+            <input type="text" id="form-arch" placeholder="e.g. ReAct with DEX Tools" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
           </div>
         </div>
 
         <div>
-          <label class="block text-slate-300 font-medium mb-1">Failure Mode (Root Cause) *</label>
-          <input type="text" id="form-failure" required placeholder="e.g. Recursive Slippage Loop" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+          <label class="block text-slate-300 font-medium mb-1.5">Failure Mode (Root Cause) *</label>
+          <input type="text" id="form-failure" required placeholder="e.g. Recursive Slippage Feedback Loop" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
         </div>
 
         <div>
-          <label class="block text-slate-300 font-medium mb-1">Mitigation Strategy *</label>
-          <input type="text" id="form-mitigation" required placeholder="e.g. Dynamic Drawdown Circuit Breaker" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+          <label class="block text-slate-300 font-medium mb-1.5">Mitigation Strategy *</label>
+          <input type="text" id="form-mitigation" required placeholder="e.g. Dynamic Drawdown Circuit Breaker" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 gap-3.5">
           <div>
-            <label class="block text-slate-300 font-medium mb-1">Loss Amount ($ USD)</label>
-            <input type="number" id="form-loss" placeholder="e.g. 150000" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block text-slate-300 font-medium mb-1.5">Direct Loss ($ USD)</label>
+            <input type="number" id="form-loss" placeholder="e.g. 250000" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
           </div>
           <div>
-            <label class="block text-slate-300 font-medium mb-1">Evidence / Post-Mortem URL</label>
-            <input type="url" id="form-link" placeholder="https://example.com/report" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block text-slate-300 font-medium mb-1.5">Source / Post-Mortem URL</label>
+            <input type="url" id="form-link" placeholder="https://example.com/postmortem" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
           </div>
         </div>
 
-        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-800">
-          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-md shadow-indigo-600/30">Add Triples to Graph</button>
+        <div class="flex items-center justify-end space-x-2.5 pt-4 border-t border-slate-800">
+          <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 font-medium transition">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/30 transition active:scale-95">Add Triples to Graph</button>
         </div>
       </form>
     </div>
@@ -290,7 +452,46 @@
 
   <!-- APPLICATION JAVASCRIPT LOGIC -->
   <script>
+    // -------------------------------------------------------------------------
+    // WEB AUDIO API SOUND EFFECTS (Subtle Feedback)
+    // -------------------------------------------------------------------------
+    let audioEnabled = true;
+    let audioCtx = null;
+
+    function playBlip(freq = 600, duration = 0.05) {
+      if (!audioEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (err) {}
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      document.getElementById('audio-icon').innerText = audioEnabled ? '🔊' : '🔇';
+      showToast(audioEnabled ? 'Sound feedback enabled' : 'Sound feedback muted');
+    }
+
+    function showToast(msg) {
+      const banner = document.getElementById('toast-banner');
+      document.getElementById('toast-text').innerText = msg;
+      banner.classList.remove('hidden');
+      setTimeout(() => banner.classList.add('hidden'), 2600);
+    }
+
+    // -------------------------------------------------------------------------
     // DATA MODEL & INITIAL SEED INCIDENTS
+    // -------------------------------------------------------------------------
     let incidents = [
       {
         id: 'inc-1',
@@ -449,41 +650,105 @@
       }
     ];
 
+    // -------------------------------------------------------------------------
+    // GRAPH STATE & PHYSICS (Stable Physics with Dynamic Flow Particles)
+    // -------------------------------------------------------------------------
     let canvas, ctx;
     let nodes = [];
     let links = [];
     let selectedNode = null;
     let hoveredNode = null;
-    let transform = { x: 0, y: 0, k: 1 };
+    let transform = { x: 0, y: 0, k: 0.95 };
     let isDragging = false;
     let dragStart = { x: 0, y: 0 };
     let draggedNode = null;
 
-    const TYPE_COLORS = {
-      Incident: '#f43f5e',
-      Agent: '#6366f1',
-      FailureMode: '#f59e0b',
-      Mitigation: '#10b981',
-      FinancialLoss: '#22d3ee'
+    let simulationAlpha = 1.0;
+    const MIN_ALPHA = 0.002;
+    const ALPHA_DECAY = 0.96;
+    let simulationPaused = false;
+    let globalTime = 0;
+
+    // Entity Visibility Toggles
+    const typeVisibility = {
+      Incident: true,
+      Agent: true,
+      FailureMode: true,
+      Mitigation: true,
+      FinancialLoss: true
     };
 
+    const TYPE_COLORS = {
+      Incident: '#f43f5e',     // Rose-500
+      Agent: '#6366f1',        // Indigo-500
+      FailureMode: '#f59e0b',  // Amber-500
+      Mitigation: '#10b981',   // Emerald-500
+      FinancialLoss: '#22d3ee' // Cyan-400
+    };
+
+    function toggleTypeFilter(type) {
+      typeVisibility[type] = !typeVisibility[type];
+      const btn = document.getElementById(`toggle-type-${type}`);
+      if (typeVisibility[type]) {
+        btn.classList.remove('opacity-40', 'line-through');
+      } else {
+        btn.classList.add('opacity-40', 'line-through');
+      }
+      playBlip(500, 0.04);
+      buildGraphData();
+    }
+
+    function reheatSimulation(amount = 0.4) {
+      simulationAlpha = Math.max(simulationAlpha, amount);
+      updateStatusPill(true);
+    }
+
+    function toggleSimulation() {
+      simulationPaused = !simulationPaused;
+      document.getElementById('sim-icon').innerText = simulationPaused ? '▶️' : '⏸️';
+      document.getElementById('sim-text').innerText = simulationPaused ? 'Resume' : 'Pause';
+      if (!simulationPaused) reheatSimulation(0.3);
+      updateStatusPill(!simulationPaused && simulationAlpha > MIN_ALPHA);
+      playBlip(simulationPaused ? 350 : 700, 0.05);
+    }
+
+    function updateStatusPill(isActive) {
+      const pill = document.getElementById('sim-status-pill');
+      const text = document.getElementById('sim-status-text');
+      if (simulationPaused) {
+        text.innerText = 'Physics Paused';
+        pill.children[0].className = 'w-2 h-2 rounded-full bg-amber-400 inline-block';
+      } else if (isActive) {
+        text.innerText = 'Layout Settling...';
+        pill.children[0].className = 'w-2 h-2 rounded-full bg-indigo-400 inline-block animate-pulse';
+      } else {
+        text.innerText = 'Physics Resting';
+        pill.children[0].className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block';
+      }
+    }
+
     function buildGraphData() {
+      const existingNodeMap = new Map(nodes.map(n => [n.id, n]));
       nodes = [];
       links = [];
       const nodeMap = new Map();
 
-      function getOrCreateNode(id, type, label, data) {
+      function getOrCreateNode(id, type, label, data, defaultPos) {
+        if (!typeVisibility[type]) return null;
+
         if (!nodeMap.has(id)) {
+          const existing = existingNodeMap.get(id);
           const n = {
             id,
             type,
             label,
             data,
-            x: (Math.random() - 0.5) * 500,
-            y: (Math.random() - 0.5) * 400,
+            x: existing ? existing.x : defaultPos.x,
+            y: existing ? existing.y : defaultPos.y,
             vx: 0,
             vy: 0,
-            radius: type === 'Incident' ? 22 : 16
+            radius: type === 'Incident' ? 24 : 17,
+            pulsePhase: Math.random() * Math.PI * 2
           };
           nodeMap.set(id, n);
           nodes.push(n);
@@ -492,23 +757,46 @@
       }
 
       const activeFilter = document.getElementById('severity-filter').value;
+      const count = incidents.length;
 
-      incidents.forEach(inc => {
+      incidents.forEach((inc, idx) => {
         if (activeFilter !== 'ALL' && inc.severity !== activeFilter) return;
 
-        const incNode = getOrCreateNode(inc.id, 'Incident', inc.name, inc);
-        const agentNode = getOrCreateNode(inc.agent.id, 'Agent', inc.agent.name, inc.agent);
-        const fmNode = getOrCreateNode(inc.failureMode.id, 'FailureMode', inc.failureMode.name, inc.failureMode);
-        const mitNode = getOrCreateNode(inc.mitigation.id, 'Mitigation', inc.mitigation.name, inc.mitigation);
-        const lossNode = getOrCreateNode(inc.financialLoss.id, 'FinancialLoss', `$${(inc.financialLoss.amount / 1000).toFixed(0)}k Loss`, inc.financialLoss);
+        const angle = (idx / count) * Math.PI * 2;
+        const R = 240;
+        const incCenter = { x: Math.cos(angle) * R, y: Math.sin(angle) * R };
 
-        links.push({ source: incNode, target: agentNode, predicate: 'involves agent' });
-        links.push({ source: incNode, target: fmNode, predicate: 'exhibits' });
-        links.push({ source: incNode, target: lossNode, predicate: 'resulted in' });
-        links.push({ source: fmNode, target: mitNode, predicate: 'mitigated by' });
+        const incNode = getOrCreateNode(inc.id, 'Incident', inc.name, inc, incCenter);
+        const agentNode = getOrCreateNode(inc.agent.id, 'Agent', inc.agent.name, inc.agent, {
+          x: incCenter.x + Math.cos(angle - 0.5) * 90,
+          y: incCenter.y + Math.sin(angle - 0.5) * 90
+        });
+        const fmNode = getOrCreateNode(inc.failureMode.id, 'FailureMode', inc.failureMode.name, inc.failureMode, {
+          x: incCenter.x + Math.cos(angle + 0.5) * 90,
+          y: incCenter.y + Math.sin(angle + 0.5) * 90
+        });
+        const mitNode = getOrCreateNode(inc.mitigation.id, 'Mitigation', inc.mitigation.name, inc.mitigation, {
+          x: incCenter.x + Math.cos(angle + 0.95) * 155,
+          y: incCenter.y + Math.sin(angle + 0.95) * 155
+        });
+        const lossNode = getOrCreateNode(inc.financialLoss.id, 'FinancialLoss', `$${(inc.financialLoss.amount / 1000).toFixed(0)}k Loss`, inc.financialLoss, {
+          x: incCenter.x + Math.cos(angle) * 80,
+          y: incCenter.y + Math.sin(angle) * 80
+        });
+
+        // Add Triples only if both endpoints visible
+        if (incNode && agentNode) links.push({ source: incNode, target: agentNode, predicate: 'involves agent', speed: 0.007 });
+        if (incNode && fmNode) links.push({ source: incNode, target: fmNode, predicate: 'exhibits', speed: 0.008 });
+        if (incNode && lossNode) links.push({ source: incNode, target: lossNode, predicate: 'resulted in', speed: 0.006 });
+        if (fmNode && mitNode) links.push({ source: fmNode, target: mitNode, predicate: 'mitigated by', speed: 0.009 });
       });
 
+      if (selectedNode && !nodes.some(n => n.id === selectedNode.id)) {
+        deselectNode();
+      }
+
       updateStats();
+      reheatSimulation(0.6);
     }
 
     function initCanvas() {
@@ -516,10 +804,13 @@
       ctx = canvas.getContext('2d');
 
       function resize() {
-        canvas.width = canvas.parentElement.clientWidth;
-        canvas.height = canvas.parentElement.clientHeight;
-        transform.x = canvas.width / 2;
-        transform.y = canvas.height / 2;
+        const container = canvas.parentElement;
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        if (transform.x === 0 && transform.y === 0) {
+          transform.x = canvas.width / 2;
+          transform.y = canvas.height / 2;
+        }
       }
       window.addEventListener('resize', resize);
       resize();
@@ -527,19 +818,30 @@
       canvas.addEventListener('mousedown', onMouseDown);
       canvas.addEventListener('mousemove', onMouseMove);
       window.addEventListener('mouseup', onMouseUp);
-      canvas.addEventListener('wheel', onWheel);
+      canvas.addEventListener('wheel', onWheel, { passive: false });
 
       requestAnimationFrame(renderLoop);
     }
 
-    function findNodeAt(x, y) {
-      const invX = (x - transform.x) / transform.k;
-      const invY = (y - transform.y) / transform.k;
+    function getGraphCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const canvasX = (e.clientX - rect.left) * scaleX;
+      const canvasY = (e.clientY - rect.top) * scaleY;
+      return {
+        x: (canvasX - transform.x) / transform.k,
+        y: (canvasY - transform.y) / transform.k
+      };
+    }
+
+    function findNodeAt(graphX, graphY) {
       for (let i = nodes.length - 1; i >= 0; i--) {
         const n = nodes[i];
-        const dx = n.x - invX;
-        const dy = n.y - invY;
-        if (dx * dx + dy * dy < n.radius * n.radius) {
+        const dx = n.x - graphX;
+        const dy = n.y - graphY;
+        const hitRadius = n.radius + 12;
+        if (dx * dx + dy * dy <= hitRadius * hitRadius) {
           return n;
         }
       }
@@ -547,14 +849,14 @@
     }
 
     function onMouseDown(e) {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const hit = findNodeAt(x, y);
+      const coords = getGraphCoords(e);
+      const hit = findNodeAt(coords.x, coords.y);
 
       if (hit) {
         draggedNode = hit;
         selectNode(hit);
+        reheatSimulation(0.2);
+        playBlip(750, 0.06);
       } else {
         isDragging = true;
         dragStart = { x: e.clientX - transform.x, y: e.clientY - transform.y };
@@ -562,145 +864,356 @@
     }
 
     function onMouseMove(e) {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const coords = getGraphCoords(e);
 
       if (draggedNode) {
-        draggedNode.x = (x - transform.x) / transform.k;
-        draggedNode.y = (y - transform.y) / transform.k;
+        draggedNode.x = coords.x;
+        draggedNode.y = coords.y;
         draggedNode.vx = 0;
         draggedNode.vy = 0;
+        reheatSimulation(0.15);
       } else if (isDragging) {
         transform.x = e.clientX - dragStart.x;
         transform.y = e.clientY - dragStart.y;
       } else {
-        hoveredNode = findNodeAt(x, y);
+        const hit = findNodeAt(coords.x, coords.y);
+        if (hit && !hoveredNode) playBlip(420, 0.02);
+        hoveredNode = hit;
+        canvas.style.cursor = hit ? 'pointer' : 'grab';
       }
     }
 
-    function onMouseUp() {
+    function onMouseUp(e) {
+      if (isDragging) {
+        const dist = Math.hypot(e.clientX - (dragStart.x + transform.x), e.clientY - (dragStart.y + transform.y));
+        if (dist < 4 && !draggedNode) {
+          deselectNode();
+        }
+      }
       isDragging = false;
       draggedNode = null;
     }
 
     function onWheel(e) {
       e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-      zoom(zoomFactor);
+      const zoomFactor = e.deltaY < 0 ? 1.12 : 0.88;
+      zoom(zoomFactor, e.clientX, e.clientY);
     }
 
-    function zoom(factor) {
-      transform.k = Math.max(0.2, Math.min(3, transform.k * factor));
+    function zoom(factor, clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const cx = (clientX !== undefined ? clientX - rect.left : canvas.width / 2);
+      const cy = (clientY !== undefined ? clientY - rect.top : canvas.height / 2);
+
+      const newK = Math.max(0.25, Math.min(2.8, transform.k * factor));
+      transform.x = cx - (cx - transform.x) * (newK / transform.k);
+      transform.y = cy - (cy - transform.y) * (newK / transform.k);
+      transform.k = newK;
     }
 
     function resetGraphView() {
-      transform.k = 1;
+      transform.k = 0.95;
       transform.x = canvas.width / 2;
       transform.y = canvas.height / 2;
+      reheatSimulation(0.3);
+      playBlip(550, 0.04);
     }
 
+    function fitToScreen() {
+      if (nodes.length === 0) return;
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      nodes.forEach(n => {
+        minX = Math.min(minX, n.x - n.radius);
+        maxX = Math.max(maxX, n.x + n.radius);
+        minY = Math.min(minY, n.y - n.radius);
+        maxY = Math.max(maxY, n.y + n.radius);
+      });
+
+      const padding = 85;
+      const width = maxX - minX + padding * 2;
+      const height = maxY - minY + padding * 2;
+
+      const kX = canvas.width / width;
+      const kY = canvas.height / height;
+      const newK = Math.min(1.35, Math.min(kX, kY));
+
+      const midX = (minX + maxX) / 2;
+      const midY = (minY + maxY) / 2;
+
+      transform.k = newK;
+      transform.x = canvas.width / 2 - midX * newK;
+      transform.y = canvas.height / 2 - midY * newK;
+      playBlip(620, 0.05);
+    }
+
+    // -------------------------------------------------------------------------
+    // PHYSICS SIMULATION
+    // -------------------------------------------------------------------------
     function stepSimulation() {
+      if (simulationPaused) return;
+      if (simulationAlpha < MIN_ALPHA && !draggedNode) {
+        updateStatusPill(false);
+        return;
+      }
+
+      updateStatusPill(true);
+
+      // Repulsion
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const a = nodes[i];
           const b = nodes[j];
-          let dx = b.x - a.x;
-          let dy = b.y - a.y;
-          let dist = Math.sqrt(dx * dx + dy * dy) || 1;
-          let force = (a.radius + b.radius + 70) / (dist * dist);
-          force = Math.min(force, 2);
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const distSq = dx * dx + dy * dy || 1;
+          const dist = Math.sqrt(distSq);
 
-          let fx = (dx / dist) * force;
-          let fy = (dy / dist) * force;
+          if (dist > 360) continue;
+
+          const minDist = a.radius + b.radius + 45;
+          const strength = dist < minDist ? 1900 : 950;
+          const force = (strength / distSq) * simulationAlpha;
+
+          const fx = (dx / dist) * force;
+          const fy = (dy / dist) * force;
 
           if (a !== draggedNode) { a.vx -= fx; a.vy -= fy; }
           if (b !== draggedNode) { b.vx += fx; b.vy += fy; }
         }
       }
 
+      // Link Springs
       for (const link of links) {
         const a = link.source;
         const b = link.target;
-        let dx = b.x - a.x;
-        let dy = b.y - a.y;
-        let dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        let targetDist = 120;
-        let force = (dist - targetDist) * 0.02;
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-        let fx = (dx / dist) * force;
-        let fy = (dy / dist) * force;
+        const targetDist = 95;
+        const force = (dist - targetDist) * 0.05 * simulationAlpha;
 
-        if (a !== draggedNode) { a.vx += fx; a.vy += fy; }
+        const fx = (dx / dist) * force;
+        const fy = (dy / dist) * force;
+
+        if (a !== draggedNode) { a.vx -= fx; a.vy -= fy; }
         if (b !== draggedNode) { b.vx += fx; b.vy += fy; }
       }
 
+      // Gravity & Velocity Damping
       for (const n of nodes) {
         if (n === draggedNode) continue;
-        n.vx -= n.x * 0.005;
-        n.vy -= n.y * 0.005;
+        n.vx -= n.x * 0.012 * simulationAlpha;
+        n.vy -= n.y * 0.012 * simulationAlpha;
+
         n.x += n.vx;
         n.y += n.vy;
-        n.vx *= 0.85;
-        n.vy *= 0.85;
+
+        n.vx *= 0.82;
+        n.vy *= 0.82;
       }
+
+      simulationAlpha *= ALPHA_DECAY;
     }
 
+    // -------------------------------------------------------------------------
+    // CANVAS RENDER LOOP WITH ANIMATED PARTICLES & BLUEPRINT GRID
+    // -------------------------------------------------------------------------
     function renderLoop() {
+      globalTime += 0.02;
       stepSimulation();
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Subtle Background Grid
+      drawBackgroundGrid();
+
       ctx.save();
       ctx.translate(transform.x, transform.y);
       ctx.scale(transform.k, transform.k);
 
+      const connectedNodeIds = new Set();
+      if (selectedNode) {
+        connectedNodeIds.add(selectedNode.id);
+        links.forEach(l => {
+          if (l.source.id === selectedNode.id) connectedNodeIds.add(l.target.id);
+          if (l.target.id === selectedNode.id) connectedNodeIds.add(l.source.id);
+        });
+      }
+
+      // 1. Draw Links & Flowing Energy Particles
       for (const link of links) {
+        const isConnected = selectedNode && (link.source.id === selectedNode.id || link.target.id === selectedNode.id);
+        const isDimmed = selectedNode && !isConnected;
+
+        // Base Edge Line
         ctx.beginPath();
         ctx.moveTo(link.source.x, link.source.y);
         ctx.lineTo(link.target.x, link.target.y);
-        ctx.strokeStyle = 'rgba(71, 85, 105, 0.45)';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = isConnected ? 'rgba(99, 102, 241, 0.85)' : (isDimmed ? 'rgba(51, 65, 85, 0.18)' : 'rgba(71, 85, 105, 0.45)');
+        ctx.lineWidth = isConnected ? 2.5 : 1.5;
         ctx.stroke();
 
-        const midX = (link.source.x + link.target.x) / 2;
-        const midY = (link.source.y + link.target.y) / 2;
-        ctx.font = '10px Inter, sans-serif';
-        ctx.fillStyle = '#64748b';
-        ctx.textAlign = 'center';
-        ctx.fillText(link.predicate, midX, midY - 3);
+        // Edge Predicate Label (with clean dark pill backdrop)
+        if (!isDimmed) {
+          const midX = (link.source.x + link.target.x) / 2;
+          const midY = (link.source.y + link.target.y) / 2;
+
+          ctx.font = '10px Inter, sans-serif';
+          const text = link.predicate;
+          const textWidth = ctx.measureText(text).width;
+
+          ctx.fillStyle = 'rgba(8, 13, 26, 0.88)';
+          ctx.beginPath();
+          ctx.roundRect(midX - textWidth / 2 - 5, midY - 14, textWidth + 10, 15, 4);
+          ctx.fill();
+
+          ctx.fillStyle = isConnected ? '#c7d2fe' : '#94a3b8';
+          ctx.textAlign = 'center';
+          ctx.fillText(text, midX, midY - 3);
+        }
+
+        // ANIMATED FLOW PARTICLES ALONG EDGE
+        if (!isDimmed) {
+          const particleCount = isConnected ? 3 : 2;
+          for (let p = 0; p < particleCount; p++) {
+            const speed = link.speed || 0.007;
+            const progress = (globalTime * (isConnected ? 1.6 : 1.0) + p / particleCount) % 1;
+            const px = link.source.x + (link.target.x - link.source.x) * progress;
+            const py = link.source.y + (link.target.y - link.source.y) * progress;
+
+            ctx.beginPath();
+            ctx.arc(px, py, isConnected ? 3 : 2, 0, Math.PI * 2);
+            ctx.fillStyle = isConnected ? '#818cf8' : '#38bdf8';
+            ctx.shadowColor = isConnected ? '#6366f1' : '#38bdf8';
+            ctx.shadowBlur = 6;
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+          }
+        }
       }
 
+      // 2. Draw Nodes with Radial Gradients, Breathing Animation & Selection Ripples
       for (const n of nodes) {
         const color = TYPE_COLORS[n.type] || '#6366f1';
-        const isSelected = selectedNode === n;
-        const isHovered = hoveredNode === n;
+        const isSelected = selectedNode && selectedNode.id === n.id;
+        const isNeighbor = connectedNodeIds.has(n.id);
+        const isDimmed = selectedNode && !isNeighbor;
+        const isHovered = hoveredNode && hoveredNode.id === n.id;
 
-        if (isSelected || isHovered) {
+        // Subtle Organic Breathing
+        const breathing = Math.sin(globalTime * 3 + n.pulsePhase) * 1.2;
+        const effectiveRadius = n.radius + (isSelected ? 3 : 0) + breathing;
+
+        ctx.save();
+        if (isDimmed) ctx.globalAlpha = 0.28;
+
+        // ANIMATED RADAR RIPPLE FOR SELECTED NODE
+        if (isSelected) {
+          const rippleRadius = effectiveRadius + 10 + (Math.sin(globalTime * 4) + 1) * 8;
           ctx.beginPath();
-          ctx.arc(n.x, n.y, n.radius + 6, 0, Math.PI * 2);
-          ctx.fillStyle = isSelected ? 'rgba(99, 102, 241, 0.35)' : 'rgba(255, 255, 255, 0.15)';
+          ctx.arc(n.x, n.y, rippleRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(99, 102, 241, ${(0.8 - (rippleRadius - effectiveRadius) / 26).toFixed(2)})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Second expanding ring
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, effectiveRadius + 6, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(99, 102, 241, 0.25)';
           ctx.fill();
         }
 
+        // Hover Glow
+        if (isHovered && !isSelected) {
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, effectiveRadius + 6, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+          ctx.fill();
+        }
+
+        // Node Body with Radial Lighting Gradient
+        const grad = ctx.createRadialGradient(
+          n.x - effectiveRadius * 0.3,
+          n.y - effectiveRadius * 0.3,
+          effectiveRadius * 0.1,
+          n.x,
+          n.y,
+          effectiveRadius
+        );
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, color);
+        grad.addColorStop(1, shadeColor(color, -35));
+
         ctx.beginPath();
-        ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
-        ctx.fillStyle = color;
+        ctx.arc(n.x, n.y, effectiveRadius, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
         ctx.fill();
-        ctx.strokeStyle = isSelected ? '#ffffff' : 'rgba(15, 23, 42, 0.8)';
-        ctx.lineWidth = isSelected ? 2.5 : 1.5;
+
+        ctx.strokeStyle = isSelected ? '#ffffff' : 'rgba(15, 23, 42, 0.9)';
+        ctx.lineWidth = isSelected ? 3 : 2;
         ctx.stroke();
 
-        ctx.font = `${n.type === 'Incident' ? '12px' : '11px'} Inter, sans-serif`;
-        ctx.fillStyle = '#e2e8f0';
+        // Node Label with Pill Backdrop for High Readability
+        ctx.font = `${n.type === 'Incident' ? 'bold 12px' : '11px'} Inter, sans-serif`;
+        const text = n.label.length > 22 ? n.label.slice(0, 20) + '...' : n.label;
+        const textWidth = ctx.measureText(text).width;
+
+        const labelY = n.y + effectiveRadius + 14;
+        ctx.fillStyle = 'rgba(8, 13, 26, 0.82)';
+        ctx.beginPath();
+        ctx.roundRect(n.x - textWidth / 2 - 6, labelY - 11, textWidth + 12, 16, 5);
+        ctx.fill();
+
+        ctx.fillStyle = isSelected ? '#ffffff' : '#f1f5f9';
         ctx.textAlign = 'center';
-        const truncated = n.label.length > 20 ? n.label.slice(0, 18) + '...' : n.label;
-        ctx.fillText(truncated, n.x, n.y + n.radius + 14);
+        ctx.fillText(text, n.x, labelY);
+
+        ctx.restore();
       }
 
       ctx.restore();
       requestAnimationFrame(renderLoop);
     }
 
+    // Helper: Draw subtle blueprint dot grid on background
+    function drawBackgroundGrid() {
+      const step = 45 * transform.k;
+      if (step < 12) return;
+
+      const offsetX = transform.x % step;
+      const offsetY = transform.y % step;
+
+      ctx.fillStyle = 'rgba(51, 65, 85, 0.18)';
+      for (let x = offsetX; x < canvas.width; x += step) {
+        for (let y = offsetY; y < canvas.height; y += step) {
+          ctx.beginPath();
+          ctx.arc(x, y, 1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    // Color shader utility
+    function shadeColor(color, percent) {
+      let R = parseInt(color.substring(1,3), 16);
+      let G = parseInt(color.substring(3,5), 16);
+      let B = parseInt(color.substring(5,7), 16);
+      R = parseInt(R * (100 + percent) / 100);
+      G = parseInt(G * (100 + percent) / 100);
+      B = parseInt(B * (100 + percent) / 100);
+      R = (R < 255) ? R : 255;
+      G = (G < 255) ? G : 255;
+      B = (B < 255) ? B : 255;
+      const RR = ((R.toString(16).length === 1) ? '0' + R.toString(16) : R.toString(16));
+      const GG = ((G.toString(16).length === 1) ? '0' + G.toString(16) : G.toString(16));
+      const BB = ((B.toString(16).length === 1) ? '0' + B.toString(16) : B.toString(16));
+      return '#' + RR + GG + BB;
+    }
+
+    // -------------------------------------------------------------------------
+    // INSPECTOR PANEL LOGIC
+    // -------------------------------------------------------------------------
     function selectNode(n) {
       selectedNode = n;
       const emptyDiv = document.getElementById('inspector-empty');
@@ -729,11 +1242,11 @@
         addPropRow(propBox, 'Date', d.date);
         addPropRow(propBox, 'Severity', d.severity, getSeverityBadge(d.severity));
         if (d.sourceEvidenceLink) {
-          addPropRow(propBox, 'Evidence', `<a href="${d.sourceEvidenceLink}" target="_blank" class="text-indigo-400 hover:underline flex items-center gap-1">View Source &nearr;</a>`);
+          addPropRow(propBox, 'Evidence Citation', `<a href="${d.sourceEvidenceLink}" target="_blank" class="text-indigo-400 hover:text-indigo-300 underline font-medium flex items-center gap-1">Open Report &nearr;</a>`);
         }
       } else if (n.type === 'Agent') {
-        addPropRow(propBox, 'Agent Name', d.name);
-        addPropRow(propBox, 'Architecture', d.architecture || 'Unknown');
+        addPropRow(propBox, 'Agent Handle', d.name);
+        addPropRow(propBox, 'Architecture', d.architecture || 'Autonomous System');
       } else if (n.type === 'Mitigation') {
         addPropRow(propBox, 'Strategy', d.strategy || 'Engineering Control');
       } else if (n.type === 'FinancialLoss') {
@@ -741,20 +1254,24 @@
       }
 
       relBox.innerHTML = '';
-      const connected = links.filter(l => l.source === n || l.target === n);
+      const connected = links.filter(l => l.source.id === n.id || l.target.id === n.id);
       if (connected.length === 0) {
         relBox.innerHTML = '<span class="text-slate-500 italic">No connected edges.</span>';
       } else {
         connected.forEach(l => {
-          const isOut = l.source === n;
+          const isOut = l.source.id === n.id;
           const other = isOut ? l.target : l.source;
           const div = document.createElement('div');
-          div.className = 'p-2 rounded bg-slate-800/60 border border-slate-800 flex items-center justify-between cursor-pointer hover:bg-slate-800 transition';
-          div.onclick = () => selectNode(other);
+          div.className = 'p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 hover:border-indigo-500/50 transition duration-200 active:scale-[0.98] shadow-sm';
+          div.onclick = () => {
+            selectNode(other);
+            reheatSimulation(0.2);
+            playBlip(680, 0.04);
+          };
           div.innerHTML = `
             <div>
-              <span class="text-slate-400 text-[11px] block">${isOut ? '&rarr; ' + l.predicate : '&larr; ' + l.predicate}</span>
-              <span class="font-medium text-slate-200 text-xs">${other.label}</span>
+              <span class="text-indigo-400 text-[11px] font-medium block">${isOut ? '&rarr; ' + l.predicate : '&larr; ' + l.predicate}</span>
+              <span class="font-semibold text-slate-200 text-xs">${other.label}</span>
             </div>
             <span class="badge text-[10px]" style="background-color: ${TYPE_COLORS[other.type]}20; color: ${TYPE_COLORS[other.type]};">${other.type}</span>
           `;
@@ -763,23 +1280,37 @@
       }
     }
 
+    function deselectNode() {
+      selectedNode = null;
+      document.getElementById('inspector-empty').classList.remove('hidden');
+      document.getElementById('inspector-content').classList.add('hidden');
+      const badge = document.getElementById('inspect-type-badge');
+      badge.innerText = 'Select a node';
+      badge.style.backgroundColor = 'rgba(30, 41, 59, 0.8)';
+      badge.style.color = '#94a3b8';
+      badge.style.borderColor = 'transparent';
+    }
+
     function addPropRow(container, key, val, customHtml = null) {
       const row = document.createElement('div');
-      row.className = 'flex justify-between items-center py-1 border-b border-slate-800/40 text-xs';
-      row.innerHTML = `<span class="text-slate-400">${key}:</span> <span class="text-slate-200 font-medium">${customHtml || val}</span>`;
+      row.className = 'flex justify-between items-center py-2 px-3 bg-slate-900/80 rounded-xl border border-slate-800/90 text-xs';
+      row.innerHTML = `<span class="text-slate-400 font-medium">${key}:</span> <span class="text-slate-200 font-semibold">${customHtml || val}</span>`;
       container.appendChild(row);
     }
 
     function getSeverityBadge(sev) {
       const colors = {
-        Critical: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
-        High: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-        Medium: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-        Low: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+        Critical: 'bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm shadow-rose-500/10',
+        High: 'bg-amber-500/15 text-amber-400 border-amber-500/30 shadow-sm shadow-amber-500/10',
+        Medium: 'bg-blue-500/15 text-blue-400 border-blue-500/30 shadow-sm shadow-blue-500/10',
+        Low: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm shadow-emerald-500/10'
       };
       return `<span class="badge border ${colors[sev] || colors.Medium}">${sev}</span>`;
     }
 
+    // -------------------------------------------------------------------------
+    // INCIDENT FEED & CATALOG
+    // -------------------------------------------------------------------------
     function renderIncidentCatalog() {
       const container = document.getElementById('incident-cards-container');
       const search = (document.getElementById('feed-search')?.value || '').toLowerCase();
@@ -790,20 +1321,25 @@
         return text.includes(search);
       });
 
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="col-span-2 text-center py-16 text-slate-500 text-xs">No incidents match your search query.</div>';
+        return;
+      }
+
       filtered.forEach(inc => {
         const card = document.createElement('div');
-        card.className = 'bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition flex flex-col justify-between space-y-4 shadow-lg';
+        card.className = 'glass-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between space-y-4';
         card.innerHTML = `
           <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-slate-400 font-mono text-[11px]">${inc.date}</span>
+            <div class="flex items-center justify-between mb-2.5">
+              <span class="text-slate-400 font-mono text-[11px] bg-slate-900/90 px-2.5 py-1 rounded-lg border border-slate-800">${inc.date}</span>
               ${getSeverityBadge(inc.severity)}
             </div>
-            <h3 class="font-bold text-white text-sm mb-1.5 leading-snug">${inc.name}</h3>
+            <h3 class="font-bold text-white text-base mb-1.5 leading-snug">${inc.name}</h3>
             <p class="text-xs text-slate-300 leading-relaxed">${inc.description}</p>
           </div>
 
-          <div class="space-y-2 border-t border-slate-800/80 pt-3 text-xs">
+          <div class="space-y-2.5 border-t border-slate-800/80 pt-3.5 text-xs">
             <div class="flex items-start justify-between">
               <span class="text-slate-400">Agent:</span>
               <span class="text-right text-indigo-300 font-medium">${inc.agent.name} <span class="text-slate-500 text-[10px]">(${inc.agent.architecture})</span></span>
@@ -818,15 +1354,15 @@
             </div>
             <div class="flex items-center justify-between">
               <span class="text-slate-400">Direct Loss:</span>
-              <span class="text-cyan-400 font-bold">$${Number(inc.financialLoss.amount).toLocaleString()} ${inc.financialLoss.currency}</span>
+              <span class="text-cyan-400 font-bold font-mono">$${Number(inc.financialLoss.amount).toLocaleString()} ${inc.financialLoss.currency}</span>
             </div>
           </div>
 
-          <div class="pt-2 flex justify-between items-center border-t border-slate-800/40">
-            <button onclick="focusOnGraph('${inc.id}')" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1">
+          <div class="pt-2 flex justify-between items-center border-t border-slate-800/60">
+            <button onclick="focusOnGraph('${inc.id}')" class="px-3.5 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-semibold flex items-center space-x-1.5 transition active:scale-95 border border-indigo-500/30">
               <span>View in Graph</span> &rarr;
             </button>
-            ${inc.sourceEvidenceLink ? `<a href="${inc.sourceEvidenceLink}" target="_blank" class="text-xs text-slate-400 hover:text-white">Evidence &nearr;</a>` : ''}
+            ${inc.sourceEvidenceLink ? `<a href="${inc.sourceEvidenceLink}" target="_blank" class="text-xs text-slate-400 hover:text-white underline transition">Evidence &nearr;</a>` : ''}
           </div>
         `;
         container.appendChild(card);
@@ -838,39 +1374,66 @@
       const target = nodes.find(n => n.id === id);
       if (target) {
         selectNode(target);
+        transform.k = 1.15;
         transform.x = canvas.width / 2 - target.x * transform.k;
         transform.y = canvas.height / 2 - target.y * transform.k;
+        reheatSimulation(0.3);
+        playBlip(800, 0.06);
       }
     }
 
+    // -------------------------------------------------------------------------
+    // TRIPLES TABLE
+    // -------------------------------------------------------------------------
     function renderTriplesTable() {
       const tbody = document.getElementById('triples-table-body');
       tbody.innerHTML = '';
 
-      links.forEach(l => {
+      links.forEach((l) => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/40 transition font-mono text-[11px]';
+        tr.className = 'hover:bg-slate-800/40 transition duration-150 font-mono text-[11px]';
         tr.innerHTML = `
-          <td class="p-3 font-sans">
-            <span class="font-medium text-slate-100">${l.source.label}</span>
+          <td class="p-4 font-sans">
+            <span class="font-semibold text-slate-100">${l.source.label}</span>
             <span class="badge ml-2 text-[10px]" style="background-color: ${TYPE_COLORS[l.source.type]}20; color: ${TYPE_COLORS[l.source.type]}">${l.source.type}</span>
           </td>
-          <td class="p-3 text-indigo-400 font-bold font-sans">&rarr; ${l.predicate}</td>
-          <td class="p-3 font-sans">
-            <span class="font-medium text-slate-100">${l.target.label}</span>
+          <td class="p-4 text-indigo-400 font-bold font-sans">&rarr; ${l.predicate}</td>
+          <td class="p-4 font-sans">
+            <span class="font-semibold text-slate-100">${l.target.label}</span>
             <span class="badge ml-2 text-[10px]" style="background-color: ${TYPE_COLORS[l.target.type]}20; color: ${TYPE_COLORS[l.target.type]}">${l.target.type}</span>
           </td>
-          <td class="p-3 text-slate-500 font-mono">c001000100...</td>
+          <td class="p-4 text-right font-sans">
+            <button onclick="focusOnTriple('${l.source.id}', '${l.target.id}')" class="px-3 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-medium transition active:scale-95">Focus &rarr;</button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
+    function focusOnTriple(sourceId, targetId) {
+      switchTab('graph');
+      const src = nodes.find(n => n.id === sourceId);
+      if (src) {
+        selectNode(src);
+        transform.k = 1.15;
+        transform.x = canvas.width / 2 - src.x * transform.k;
+        transform.y = canvas.height / 2 - src.y * transform.k;
+        reheatSimulation(0.3);
+        playBlip(720, 0.05);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // STATS & TABS
+    // -------------------------------------------------------------------------
     function updateStats() {
-      document.getElementById('stat-incidents').innerText = incidents.length;
-      document.getElementById('stat-agents').innerText = incidents.length;
-      document.getElementById('stat-mitigations').innerText = incidents.length;
+      const uniqueAgents = new Set(incidents.map(i => i.agent.name)).size;
+      const uniqueMitigations = new Set(incidents.map(i => i.mitigation.name)).size;
       const total = incidents.reduce((sum, i) => sum + (i.financialLoss?.amount || 0), 0);
+
+      document.getElementById('stat-incidents').innerText = incidents.length;
+      document.getElementById('stat-agents').innerText = uniqueAgents;
+      document.getElementById('stat-mitigations').innerText = uniqueMitigations;
       document.getElementById('stat-loss').innerText = total > 1000000 ? `$${(total / 1000000).toFixed(1)}M` : `$${(total / 1000).toFixed(0)}k`;
     }
 
@@ -880,32 +1443,43 @@
       document.getElementById('tab-triples').classList.add('hidden');
       document.getElementById('graph-controls').classList.add('hidden');
 
-      document.getElementById('tab-btn-graph').className = 'px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2';
-      document.getElementById('tab-btn-feed').className = 'px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2';
-      document.getElementById('tab-btn-triples').className = 'px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2';
+      const inactiveClass = 'px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2 transition duration-200';
+      const activeClass = 'px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2 transition duration-200';
+
+      document.getElementById('tab-btn-graph').className = inactiveClass;
+      document.getElementById('tab-btn-feed').className = inactiveClass;
+      document.getElementById('tab-btn-triples').className = inactiveClass;
 
       if (tabId === 'graph') {
         document.getElementById('tab-graph').classList.remove('hidden');
         document.getElementById('graph-controls').classList.remove('hidden');
-        document.getElementById('tab-btn-graph').className = 'px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2';
+        document.getElementById('tab-btn-graph').className = activeClass;
       } else if (tabId === 'feed') {
         document.getElementById('tab-feed').classList.remove('hidden');
-        document.getElementById('tab-btn-feed').className = 'px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2';
+        document.getElementById('tab-btn-feed').className = activeClass;
         renderIncidentCatalog();
       } else if (tabId === 'triples') {
         document.getElementById('tab-triples').classList.remove('hidden');
-        document.getElementById('tab-btn-triples').className = 'px-4 py-3 border-b-2 border-indigo-500 text-white font-semibold flex items-center space-x-2';
+        document.getElementById('tab-btn-triples').className = activeClass;
         renderTriplesTable();
       }
+      playBlip(480, 0.03);
     }
 
     function filterGraph() {
       buildGraphData();
+      playBlip(540, 0.03);
     }
 
+    // -------------------------------------------------------------------------
+    // ADD INCIDENT MODAL LOGIC
+    // -------------------------------------------------------------------------
     function openModal() {
       document.getElementById('add-modal').classList.remove('hidden');
+      document.getElementById('form-date').valueAsDate = new Date();
+      playBlip(600, 0.05);
     }
+
     function closeModal() {
       document.getElementById('add-modal').classList.add('hidden');
     }
@@ -913,35 +1487,41 @@
     function handleFormSubmit(e) {
       e.preventDefault();
       const count = incidents.length + 1;
+      const name = document.getElementById('form-name').value.trim();
+      const agentName = document.getElementById('form-agent').value.trim();
+      const failureName = document.getElementById('form-failure').value.trim();
+      const mitigationName = document.getElementById('form-mitigation').value.trim();
+      const lossVal = parseFloat(document.getElementById('form-loss').value) || 0;
+
       const newInc = {
         id: `inc-${count}`,
-        name: document.getElementById('form-name').value,
-        description: `Incident involving autonomous agent ${document.getElementById('form-agent').value}.`,
+        name: name,
+        description: `Incident involving autonomous agent ${agentName} exhibiting ${failureName}.`,
         date: document.getElementById('form-date').value,
         severity: document.getElementById('form-severity').value,
-        sourceEvidenceLink: document.getElementById('form-link').value || '',
+        sourceEvidenceLink: document.getElementById('form-link').value.trim() || '',
         agent: {
           id: `agent-${count}`,
-          name: document.getElementById('form-agent').value,
-          architecture: document.getElementById('form-arch').value || 'Autonomous Loop',
-          description: 'Autonomous AI agent system.'
+          name: agentName,
+          architecture: document.getElementById('form-arch').value.trim() || 'Autonomous Agent Loop',
+          description: `Autonomous agent ${agentName}.`
         },
         failureMode: {
           id: `fm-${count}`,
-          name: document.getElementById('form-failure').value,
-          description: 'Identified root cause flaw.'
+          name: failureName,
+          description: `Identified root cause flaw: ${failureName}.`
         },
         mitigation: {
           id: `mit-${count}`,
-          name: document.getElementById('form-mitigation').value,
+          name: mitigationName,
           strategy: 'Active Protective Gate',
-          description: 'Mitigation engineered to prevent this failure.'
+          description: `Engineering control: ${mitigationName}.`
         },
         financialLoss: {
           id: `loss-${count}`,
-          amount: parseFloat(document.getElementById('form-loss').value) || 0,
+          amount: lossVal,
           currency: 'USD',
-          description: 'Direct economic impact'
+          description: `Direct economic impact from ${name}.`
         }
       };
 
@@ -949,12 +1529,93 @@
       buildGraphData();
       closeModal();
       document.getElementById('incident-form').reset();
+      showToast(`Added: ${newInc.name}`);
+      playBlip(900, 0.1);
       focusOnGraph(newInc.id);
     }
 
+    // -------------------------------------------------------------------------
+    // SIMULATE LIVE INCIDENT INJECTION
+    // -------------------------------------------------------------------------
+    function simulateLiveIncident() {
+      const simulatedScenarios = [
+        {
+          name: 'DeFi Liquidation Bot Cascading Reentrancy',
+          agent: 'SolidityArbitrage-AI',
+          arch: 'Autonomous Tool Invocation Loop',
+          failure: 'Unverified Flash Loan Reentrancy Exploitation',
+          mitigation: 'Mutated Reentrancy Mutex Lock',
+          loss: 820000,
+          sev: 'Critical'
+        },
+        {
+          name: 'Customer Support Bot Silent Data Leak',
+          agent: 'HelpdeskOracle-v4',
+          arch: 'RAG Swarm with Vector Search',
+          failure: 'Indirect Prompt Injection via CRM Ticket Content',
+          mitigation: 'Isolated Sandboxed Ticket Parser',
+          loss: 140000,
+          sev: 'High'
+        },
+        {
+          name: 'Autonomous Code Reviewer Key Leak',
+          agent: 'CI-CD-Bot-v3',
+          arch: 'GitHub Actions Agent with Bash Tool Access',
+          failure: 'Environment Variable Log Printing Loop',
+          mitigation: 'Zero-Secret Ephemeral Injection Gate',
+          loss: 35000,
+          sev: 'Medium'
+        }
+      ];
+
+      const pick = simulatedScenarios[Math.floor(Math.random() * simulatedScenarios.length)];
+      const count = incidents.length + 1;
+      const today = new Date().toISOString().split('T')[0];
+
+      const newInc = {
+        id: `inc-${count}`,
+        name: `${pick.name} #${count}`,
+        description: `Simulated live incident detection for autonomous ${pick.agent}.`,
+        date: today,
+        severity: pick.sev,
+        sourceEvidenceLink: 'https://security-telemetry.ai/live-feed',
+        agent: {
+          id: `agent-${count}`,
+          name: pick.agent,
+          architecture: pick.arch,
+          description: `Autonomous agent ${pick.agent}.`
+        },
+        failureMode: {
+          id: `fm-${count}`,
+          name: pick.failure,
+          description: `Root vulnerability: ${pick.failure}.`
+        },
+        mitigation: {
+          id: `mit-${count}`,
+          name: pick.mitigation,
+          strategy: 'Automated Interceptor Gate',
+          description: `Mitigation: ${pick.mitigation}.`
+        },
+        financialLoss: {
+          id: `loss-${count}`,
+          amount: pick.loss,
+          currency: 'USD',
+          description: 'Simulated breach impact.'
+        }
+      };
+
+      incidents.unshift(newInc);
+      buildGraphData();
+      showToast(`⚡ Live Event Ingested: ${newInc.name}`);
+      playBlip(880, 0.12);
+      focusOnGraph(newInc.id);
+    }
+
+    // Initialize application
     window.addEventListener('DOMContentLoaded', () => {
       buildGraphData();
       initCanvas();
+      fitToScreen();
     });
   </script>
 </body>
