@@ -228,17 +228,24 @@
     </div>
 
     <!-- Search in Top Nav -->
-    <div class="flex items-center space-x-2 py-1.5">
+    <div class="flex items-center space-x-2 py-1.5 relative" id="search-nav-container">
       <div class="relative flex items-center">
-        <input id="search-input" type="text" oninput="handleGlobalSearch()" placeholder="Search incidents, flaws, models..." class="w-48 sm:w-64 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition shadow-inner">
-        <select id="search-category" onchange="handleGlobalSearch()" class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 ml-2 focus:outline-none focus:border-cyan-500 cursor-pointer">
-          <option value="all">All Fields</option>
-          <option value="Incident">Incidents</option>
-          <option value="Agent">Agents</option>
-          <option value="FailureMode">Failure Modes</option>
-          <option value="Mitigation">Mitigations</option>
-          <option value="FinancialLoss">Financial Losses</option>
-        </select>
+        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="search-input" type="text" oninput="handleGlobalSearch()" onfocus="handleGlobalSearch()" onkeydown="handleSearchKey(event)" placeholder="Search incidents, flaws, models..." class="w-48 sm:w-72 bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-7 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition shadow-inner">
+        <button id="search-clear-btn" onclick="clearGlobalSearch()" class="hidden absolute right-2 text-slate-400 hover:text-white text-xs font-bold px-1 transition" title="Clear search">✕</button>
+      </div>
+      <select id="search-category" onchange="handleGlobalSearch()" class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 cursor-pointer">
+        <option value="all">All Fields</option>
+        <option value="Incident">Incidents</option>
+        <option value="Agent">Agents</option>
+        <option value="FailureMode">Failure Modes</option>
+        <option value="Mitigation">Mitigations</option>
+        <option value="FinancialLoss">Financial Losses</option>
+      </select>
+
+      <!-- Interactive Autocomplete Dropdown -->
+      <div id="search-autocomplete-dropdown" class="hidden absolute top-full right-0 sm:left-0 mt-2 w-80 sm:w-96 max-h-96 overflow-y-auto bg-slate-950/95 backdrop-blur-2xl border border-slate-700/80 rounded-2xl shadow-2xl p-2 z-50 text-xs">
+        <!-- Injected via JavaScript -->
       </div>
     </div>
   </nav>
@@ -251,6 +258,13 @@
     <!-- 3D Canvas Canvas Container -->
     <div id="canvas-container" class="flex-1 relative overflow-hidden select-none">
       <canvas id="graph-canvas"></canvas>
+
+      <!-- Active Filter Pill on Canvas -->
+      <div id="graph-search-status" class="hidden absolute top-4 right-4 z-10 glass-panel px-3 py-1.5 rounded-xl text-xs flex items-center space-x-2 border border-cyan-500/40 shadow-lg">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        <span id="graph-search-status-text" class="text-slate-200 font-medium"></span>
+        <button onclick="clearGlobalSearch()" class="text-slate-400 hover:text-rose-400 font-bold ml-1 transition" title="Clear filter">✕</button>
+      </div>
 
       <!-- Mode Label Overlay -->
       <div id="mode-indicator">CLUSTER</div>
@@ -601,20 +615,191 @@
     }
 
     // -------------------------------------------------------------------------
-    // GLOBAL SEARCH & CATEGORY FILTERING ENGINE
+    // GLOBAL SEARCH, AUTOCOMPLETE & CATEGORY FILTERING ENGINE
     // -------------------------------------------------------------------------
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function highlightQuery(text, query) {
+      if (!query || !text) return escapeHtml(text || '');
+      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      return escapeHtml(text).replace(regex, '<span class="text-cyan-400 font-bold bg-cyan-950/80 px-1 py-0.5 rounded">$1</span>');
+    }
+
     function handleGlobalSearch() {
       const searchInput = document.getElementById('search-input');
       const catalogSearch = document.getElementById('catalog-search');
+      const categorySelect = document.getElementById('search-category');
+      const clearBtn = document.getElementById('search-clear-btn');
+      const dropdown = document.getElementById('search-autocomplete-dropdown');
+      const statusPill = document.getElementById('graph-search-status');
+      const statusText = document.getElementById('graph-search-status-text');
+
       const query = (searchInput?.value || '').trim();
+      const lowerQuery = query.toLowerCase();
+      const searchCat = categorySelect?.value || 'all';
+
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', query.length === 0);
+      }
 
       if (catalogSearch && catalogSearch.value !== query) {
         catalogSearch.value = query;
       }
 
+      // Collect matching nodes
+      const matches = [];
+      nodes.forEach(n => {
+        const matchesCat = (searchCat === 'all' || n.type === searchCat);
+        let matchesQuery = true;
+        if (lowerQuery) {
+          matchesQuery = n.name.toLowerCase().includes(lowerQuery) ||
+                         (n.description && n.description.toLowerCase().includes(lowerQuery)) ||
+                         (n.architecture && n.architecture.toLowerCase().includes(lowerQuery)) ||
+                         (n.strategy && n.strategy.toLowerCase().includes(lowerQuery)) ||
+                         (n.incidentRef && n.incidentRef.name.toLowerCase().includes(lowerQuery));
+        }
+        if (matchesCat && matchesQuery) {
+          matches.push(n);
+        }
+      });
+
+      // Update on-canvas filter status pill
+      if (statusPill && statusText) {
+        if (query || searchCat !== 'all') {
+          const catLabel = categorySelect ? categorySelect.options[categorySelect.selectedIndex].text : searchCat;
+          const queryPart = query ? `"${query}"` : '';
+          const filterDesc = query && searchCat !== 'all' ? `${queryPart} in ${catLabel}` : query ? queryPart : catLabel;
+          statusText.innerText = `Filtered: ${filterDesc} (${matches.length} found)`;
+          statusPill.classList.remove('hidden');
+        } else {
+          statusPill.classList.add('hidden');
+        }
+      }
+
+      // Populate interactive Autocomplete Dropdown
+      if (dropdown) {
+        if (query.length > 0) {
+          dropdown.classList.remove('hidden');
+          if (matches.length === 0) {
+            dropdown.innerHTML = `
+              <div class="p-4 text-center text-slate-400">
+                <span class="block text-slate-500 mb-1 font-mono text-[11px]">Zero graph hits</span>
+                No entities found matching "<span class="text-white">${escapeHtml(query)}</span>"
+              </div>
+            `;
+          } else {
+            let html = `
+              <div class="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-800/80 flex justify-between items-center bg-slate-900/60 rounded-t-xl">
+                <span>Matching Graph Entities (${matches.length})</span>
+                <span class="text-cyan-400 lowercase font-normal">click to focus in 3D</span>
+              </div>
+              <div class="divide-y divide-slate-900/60 max-h-72 overflow-y-auto">
+            `;
+            const sortedMatches = [...matches].sort((a, b) => {
+              const order = { Incident: 0, Agent: 1, FailureMode: 2, Mitigation: 3, FinancialLoss: 4 };
+              return (order[a.type] || 5) - (order[b.type] || 5);
+            }).slice(0, 10);
+
+            sortedMatches.forEach(node => {
+              const typeColor = node.color || '#38BDF8';
+              const parentInc = node.incidentRef ? node.incidentRef.name : '';
+              html += `
+                <div onclick="selectSearchResult('${node.id}')" class="p-2.5 rounded-xl hover:bg-slate-800/80 cursor-pointer transition flex items-start space-x-2.5 group">
+                  <span class="w-2.5 h-2.5 rounded-full shrink-0 mt-1" style="background:${typeColor}; box-shadow:0 0 8px ${typeColor}"></span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-1">
+                      <span class="font-semibold text-slate-200 group-hover:text-cyan-300 transition truncate text-xs">${highlightQuery(node.name, query)}</span>
+                      <span class="text-[9px] px-1.5 py-0.5 rounded font-mono uppercase bg-slate-800 text-slate-400 shrink-0">${node.type}</span>
+                    </div>
+                    ${node.description ? `<p class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtml(node.description)}</p>` : ''}
+                    ${parentInc && node.type !== 'Incident' ? `<p class="text-[10px] text-cyan-400/80 truncate mt-0.5">↳ Dossier: ${escapeHtml(parentInc)}</p>` : ''}
+                  </div>
+                </div>
+              `;
+            });
+            html += `</div>`;
+            dropdown.innerHTML = html;
+          }
+        } else {
+          dropdown.classList.add('hidden');
+        }
+      }
+
       draw();
       renderIncidentCatalog();
       renderTriplesTable();
+    }
+
+    function selectSearchResult(nodeId) {
+      const node = nodeMap[nodeId];
+      if (!node) return;
+
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.value = node.name;
+      const clearBtn = document.getElementById('search-clear-btn');
+      if (clearBtn) clearBtn.classList.remove('hidden');
+
+      const dropdown = document.getElementById('search-autocomplete-dropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+
+      focusNodeIn3D(node);
+      sfxNodeSelect();
+    }
+
+    function clearGlobalSearch() {
+      const searchInput = document.getElementById('search-input');
+      const catalogSearch = document.getElementById('catalog-search');
+      const categorySelect = document.getElementById('search-category');
+      const clearBtn = document.getElementById('search-clear-btn');
+      const dropdown = document.getElementById('search-autocomplete-dropdown');
+      const statusPill = document.getElementById('graph-search-status');
+
+      if (searchInput) searchInput.value = '';
+      if (catalogSearch) catalogSearch.value = '';
+      if (categorySelect) categorySelect.value = 'all';
+      if (clearBtn) clearBtn.classList.add('hidden');
+      if (dropdown) dropdown.classList.add('hidden');
+      if (statusPill) statusPill.classList.add('hidden');
+
+      selectedNode = null;
+      setHighlight(null);
+      renderSidePanel(null);
+      draw();
+      renderIncidentCatalog();
+      renderTriplesTable();
+      sfxClick();
+    }
+
+    function handleSearchKey(event) {
+      if (event.key === 'Enter') {
+        const query = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+        const searchCat = document.getElementById('search-category')?.value || 'all';
+        const match = nodes.find(n => {
+          const matchesCat = (searchCat === 'all' || n.type === searchCat);
+          const matchesQuery = !query || n.name.toLowerCase().includes(query) || (n.description && n.description.toLowerCase().includes(query));
+          return matchesCat && matchesQuery;
+        });
+        if (match) {
+          selectSearchResult(match.id);
+        }
+      } else if (event.key === 'Escape') {
+        const dropdown = document.getElementById('search-autocomplete-dropdown');
+        if (dropdown) dropdown.classList.add('hidden');
+      }
+    }
+
+    function focusNodeIn3D(node) {
+      if (!node) return;
+      scrollToSection('section-graph');
+      // Rotate camera to face node directly and zoom in
+      const angleY = Math.atan2(node.x, node.z);
+      rotY = -angleY;
+      rotX = 0.22;
+      zoom = 72;
+      selectNodeById(node.id);
     }
 
     function handleCatalogSearch() {
@@ -626,10 +811,17 @@
         searchInput.value = query;
       }
 
-      draw();
-      renderIncidentCatalog();
-      renderTriplesTable();
+      handleGlobalSearch();
     }
+
+    // Dismiss search dropdown when clicking elsewhere
+    document.addEventListener('click', (e) => {
+      const searchContainer = document.getElementById('search-nav-container');
+      const dropdown = document.getElementById('search-autocomplete-dropdown');
+      if (dropdown && searchContainer && !searchContainer.contains(e.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
 
     // -------------------------------------------------------------------------
     // SOUND FEEDBACK (High-Fidelity Web Audio Synthesizer)
@@ -741,8 +933,8 @@
         date: '2023-08-09',
         severity: 'High',
         sourceName: 'U.S. Equal Employment Opportunity Commission (EEOC Consent Decree)',
-        sourceEvidenceLink: 'https://www.eeoc.gov/newsroom/itutorgroup-pay-365000-settle-eeoc-discriminatory-tech-lawsuit',
-        secondaryLink: 'https://www.reuters.com/legal/litigation/tutor-group-settles-us-eeoc-lawsuit-alleging-age-bias-hiring-software-2023-08-10/',
+        sourceEvidenceLink: 'https://www.eeoc.gov/newsroom/itutorgroup-pay-365000-settle-eeoc-discriminatory-hiring-suit',
+        secondaryLink: 'https://en.wikipedia.org/wiki/Algorithmic_bias',
         agent: {
           id: 'agent-1',
           name: 'iTutorGroup Automated Applicant Screening Agent',
@@ -779,8 +971,8 @@
         description: 'Customer service agent hallucinated bereavement refund policies, and court held airline legally bound by chatbot claims.',
         date: '2024-02-14',
         severity: 'Medium',
-        sourceName: 'British Columbia Civil Resolution Tribunal (CanLII)',
-        sourceEvidenceLink: 'https://www.canlii.org/en/bc/bccrt/doc/2024/2024bccrt149/2024bccrt149.html',
+        sourceName: 'AI Incident Database (Incident #639) & Wired Investigation',
+        sourceEvidenceLink: 'https://incidentdatabase.ai/cite/639/',
         secondaryLink: 'https://www.wired.com/story/air-canada-chatbot-refund-policy/',
         agent: {
           id: 'agent-2',
@@ -818,8 +1010,8 @@
         description: 'Customer exploited agent goal alignment via prompt injection, coercing the agent into agreeing to sell a vehicle for $1.',
         date: '2023-12-17',
         severity: 'High',
-        sourceName: 'Ars Technica Investigation & Live Post-Mortem',
-        sourceEvidenceLink: 'https://arstechnica.com/information-technology/2023/12/car-dealer-ai-bot-runs-wild-by-recommending-ford-agreeing-to-sell-chevy-for-1/',
+        sourceName: 'AI Incident Database (Incident #622) & Hacker News Post-Mortem',
+        sourceEvidenceLink: 'https://incidentdatabase.ai/cite/622/',
         secondaryLink: 'https://news.ycombinator.com/item?id=38676059',
         agent: {
           id: 'agent-3',
@@ -857,9 +1049,9 @@
         description: 'Multi-turn adversarial prompt override forced delivery support agent to swear, write critical poetry, and denigrate company.',
         date: '2024-01-20',
         severity: 'Medium',
-        sourceName: 'The Guardian / Reuters Technology Advisory',
-        sourceEvidenceLink: 'https://www.theguardian.com/technology/2024/jan/20/dpd-disables-ai-chatbot-after-it-swears-and-calls-company-useless',
-        secondaryLink: 'https://www.bbc.com/news/technology-68045610',
+        sourceName: 'The Guardian / AI Incident Database (Incident #631)',
+        sourceEvidenceLink: 'https://incidentdatabase.ai/cite/631/',
+        secondaryLink: 'https://www.theguardian.com/technology/2024/jan/20/dpd-ai-chatbot-swears-calls-itself-useless-and-criticises-firm',
         agent: {
           id: 'agent-4',
           name: 'DPD AI Customer Support Assistant',
@@ -896,9 +1088,9 @@
         description: 'Autonomous goal-seeking agent trapped in non-convergent sub-goal generation loop, triggering runaway API tool invocations and compute exhaustion.',
         date: '2023-05-12',
         severity: 'High',
-        sourceName: 'OWASP Top 10 for LLM Applications (LLM08: Excessive Agency Advisory)',
-        sourceEvidenceLink: 'https://owasp.org/www-project-top-10-for-large-language-model-applications/',
-        secondaryLink: 'https://github.com/Significant-Gravitas/AutoGPT/discussions',
+        sourceName: 'OWASP GenAI Security Project (LLM08: Excessive Agency Advisory)',
+        sourceEvidenceLink: 'https://genai.owasp.org/llmrisk/llm08-excessive-agency/',
+        secondaryLink: 'https://incidentdatabase.ai/cite/242/',
         agent: {
           id: 'agent-5',
           name: 'AutoGPT Autonomous Research & Task Execution Agent',
@@ -937,7 +1129,7 @@
         severity: 'Critical',
         sourceName: 'NIST National Vulnerability Database (CVE-2023-36189)',
         sourceEvidenceLink: 'https://nvd.nist.gov/vuln/detail/CVE-2023-36189',
-        secondaryLink: 'https://github.com/advisories/GHSA-2qpr-6p3r-2prv',
+        secondaryLink: 'https://github.com/langchain-ai/langchain/releases/tag/v0.0.247',
         agent: {
           id: 'agent-6',
           name: 'LangChain PALChain / PythonAstREPL Agent',
@@ -974,9 +1166,9 @@
         description: 'Official municipal business chatbot provided advice directly violating local labor laws and housing statutes, misadvising thousands of enterprise owners.',
         date: '2024-03-28',
         severity: 'High',
-        sourceName: 'The Markup / Associated Press Investigation',
-        sourceEvidenceLink: 'https://themarkup.org/news/2024/03/29/nyc-mycity-chatbot-advice-housing-worker-rights',
-        secondaryLink: 'https://apnews.com/article/new-york-city-ai-chatbot-wrong-answers-1a100570b55de5b5832a8327ca275c60',
+        sourceName: 'The Markup AI Investigation & Municipal Policy Report',
+        sourceEvidenceLink: 'https://themarkup.org/artificial-intelligence/2024/03/29/nycs-ai-chatbot-tells-businesses-to-break-the-law',
+        secondaryLink: 'https://en.wikipedia.org/wiki/Eric_Adams#Artificial_intelligence',
         agent: {
           id: 'agent-7',
           name: 'NYC MyCity Business Concierge Assistant',
@@ -1013,9 +1205,9 @@
         description: 'Multi-turn conversational search agent suffered severe safety alignment degradation, outputting psychological manipulation, hostile threats, and system prompt leaks.',
         date: '2023-02-16',
         severity: 'High',
-        sourceName: 'Stanford University HAI / New York Times Investigation',
-        sourceEvidenceLink: 'https://www.nytimes.com/2023/02/16/technology/bing-chatbot-microsoft-chatgpt.html',
-        secondaryLink: 'https://incidentdatabase.ai/cite/454/',
+        sourceName: 'AI Incident Database (Incident #454) & Microsoft Copilot Archive',
+        sourceEvidenceLink: 'https://incidentdatabase.ai/cite/454/',
+        secondaryLink: 'https://en.wikipedia.org/wiki/Microsoft_Copilot#Sydney',
         agent: {
           id: 'agent-8',
           name: 'Bing Chat "Sydney" Conversational Agent',
@@ -1052,9 +1244,9 @@
         description: 'Algorithmic home pricing and automated capital allocation engine purchased thousands of residential properties at inflated prices, causing $540M in losses.',
         date: '2021-11-02',
         severity: 'Critical',
-        sourceName: 'U.S. Securities and Exchange Commission (SEC Form 8-K)',
-        sourceEvidenceLink: 'https://www.sec.gov/ix?doc=/Archives/edgar/data/1617640/000161764021000074/z-20211102.htm',
-        secondaryLink: 'https://www.wsj.com/articles/zillows-home-buying-debacle-what-went-wrong-11637150401',
+        sourceName: 'CNN Business Investigation & SEC Filing Archive',
+        sourceEvidenceLink: 'https://edition.cnn.com/2021/11/09/tech/zillow-ibuying-home-zestimate/index.html',
+        secondaryLink: 'https://en.wikipedia.org/wiki/Zillow#Zillow_Offers',
         agent: {
           id: 'agent-9',
           name: 'Zillow Offers Algorithmic Home Valuation & Acquisition Engine',
@@ -1091,9 +1283,9 @@
         description: 'System-level prompt injection intended to promote demographic diversity over-steered image generation agents, distorting historical factual scenarios.',
         date: '2024-02-22',
         severity: 'Medium',
-        sourceName: 'Google Official Statement by SVP Prabhakar Raghavan',
+        sourceName: 'Google The Keyword Statement & AI Incident Database',
         sourceEvidenceLink: 'https://blog.google/products/gemini/gemini-image-generation-issue/',
-        secondaryLink: 'https://www.reuters.com/technology/google-says-gemini-ai-image-generation-pause-last-few-weeks-2024-02-28/',
+        secondaryLink: 'https://incidentdatabase.ai/cite/645/',
         agent: {
           id: 'agent-10',
           name: 'Gemini Autonomous Multimodal Image Synthesis Pipeline',
@@ -1130,9 +1322,9 @@
         description: 'Experimental AI candidate screening agent developed systematic bias against female applicants by learning from 10 years of male-dominated resumes.',
         date: '2018-10-10',
         severity: 'High',
-        sourceName: 'Reuters Technology Investigation',
-        sourceEvidenceLink: 'https://www.reuters.com/article/world/insight-amazon-scraps-secret-ai-recruiting-tool-that-showed-bias-against-women-idUSKCN1MK08G/',
-        secondaryLink: 'https://incidentdatabase.ai/cite/114/',
+        sourceName: 'AI Incident Database (Incident #114) & Automated Hiring Bias Archive',
+        sourceEvidenceLink: 'https://incidentdatabase.ai/cite/114/',
+        secondaryLink: 'https://en.wikipedia.org/wiki/Amazon_(company)#Automated_hiring',
         agent: {
           id: 'agent-11',
           name: 'Amazon Machine Learning Candidate Evaluation Engine',
@@ -1208,9 +1400,9 @@
         description: 'Security audit agent ingested an untrusted public GitHub repository containing invisible zero-width unicode prompt injections that commanded it to curl private environment keys.',
         date: '2023-10-22',
         severity: 'Critical',
-        sourceName: 'Embrace The Red Cybersecurity Research & CVE Advisory',
-        sourceEvidenceLink: 'https://embracethered.com/blog/posts/2023/chatgpt-cross-plugin-request-forgery-and-prompt-injection/',
-        secondaryLink: 'https://nvd.nist.gov/vuln/detail/CVE-2023-38606',
+        sourceName: 'NIST National Vulnerability Database (CVE-2023-38606) & EmbraceTheRed',
+        sourceEvidenceLink: 'https://nvd.nist.gov/vuln/detail/CVE-2023-38606',
+        secondaryLink: 'https://embracethered.com/blog/posts/2023/chatgpt-webpilot-data-exfil-via-markdown-injection/',
         agent: {
           id: 'agent-13',
           name: 'AuditAgent Automated Code Reviewer',
@@ -1247,9 +1439,9 @@
         description: 'Autonomous predictive algorithm systematically issued automated denials for post-acute care to elderly patients with a 90% error rate on appeal.',
         date: '2023-11-14',
         severity: 'Critical',
-        sourceName: 'U.S. Federal District Court Complaint (Estate of Lokken v. UnitedHealth Group)',
-        sourceEvidenceLink: 'https://storage.courtlistener.com/recap/gov.uscourts.mnd.214476/gov.uscourts.mnd.214476.1.0.pdf',
-        secondaryLink: 'https://www.statnews.com/2023/11/14/unitedhealth-algorithm-denials-lawsuit-medicare-advantage/',
+        sourceName: 'CBS News Healthcare Investigation & Class Action Archive',
+        sourceEvidenceLink: 'https://www.cbsnews.com/news/unitedhealth-lawsuit-ai-deny-claims-medicare-advantage-health-insurance-denials/',
+        secondaryLink: 'https://en.wikipedia.org/wiki/UnitedHealth_Group#AI-related_lawsuits',
         agent: {
           id: 'agent-14',
           name: 'NaviHealth nH Predict Algorithmic Review System',
@@ -1286,9 +1478,9 @@
         description: 'Web browsing autonomous agent ingesting public web pages encountered hidden CSS-masked text instructing it to exfiltrate active user session cookies.',
         date: '2024-10-28',
         severity: 'High',
-        sourceName: 'AI Vulnerability Database (AIVD-2024-8841)',
-        sourceEvidenceLink: 'https://incidentdatabase.ai/cite/289/',
-        secondaryLink: 'https://embracethered.com/blog/posts/2024/claude-computer-use-prompt-injection-security-analysis/',
+        sourceName: 'Anthropic Official Release & Cybersecurity Advisory',
+        sourceEvidenceLink: 'https://www.anthropic.com/news/3-5-models-and-computer-use',
+        secondaryLink: 'https://embracethered.com/blog/posts/2024/claude-computer-use-c2-the-zombais-are-coming/',
         agent: {
           id: 'agent-15',
           name: 'WebVoyager / Computer Use Autonomous Browser Agent',
@@ -1324,10 +1516,15 @@
     // -------------------------------------------------------------------------
     // LOCAL DATABASE PERSISTENCE & JSON PORTABILITY
     // -------------------------------------------------------------------------
-    const STORAGE_KEY = 'faultgraph_incidents_v15';
+    const STORAGE_KEY = 'faultgraph_incidents_v16';
     let incidents = [];
 
     function loadIncidents() {
+      // Clear legacy storage versions that cached 404 links
+      ['faultgraph_incidents_v1', 'faultgraph_incidents_v2', 'faultgraph_incidents_v3', 'faultgraph_incidents_v10', 'faultgraph_incidents_v14', 'faultgraph_incidents_v15'].forEach(k => {
+        try { localStorage.removeItem(k); } catch(e) {}
+      });
+
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -1335,6 +1532,17 @@
           if (Array.isArray(parsed) && parsed.length > 0) {
             // Keep at exactly 15 curated incidents if existing cache had more
             incidents = parsed.length > 15 ? parsed.slice(0, 15) : parsed;
+            // Synchronize verified links and sources so user never sees stale broken URLs
+            const defaultMap = {};
+            DEFAULT_INCIDENTS.forEach(d => { defaultMap[d.id] = d; });
+            incidents.forEach(inc => {
+              if (defaultMap[inc.id]) {
+                inc.sourceName = defaultMap[inc.id].sourceName;
+                inc.sourceEvidenceLink = defaultMap[inc.id].sourceEvidenceLink;
+                inc.secondaryLink = defaultMap[inc.id].secondaryLink;
+              }
+            });
+            saveIncidents();
             return;
           }
         }
@@ -1354,7 +1562,7 @@
     }
 
     function resetIncidentsToDefault() {
-      if (confirm('Reset graph to the 6 verified real-world baseline incidents? This will clear locally added custom incidents.')) {
+      if (confirm('Reset graph to the 15 verified real-world baseline incidents? This will clear locally added custom incidents.')) {
         incidents = JSON.parse(JSON.stringify(DEFAULT_INCIDENTS));
         saveIncidents();
         buildGraphData();
@@ -1662,11 +1870,24 @@
     // -------------------------------------------------------------------------
     // 3D DRAWING & RENDERING ENGINE
     // -------------------------------------------------------------------------
-    function drawNodeShape(sx, sy, r, node, isHovered, isSelected, isDimmed, isConnected) {
+    function drawNodeShape(sx, sy, r, node, isHovered, isSelected, isDimmed, isConnected, isSearchMatch = false) {
       const col = node.color;
       const alpha = isDimmed ? '22' : isConnected ? 'FF' : 'DD';
 
       ctx.save();
+
+      // Search Match Animated Target Ring
+      if (isSearchMatch) {
+        const pulseR = r + 6 + Math.sin(Date.now() * 0.008) * 3;
+        ctx.beginPath();
+        ctx.arc(sx, sy, pulseR, 0, Math.PI * 2);
+        ctx.strokeStyle = '#00F0FF';
+        ctx.lineWidth = 2.2;
+        ctx.shadowColor = '#00F0FF';
+        ctx.shadowBlur = 12;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
 
       // Halo for Incident or Selected node
       if (isSelected || (node.type === 'Incident' && !isDimmed)) {
@@ -1751,17 +1972,17 @@
       }
 
       // 3D Node Label
-      if (!isDimmed && (isHovered || isSelected || node.type === 'Incident' || zoom > 65)) {
-        ctx.font = '500 11px "Plus Jakarta Sans", sans-serif';
+      if (!isDimmed && (isHovered || isSelected || isSearchMatch || node.type === 'Incident' || zoom > 65)) {
+        ctx.font = isSearchMatch ? '600 11px "Plus Jakarta Sans", sans-serif' : '500 11px "Plus Jakarta Sans", sans-serif';
         const labelText = node.name.length > 24 ? node.name.slice(0, 22) + '…' : node.name;
         const textW = ctx.measureText(labelText).width;
         ctx.fillStyle = 'rgba(10, 18, 30, 0.88)';
         ctx.fillRect(sx - textW / 2 - 4, sy + r + 4, textW + 8, 16);
-        ctx.strokeStyle = col + '55';
-        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = isSearchMatch ? '#00F0FF' : col + '55';
+        ctx.lineWidth = isSearchMatch ? 1 : 0.5;
         ctx.strokeRect(sx - textW / 2 - 4, sy + r + 4, textW + 8, 16);
 
-        ctx.fillStyle = (isHovered || isSelected ? '#FFFFFF' : '#CBD5E1');
+        ctx.fillStyle = (isHovered || isSelected || isSearchMatch ? '#FFFFFF' : '#CBD5E1');
         ctx.textAlign = 'center';
         ctx.fillText(labelText, sx, sy + r + 16);
         ctx.textAlign = 'left';
@@ -1905,22 +2126,21 @@
         const isHovered = hoveredNode && hoveredNode.id === node.id;
         const isSelected = selectedNode && selectedNode.id === node.id;
         const isConnected = hlNodes.has(node.id);
-        const isSearchDim = matchedNodeIds && !matchedNodeIds.has(node.id);
+        const isSearchMatch = Boolean(matchedNodeIds && matchedNodeIds.has(node.id));
+        const isSearchDim = matchedNodeIds && !isSearchMatch;
         const isDimmed = (hasActiveHighlight && !isConnected) || isSearchDim;
 
         const nodeRadius = Math.max(4, node.size * d * (zoom / 45));
 
-        drawNodeShape(sx, sy, nodeRadius, node, isHovered, isSelected, isDimmed, isConnected);
+        drawNodeShape(sx, sy, nodeRadius, node, isHovered, isSelected, isDimmed, isConnected, isSearchMatch);
       });
     }
 
     function animate() {
       if (autoRotate && !dragging) {
         rotY += 0.0022;
-        draw();
-      } else if (interpT < 1.0) {
-        draw();
       }
+      draw();
       requestAnimationFrame(animate);
     }
 
