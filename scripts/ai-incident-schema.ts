@@ -27,8 +27,13 @@ import { privateKeyToAccount } from 'viem/accounts';
 // CONFIGURATION & CREDENTIALS
 // ============================================================================
 
-// Two-phase execution: run with DRY_RUN = true first to inspect ops.
-const DRY_RUN = process.env.DRY_RUN !== 'false';
+// TRIAL MODE SAFETY LOCK:
+// When TRIAL_MODE is true, the script will NEVER broadcast to Geo or the blockchain.
+// Everything runs strictly as a local simulation.
+const TRIAL_MODE = true;
+
+// Two-phase execution flag (forced true in trial mode)
+const DRY_RUN = TRIAL_MODE || process.env.DRY_RUN !== 'false';
 
 const rawKey = process.env.GEO_PRIVATE_KEY ?? process.env.PK_SW;
 const privateKey = rawKey
@@ -355,7 +360,12 @@ for (const ent of registeredEntities) {
   console.log(` - [${ent.id.slice(0, 8)}...] ${ent.name} (Types: ${ent.types.length})`);
 }
 
-if (DRY_RUN) {
+if (TRIAL_MODE) {
+  console.log('\n[TRIAL MODE ACTIVE] 🛡️');
+  console.log('All entities, triples, and operations were generated and verified locally.');
+  console.log('Zero data was broadcast to Geo Testnet or the blockchain.');
+  console.log('To view and interact with this graph visually, open: http://localhost:3333');
+} else if (DRY_RUN) {
   console.log('\n[DRY RUN COMPLETE] Set DRY_RUN=false with valid GEO_PRIVATE_KEY to publish to Geo.');
 } else {
   if (!privateKey) {
