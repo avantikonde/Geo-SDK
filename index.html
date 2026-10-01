@@ -131,145 +131,6 @@
       opacity: 0;
       z-index: 5;
     }
-
-    /* ========================================================================= */
-    /* LIGHT THEME OVERRIDES                                                     */
-    /* ========================================================================= */
-    body.theme-light {
-      background: #f8fafc !important;
-      color: #0f172a !important;
-    }
-    body.theme-light ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    body.theme-light ::-webkit-scrollbar-thumb {
-      background: rgba(14, 165, 233, 0.45);
-    }
-    body.theme-light ::-webkit-scrollbar-thumb:hover {
-      background: rgba(14, 165, 233, 0.75);
-    }
-    body.theme-light header {
-      background: rgba(255, 255, 255, 0.95) !important;
-      border-color: #e2e8f0 !important;
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
-    }
-    body.theme-light nav {
-      background: rgba(255, 255, 255, 0.92) !important;
-      border-color: #e2e8f0 !important;
-    }
-    body.theme-light .text-white {
-      color: #0f172a !important;
-    }
-    body.theme-light .text-slate-200 {
-      color: #1e293b !important;
-    }
-    body.theme-light .text-slate-300 {
-      color: #334155 !important;
-    }
-    body.theme-light .text-slate-400 {
-      color: #64748b !important;
-    }
-    body.theme-light .bg-slate-950,
-    body.theme-light .bg-slate-900,
-    body.theme-light .bg-slate-900\/90,
-    body.theme-light .bg-slate-900\/80,
-    body.theme-light .bg-slate-900\/70,
-    body.theme-light .bg-slate-900\/60,
-    body.theme-light .bg-\[\#070c18\],
-    body.theme-light .bg-\[\#060a14\],
-    body.theme-light .bg-\[\#080d1a\] {
-      background-color: #ffffff !important;
-    }
-    body.theme-light .border-slate-800,
-    body.theme-light .border-slate-800\/80,
-    body.theme-light .border-slate-800\/90,
-    body.theme-light .border-slate-700,
-    body.theme-light .border-slate-700\/80 {
-      border-color: #e2e8f0 !important;
-    }
-    body.theme-light .glass-card {
-      background: #ffffff !important;
-      border-color: #e2e8f0 !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
-    }
-    body.theme-light .glass-card:hover {
-      background: #ffffff !important;
-      border-color: #0ea5e9 !important;
-      box-shadow: 0 12px 30px -4px rgba(14, 165, 233, 0.16) !important;
-    }
-    body.theme-light .glass-panel {
-      background: rgba(255, 255, 255, 0.94) !important;
-      border-color: #e2e8f0 !important;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
-    }
-    body.theme-light .ctrl-btn {
-      background: #ffffff !important;
-      border-color: #cbd5e1 !important;
-      color: #475569 !important;
-    }
-    body.theme-light .ctrl-btn:hover {
-      border-color: #0ea5e9 !important;
-      color: #0f172a !important;
-    }
-    body.theme-light .ctrl-btn.active {
-      background: rgba(14, 165, 233, 0.12) !important;
-      color: #0369a1 !important;
-      border-color: #0ea5e9 !important;
-      box-shadow: 0 0 16px rgba(14, 165, 233, 0.15) !important;
-    }
-    body.theme-light #section-graph {
-      background: #f8fafc !important;
-    }
-    body.theme-light #section-catalog {
-      background: #f1f5f9 !important;
-    }
-    body.theme-light #section-triples {
-      background: #f8fafc !important;
-    }
-    body.theme-light #graph-tooltip {
-      background: rgba(255, 255, 255, 0.98) !important;
-      border-color: #cbd5e1 !important;
-      color: #0f172a !important;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12) !important;
-    }
-    body.theme-light #sidepanel {
-      background: rgba(255, 255, 255, 0.96) !important;
-      border-color: #e2e8f0 !important;
-    }
-    body.theme-light #sidepanel .bg-slate-900\/90,
-    body.theme-light #sidepanel .bg-slate-900\/80 {
-      background: #f8fafc !important;
-      border-color: #e2e8f0 !important;
-    }
-    body.theme-light #postmortem-modal > div,
-    body.theme-light #add-modal > div {
-      background: #ffffff !important;
-      border-color: #cbd5e1 !important;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18) !important;
-    }
-    body.theme-light input,
-    body.theme-light select {
-      background-color: #f8fafc !important;
-      color: #0f172a !important;
-      border-color: #cbd5e1 !important;
-    }
-    body.theme-light thead {
-      background: rgba(241, 245, 249, 0.95) !important;
-      color: #475569 !important;
-    }
-    body.theme-light tbody tr:hover {
-      background: rgba(241, 245, 249, 0.8) !important;
-    }
-    body.theme-light #triples-table-body td {
-      color: #334155 !important;
-    }
-    body.theme-light #triples-table-body td.text-white,
-    body.theme-light #triples-table-body td span.text-white {
-      color: #0f172a !important;
-    }
-    body.theme-light #mode-indicator {
-      color: rgba(15, 23, 42, 0.06) !important;
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-slate-950">
@@ -341,11 +202,6 @@
         <span>New Incident</span>
       </button>
 
-      <!-- Theme Mode Toggle Button -->
-      <button onclick="toggleTheme()" id="btn-theme" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs font-medium flex items-center space-x-1.5 transition active:scale-95 shadow-sm" title="Toggle Light / Dark Theme">
-        <span id="theme-icon">☀️</span>
-        <span id="theme-text" class="hidden sm:inline font-medium">Light</span>
-      </button>
 
       <!-- Audio Mute Toggle Button -->
       <button onclick="toggleAudio()" id="btn-audio" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs border border-slate-700/80 transition active:scale-95" title="Sound Effects Toggle (Click to test audio!)">
@@ -369,34 +225,19 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>System Triples Matrix</span>
       </button>
-
-      <!-- Local DB Controls (Export / Import / Reset) -->
-      <div class="hidden lg:flex items-center space-x-1 pl-2 border-l border-slate-800/80 my-auto">
-        <button onclick="exportGraphJSON()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-mono flex items-center space-x-1.5 transition active:scale-95" title="Export graph database to local JSON file">
-          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          <span>Export JSON</span>
-        </button>
-        <label class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] font-mono flex items-center space-x-1.5 cursor-pointer transition active:scale-95" title="Import JSON incidents into local graph">
-          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-          <span>Import</span>
-          <input type="file" id="import-json-file" accept=".json" onchange="importGraphJSON(event)" class="hidden">
-        </label>
-        <button onclick="resetIncidentsToDefault()" class="px-2 py-1.5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-rose-400 text-[11px] font-mono transition" title="Reset to verified default incidents">
-          ↺ Reset
-        </button>
-      </div>
     </div>
 
     <!-- Search in Top Nav -->
     <div class="flex items-center space-x-2 py-1.5">
       <div class="relative flex items-center">
-        <input id="search-input" type="text" placeholder="Search incidents, flaws, models..." class="w-48 sm:w-60 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
-        <select id="search-category" class="bg-slate-900 border border-slate-800 rounded-xl px-2 py-1.5 text-xs text-slate-300 ml-2 focus:outline-none focus:border-cyan-500">
+        <input id="search-input" type="text" oninput="handleGlobalSearch()" placeholder="Search incidents, flaws, models..." class="w-48 sm:w-64 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition shadow-inner">
+        <select id="search-category" onchange="handleGlobalSearch()" class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 ml-2 focus:outline-none focus:border-cyan-500 cursor-pointer">
           <option value="all">All Fields</option>
           <option value="Incident">Incidents</option>
           <option value="Agent">Agents</option>
           <option value="FailureMode">Failure Modes</option>
           <option value="Mitigation">Mitigations</option>
+          <option value="FinancialLoss">Financial Losses</option>
         </select>
       </div>
     </div>
@@ -418,19 +259,18 @@
       <div class="absolute top-4 left-4 flex flex-wrap gap-2 z-10">
         <div class="glass-panel p-1 rounded-xl flex items-center space-x-1">
           <button class="ctrl-btn active" id="btn-layout-cluster" onclick="setLayout('cluster')">
-            <span>🪐 System Cluster</span>
+            <span>System Cluster</span>
           </button>
           <button class="ctrl-btn" id="btn-layout-causal" onclick="setLayout('causal')">
-            <span>⚡ Causal Pipeline</span>
+            <span>Causal Pipeline</span>
           </button>
           <button class="ctrl-btn" id="btn-layout-impact" onclick="setLayout('impact')">
-            <span>📊 Severity Altitude</span>
+            <span>Severity Altitude</span>
           </button>
         </div>
 
         <div class="glass-panel p-1 rounded-xl flex items-center space-x-1">
           <button class="ctrl-btn active" id="btn-toggle-rotate" onclick="toggleAutoRotate()">
-            <span id="rotate-icon">🔄</span>
             <span id="rotate-text">Auto-Spin</span>
           </button>
           <button class="ctrl-btn" id="btn-reset-cam" onclick="resetCamera()">
@@ -578,7 +418,7 @@
         </div>
 
         <div class="flex items-center space-x-3 w-full md:w-auto">
-          <input type="text" id="catalog-search" oninput="renderIncidentCatalog()" placeholder="Filter incidents, models, flaws..." class="w-full md:w-72 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition shadow-inner">
+          <input type="text" id="catalog-search" oninput="handleCatalogSearch()" placeholder="Filter incidents, models, flaws..." class="w-full md:w-72 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition shadow-inner">
         </div>
       </div>
 
@@ -761,32 +601,34 @@
     }
 
     // -------------------------------------------------------------------------
-    // THEME ENGINE (Light & Dark Mode)
+    // GLOBAL SEARCH & CATEGORY FILTERING ENGINE
     // -------------------------------------------------------------------------
-    function toggleTheme() {
-      initAudio();
-      const isLight = document.body.classList.toggle('theme-light');
-      localStorage.setItem('faultgraph-theme', isLight ? 'light' : 'dark');
+    function handleGlobalSearch() {
+      const searchInput = document.getElementById('search-input');
+      const catalogSearch = document.getElementById('catalog-search');
+      const query = (searchInput?.value || '').trim();
 
-      const icon = document.getElementById('theme-icon');
-      const text = document.getElementById('theme-text');
-      if (icon) icon.innerText = isLight ? '🌙' : '☀️';
-      if (text) text.innerText = isLight ? 'Dark' : 'Light';
+      if (catalogSearch && catalogSearch.value !== query) {
+        catalogSearch.value = query;
+      }
 
-      sfxTheme();
-      showToast(isLight ? '☀️ Light Theme Activated' : '🌙 Dark Theme Activated');
       draw();
+      renderIncidentCatalog();
+      renderTriplesTable();
     }
 
-    function initTheme() {
-      const saved = localStorage.getItem('faultgraph-theme');
-      if (saved === 'light') {
-        document.body.classList.add('theme-light');
-        const icon = document.getElementById('theme-icon');
-        const text = document.getElementById('theme-text');
-        if (icon) icon.innerText = '🌙';
-        if (text) text.innerText = 'Dark';
+    function handleCatalogSearch() {
+      const catalogSearch = document.getElementById('catalog-search');
+      const searchInput = document.getElementById('search-input');
+      const query = (catalogSearch?.value || '').trim();
+
+      if (searchInput && searchInput.value !== query) {
+        searchInput.value = query;
       }
+
+      draw();
+      renderIncidentCatalog();
+      renderTriplesTable();
     }
 
     // -------------------------------------------------------------------------
@@ -863,11 +705,6 @@
     function sfxAlert() {
       playTone(880, 0.15, 'sawtooth', 0.25);
       setTimeout(() => playTone(440, 0.22, 'sawtooth', 0.28), 100);
-    }
-
-    function sfxTheme() {
-      playTone(659.25, 0.09, 'triangle', 0.26);
-      setTimeout(() => playTone(1046.5, 0.14, 'sine', 0.24), 60);
     }
 
     function toggleAudio() {
@@ -1918,15 +1755,13 @@
         ctx.font = '500 11px "Plus Jakarta Sans", sans-serif';
         const labelText = node.name.length > 24 ? node.name.slice(0, 22) + '…' : node.name;
         const textW = ctx.measureText(labelText).width;
-        const isLight = document.body.classList.contains('theme-light');
-
-        ctx.fillStyle = isLight ? 'rgba(255, 255, 255, 0.96)' : 'rgba(10, 18, 30, 0.88)';
+        ctx.fillStyle = 'rgba(10, 18, 30, 0.88)';
         ctx.fillRect(sx - textW / 2 - 4, sy + r + 4, textW + 8, 16);
-        ctx.strokeStyle = col + (isLight ? '88' : '55');
+        ctx.strokeStyle = col + '55';
         ctx.lineWidth = 0.5;
         ctx.strokeRect(sx - textW / 2 - 4, sy + r + 4, textW + 8, 16);
 
-        ctx.fillStyle = isLight ? (isHovered || isSelected ? '#0284C7' : '#0F172A') : (isHovered || isSelected ? '#FFFFFF' : '#CBD5E1');
+        ctx.fillStyle = (isHovered || isSelected ? '#FFFFFF' : '#CBD5E1');
         ctx.textAlign = 'center';
         ctx.fillText(labelText, sx, sy + r + 16);
         ctx.textAlign = 'left';
@@ -1936,17 +1771,10 @@
     }
 
     function draw() {
-      const isLight = document.body.classList.contains('theme-light');
       ctx.clearRect(0, 0, W, H);
 
-      // Light mode canvas background fill
-      if (isLight) {
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(0, 0, W, H);
-      }
-
       // Deep space / coordinate grid
-      ctx.strokeStyle = isLight ? 'rgba(14, 165, 233, 0.08)' : 'rgba(255, 255, 255, 0.02)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
       ctx.lineWidth = 1;
       const gridSize = 80;
       for (let x = 0; x < W; x += gridSize) {
@@ -1969,18 +1797,32 @@
         });
       }
 
-      // Search matching
-      const searchQuery = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+      // Search matching & Category filtering
+      const searchQuery = (document.getElementById('search-input')?.value || document.getElementById('catalog-search')?.value || '').trim().toLowerCase();
       const searchCat = document.getElementById('search-category')?.value || 'all';
       let matchedNodeIds = null;
-      if (searchQuery) {
+
+      if (searchQuery || searchCat !== 'all') {
         matchedNodeIds = new Set();
         nodes.forEach(n => {
           const matchesCat = (searchCat === 'all' || n.type === searchCat);
-          const matchesQuery = n.name.toLowerCase().includes(searchQuery) ||
-                               (n.description && n.description.toLowerCase().includes(searchQuery)) ||
-                               (n.architecture && n.architecture.toLowerCase().includes(searchQuery));
-          if (matchesCat && matchesQuery) matchedNodeIds.add(n.id);
+          let matchesQuery = true;
+          if (searchQuery) {
+            matchesQuery = n.name.toLowerCase().includes(searchQuery) ||
+                           (n.description && n.description.toLowerCase().includes(searchQuery)) ||
+                           (n.architecture && n.architecture.toLowerCase().includes(searchQuery)) ||
+                           (n.strategy && n.strategy.toLowerCase().includes(searchQuery)) ||
+                           (n.incidentRef && n.incidentRef.name.toLowerCase().includes(searchQuery));
+          }
+          if (matchesCat && matchesQuery) {
+            matchedNodeIds.add(n.id);
+            if (searchCat === 'all' && n.type === 'Incident' && n.incidentRef) {
+              if (n.incidentRef.agent?.id) matchedNodeIds.add(n.incidentRef.agent.id);
+              if (n.incidentRef.failureMode?.id) matchedNodeIds.add(n.incidentRef.failureMode.id);
+              if (n.incidentRef.mitigation?.id) matchedNodeIds.add(n.incidentRef.mitigation.id);
+              if (n.incidentRef.financialLoss?.id) matchedNodeIds.add(n.incidentRef.financialLoss.id);
+            }
+          }
         });
       }
 
@@ -2015,13 +1857,13 @@
           ctx.strokeStyle = e.color || '#00E5FF';
           ctx.lineWidth = 2.4;
           ctx.shadowColor = e.color || '#00E5FF';
-          ctx.shadowBlur = isLight ? 6 : 14;
+          ctx.shadowBlur = 14;
         } else if (isDimmed) {
-          ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.03)';
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
           ctx.lineWidth = 0.5;
           ctx.shadowBlur = 0;
         } else {
-          ctx.strokeStyle = (e.color || '#0EA5E9') + (isLight ? '99' : '66');
+          ctx.strokeStyle = (e.color || '#0EA5E9') + '66';
           ctx.lineWidth = 1.1;
           ctx.shadowBlur = 0;
         }
@@ -2050,7 +1892,7 @@
           ctx.arc(pt.sx, pt.sy, Math.max(1.5, 3.0 * pt.d), 0, Math.PI * 2);
           ctx.fillStyle = edge.color || '#00E5FF';
           ctx.shadowColor = edge.color || '#00E5FF';
-          ctx.shadowBlur = isLight ? 4 : 8;
+          ctx.shadowBlur = 8;
           ctx.fill();
           ctx.shadowBlur = 0;
         });
@@ -2126,7 +1968,10 @@
       lastX = e.clientX;
       lastY = e.clientY;
       autoRotate = false;
-      document.getElementById('rotate-icon').innerText = '⏸️';
+      const text = document.getElementById('rotate-text');
+      if (text) text.innerText = 'Paused';
+      const btn = document.getElementById('btn-toggle-rotate');
+      if (btn) btn.classList.remove('active');
     });
 
     window.addEventListener('mouseup', () => {
@@ -2273,9 +2118,9 @@
     function toggleAutoRotate() {
       autoRotate = !autoRotate;
       const btn = document.getElementById('btn-toggle-rotate');
-      btn.classList.toggle('active', autoRotate);
-      document.getElementById('rotate-icon').innerText = autoRotate ? '🔄' : '⏸️';
-      document.getElementById('rotate-text').innerText = autoRotate ? 'Auto-Spin' : 'Paused';
+      if (btn) btn.classList.toggle('active', autoRotate);
+      const text = document.getElementById('rotate-text');
+      if (text) text.innerText = autoRotate ? 'Auto-Spin' : 'Paused';
       sfxClick();
     }
 
@@ -2434,20 +2279,47 @@
     // INCIDENT CATALOG RENDERING (Cards with Verified Source Material)
     // -------------------------------------------------------------------------
     function renderIncidentCatalog() {
-      const query = (document.getElementById('catalog-search')?.value || '').toLowerCase();
+      const query = ((document.getElementById('search-input')?.value || document.getElementById('catalog-search')?.value) || '').trim().toLowerCase();
+      const searchCat = document.getElementById('search-category')?.value || 'all';
       const container = document.getElementById('catalog-cards-container');
       if (!container) return;
       container.innerHTML = '';
 
       const filtered = incidents.filter(i => {
+        if (searchCat === 'Incident') {
+          if (!query) return true;
+          return i.name.toLowerCase().includes(query) || (i.description && i.description.toLowerCase().includes(query));
+        }
+        if (searchCat === 'Agent') {
+          if (!query) return true;
+          return i.agent.name.toLowerCase().includes(query) || (i.agent.architecture && i.agent.architecture.toLowerCase().includes(query)) || (i.agent.description && i.agent.description.toLowerCase().includes(query));
+        }
+        if (searchCat === 'FailureMode') {
+          if (!query) return true;
+          return i.failureMode.name.toLowerCase().includes(query) || (i.failureMode.description && i.failureMode.description.toLowerCase().includes(query));
+        }
+        if (searchCat === 'Mitigation') {
+          if (!query) return true;
+          return i.mitigation.name.toLowerCase().includes(query) || (i.mitigation.strategy && i.mitigation.strategy.toLowerCase().includes(query)) || (i.mitigation.description && i.mitigation.description.toLowerCase().includes(query));
+        }
+        if (searchCat === 'FinancialLoss') {
+          if (!query) return true;
+          return String(i.financialLoss.amount).includes(query) || (i.financialLoss.description && i.financialLoss.description.toLowerCase().includes(query));
+        }
+
+        // searchCat === 'all'
+        if (!query) return true;
         return i.name.toLowerCase().includes(query) ||
+               (i.description && i.description.toLowerCase().includes(query)) ||
                i.agent.name.toLowerCase().includes(query) ||
+               (i.agent.architecture && i.agent.architecture.toLowerCase().includes(query)) ||
                i.failureMode.name.toLowerCase().includes(query) ||
-               i.mitigation.name.toLowerCase().includes(query);
+               i.mitigation.name.toLowerCase().includes(query) ||
+               String(i.financialLoss.amount).includes(query);
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-slate-500 italic col-span-3 text-center py-8">No matching incidents found.</p>';
+        container.innerHTML = '<p class="text-slate-500 italic col-span-3 text-center py-8">No matching incidents found for the selected filter.</p>';
         return;
       }
 
@@ -2614,7 +2486,32 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      edges.forEach((e) => {
+      const query = ((document.getElementById('search-input')?.value || document.getElementById('catalog-search')?.value) || '').trim().toLowerCase();
+      const searchCat = document.getElementById('search-category')?.value || 'all';
+
+      const filteredEdges = edges.filter((e) => {
+        const s = nodeMap[e.source];
+        const t = nodeMap[e.target];
+        if (!s || !t) return false;
+
+        const matchesCat = (searchCat === 'all' || s.type === searchCat || t.type === searchCat);
+        if (!matchesCat) return false;
+
+        if (!query) return true;
+        const matchesQuery = s.name.toLowerCase().includes(query) ||
+                             t.name.toLowerCase().includes(query) ||
+                             e.relation.toLowerCase().includes(query) ||
+                             (s.description && s.description.toLowerCase().includes(query)) ||
+                             (t.description && t.description.toLowerCase().includes(query));
+        return matchesQuery;
+      });
+
+      if (filteredEdges.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500 italic">No matching triples found for the selected filter.</td></tr>';
+        return;
+      }
+
+      filteredEdges.forEach((e) => {
         const s = nodeMap[e.source];
         const t = nodeMap[e.target];
         if (!s || !t) return;
@@ -2796,7 +2693,10 @@
     }
 
     // Initialize application
-    initTheme();
+    try {
+      localStorage.removeItem('faultgraph-theme');
+      document.body.classList.remove('theme-light');
+    } catch (e) {}
     loadIncidents();
     resizeCanvas();
     buildGraphData();
