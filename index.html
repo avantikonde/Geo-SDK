@@ -1793,7 +1793,7 @@
                 const prop = v.property?.name?.toLowerCase();
                 if (prop === 'severity' && v.text) sevVal = v.text;
                 if (prop === 'date' && v.date) dateVal = v.date.replace('Z', '');
-                if (prop === 'source evidence link' && v.text) srcLink = v.text;
+                if (prop === 'source evidence link' && v.text && !v.text.includes('security-ai.org')) srcLink = v.text;
               }
             }
 
@@ -1885,9 +1885,9 @@
 
           if (badge) {
             badge.innerHTML = `
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span class="font-mono text-[10px] font-bold tracking-wider text-emerald-300">GEO GRAPH: LIVE</span>
-              <span class="text-slate-400 font-mono text-[9px] hidden sm:inline">fb47f790 ↗</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+              <span class="font-mono text-[10px] font-bold tracking-wider text-emerald-300 whitespace-nowrap">GEO GRAPH: LIVE</span>
+              <span class="text-slate-400 font-mono text-[9px] hidden md:inline shrink-0">fb47f790 ↗</span>
             `;
             badge.title = `Connected to Geo Knowledge Graph (${liveGeoIncidents.length} verified live entities loaded from Space fb47f7907b4cc91be446bbf9fb51ccad)`;
           }
@@ -3021,9 +3021,14 @@
 
       if (inc) {
         readBtn.style.display = 'flex';
-        linkBtn.href = inc.sourceEvidenceLink;
+        if (inc.isFromGeo || (inc.id && inc.id.length === 32)) {
+          linkBtn.href = `https://www.geobrowser.io/space/fb47f7907b4cc91be446bbf9fb51ccad/${inc.id}`;
+          linkText.innerText = 'View on Geo Browser (GRC-20) ↗';
+        } else {
+          linkBtn.href = inc.sourceEvidenceLink;
+          linkText.innerText = inc.sourceName ? `${inc.sourceName} ↗` : 'Official Evidence Source ↗';
+        }
         linkBtn.style.display = 'flex';
-        linkText.innerText = inc.sourceName ? `${inc.sourceName} ↗` : 'Official Evidence Source ↗';
       } else {
         readBtn.style.display = 'none';
         linkBtn.style.display = 'none';
@@ -3225,8 +3230,13 @@
       document.getElementById('pm-source-badge').innerText = inc.sourceName || 'Verified Report';
 
       const extLink = document.getElementById('pm-external-link');
-      extLink.href = inc.sourceEvidenceLink;
-      extLink.innerHTML = `<span>Open Official Filing (${inc.sourceName || 'Source'}) ↗</span>`;
+      if (inc.isFromGeo || (inc.id && inc.id.length === 32)) {
+        extLink.href = `https://www.geobrowser.io/space/fb47f7907b4cc91be446bbf9fb51ccad/${inc.id}`;
+        extLink.innerHTML = `<span>Open on Geo Browser (GRC-20) ↗</span>`;
+      } else {
+        extLink.href = inc.sourceEvidenceLink;
+        extLink.innerHTML = `<span>Open Official Filing (${inc.sourceName || 'Source'}) ↗</span>`;
+      }
 
       const pm = inc.postMortem || {};
 
