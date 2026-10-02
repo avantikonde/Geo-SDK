@@ -205,3 +205,4 @@ if (DRY_RUN) {
   console.log(`Explorer Link: https://www.geobrowser.io/space/${SPACE_ID}/${INCIDENT_ID}`);
   console.log(`======================================================\n`);
 }
+
