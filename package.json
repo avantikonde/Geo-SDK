@@ -6,7 +6,8 @@
     "dry-run": "DRY_RUN=true node --env-file=.env --experimental-strip-types scripts/ai-incident-schema.ts",
     "publish": "DRY_RUN=false node --env-file=.env --experimental-strip-types scripts/ai-incident-schema.ts",
     "publish:pocketos": "DRY_RUN=false node --env-file=.env --experimental-strip-types scripts/publish-pocketos-incident.ts",
-    "update:pocketos": "DRY_RUN=false node --env-file=.env --experimental-strip-types scripts/update-pocketos-relations.ts"
+    "update:pocketos": "DRY_RUN=false node --env-file=.env --experimental-strip-types scripts/update-pocketos-relations.ts",
+    "publish:all": "DRY_RUN=false node --env-file=.env --experimental-strip-types scripts/publish-remaining-incidents.ts"
   },
   "dependencies": {
     "@geoprotocol/geo-sdk": "^0.20.0",
