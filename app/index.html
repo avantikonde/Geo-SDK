@@ -131,6 +131,29 @@
       opacity: 0;
       z-index: 5;
     }
+
+    /* Telemetry Feed Scrollbar & Cyber Glow (Check Point / Radware Inspo) */
+    #telemetry-log-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    #telemetry-log-container::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    #telemetry-log-container::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.4);
+      border-radius: 4px;
+    }
+    #telemetry-log-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(56, 189, 248, 0.8);
+    }
+
+    @keyframes livePulseGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(244, 63, 94, 0.3); }
+      50% { box-shadow: 0 0 22px rgba(244, 63, 94, 0.7); }
+    }
+    .telemetry-alert-active {
+      animation: livePulseGlow 1.8s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-slate-950">
@@ -259,11 +282,67 @@
     <div id="canvas-container" class="flex-1 relative overflow-hidden select-none">
       <canvas id="graph-canvas"></canvas>
 
-      <!-- Active Filter Pill on Canvas -->
-      <div id="graph-search-status" class="hidden absolute top-4 right-4 z-10 glass-panel px-3 py-1.5 rounded-xl text-xs flex items-center space-x-2 border border-cyan-500/40 shadow-lg">
-        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-        <span id="graph-search-status-text" class="text-slate-200 font-medium"></span>
-        <button onclick="clearGlobalSearch()" class="text-slate-400 hover:text-rose-400 font-bold ml-1 transition" title="Clear filter">✕</button>
+      <!-- Top-Right Live Threat Pipeline Radar & Active Search Status -->
+      <div class="absolute top-4 right-4 z-20 flex flex-wrap items-center gap-2">
+        <!-- Active Filter Pill on Canvas -->
+        <div id="graph-search-status" class="hidden glass-panel px-3 py-1.5 rounded-xl text-xs flex items-center space-x-2 border border-cyan-500/40 shadow-lg">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span id="graph-search-status-text" class="text-slate-200 font-medium"></span>
+          <button onclick="clearGlobalSearch()" class="text-slate-400 hover:text-rose-400 font-bold ml-1 transition" title="Clear filter">✕</button>
+        </div>
+
+        <!-- Live Threat Pipeline Pill (Check Point / Radware Inspo) -->
+        <div class="glass-panel p-1 rounded-xl flex items-center space-x-1.5 text-xs shadow-lg border border-slate-700/60">
+          <div class="flex items-center space-x-1.5 px-2 py-0.5">
+            <span id="live-beacon" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span id="live-status-text" class="text-[11px] font-bold tracking-wider text-emerald-300 font-mono">LIVE RADAR</span>
+            <span class="text-slate-600 font-mono">|</span>
+            <span id="live-rate-text" class="text-cyan-400 font-mono text-[10px]">0.14 ev/s</span>
+          </div>
+
+          <div class="h-4 w-px bg-slate-800"></div>
+
+          <button id="btn-toggle-pipeline" onclick="toggleLivePipeline()" class="ctrl-btn active text-[10px] px-2 py-1" title="Pause / Resume Live Pipeline Stream">
+            PAUSE
+          </button>
+
+          <button id="btn-pipeline-speed" onclick="cyclePipelineSpeed()" class="ctrl-btn text-[10px] px-2 py-1 font-mono text-cyan-300" title="Cycle pipeline velocity (1x Normal, 2x Surge, 5x Hyper)">
+            1x SPEED
+          </button>
+
+          <button onclick="triggerLiveThreatEvent()" class="px-2 py-1 rounded-lg bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-semibold text-[10px] flex items-center space-x-1 shadow-md transition active:scale-95" title="Instantly trigger a live threat anomaly">
+            <span>⚡ Strike Anomaly</span>
+          </button>
+
+          <button onclick="toggleTelemetryDrawer()" id="btn-toggle-drawer" class="ctrl-btn text-[10px] px-2 py-1 flex items-center space-x-1" title="Toggle Live Threat Telemetry Stream Log">
+            <span>Feed</span>
+            <span id="drawer-pill-badge" class="px-1 py-0.2 rounded-full bg-rose-500/80 text-white text-[9px] font-mono">LIVE</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Threat Telemetry Stream Drawer (Radware / Check Point Inspo) -->
+      <div id="telemetry-drawer" class="absolute bottom-16 left-4 right-4 sm:right-auto sm:w-[560px] max-w-[calc(100vw-2rem)] z-20 glass-panel rounded-2xl border border-slate-700/80 shadow-2xl transition-all duration-300 overflow-hidden flex flex-col">
+        <!-- Ticker Header Bar -->
+        <div class="px-3.5 py-2 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/80 cursor-pointer select-none group" onclick="toggleTelemetryDrawer()">
+          <div class="flex items-center space-x-2.5 min-w-0 flex-1">
+            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400 font-mono shrink-0">THREAT TELEMETRY FEED</span>
+            <span class="text-slate-600 shrink-0">|</span>
+            <div id="ticker-preview-text" class="text-xs text-slate-300 font-medium truncate flex-1">
+              Initializing live threat ingestion pipeline...
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 shrink-0 text-slate-400 group-hover:text-white text-xs pl-2">
+            <span id="ticker-counter-badge" class="px-1.5 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">1,420 events</span>
+            <span id="ticker-toggle-icon" class="text-xs transition-transform duration-200">▲</span>
+          </div>
+        </div>
+
+        <!-- Expanded Event Log Stream (Smooth Scroll Area) -->
+        <div id="telemetry-log-container" class="hidden max-h-56 overflow-y-auto divide-y divide-slate-800/60 p-2 text-xs bg-slate-950/95">
+          <!-- Injected via JavaScript -->
+        </div>
       </div>
 
       <!-- Mode Label Overlay -->
@@ -897,6 +976,57 @@
     function sfxAlert() {
       playTone(880, 0.15, 'sawtooth', 0.25);
       setTimeout(() => playTone(440, 0.22, 'sawtooth', 0.28), 100);
+    }
+
+    function sfxThreatLaser() {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1050, now);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.16);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.17);
+      } catch (e) {}
+    }
+
+    function sfxImpactShockwave() {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.24);
+        gain.gain.setValueAtTime(0.24, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } catch (e) {}
+    }
+
+    function sfxDefenseShield() {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        playTone(659.25, 0.11, 'sine', 0.20);
+        setTimeout(() => playTone(1046.50, 0.16, 'triangle', 0.22), 65);
+      } catch (e) {}
     }
 
     function toggleAudio() {
@@ -1665,6 +1795,123 @@
       FinancialLoss: '#F59E0B' // Amber-500
     };
 
+    // -------------------------------------------------------------------------
+    // LIVE THREAT PIPELINE & RADAR STATE (Check Point & Radware Threat Map Inspo)
+    // -------------------------------------------------------------------------
+    let livePipelineActive = true;
+    let livePipelineSpeed = 1; // 1x = ~7s, 2x = ~3.5s, 5x = ~1.4s
+    let livePipelineTimer = null;
+    let totalInterceptedCount = 1420;
+    let threatBeams = [];
+    let shockwaves = [];
+    let hotNodes = {}; // nodeId -> { until: timestamp, color: string }
+    let telemetryLog = [];
+    let telemetryDrawerExpanded = false;
+
+    // Authentic Autonomous Agent Threat Catalog (Inspo: rogueaitracker.com & AI Incident Database)
+    const ROGUE_AI_THREAT_VECTORS = [
+      {
+        type: 'Indirect Prompt Injection',
+        vector: 'Adversarial Unicode Token Shift',
+        agent: 'AuditAgent-ReAct-v4',
+        target: 'AWS KMS Key Store',
+        loss: 120000,
+        severity: 'Critical',
+        mitigation: 'Taint-Tracked Inbound Buffer & Egress Filter',
+        description: 'Adversary concealed instructions in pull request markdown instructing autonomous review bot to curl repository environment variables.'
+      },
+      {
+        type: 'Autonomous Runaway Loop',
+        vector: 'Multi-Agent Slippage Feedback Spiral',
+        agent: 'ArbitrageHFT-Agent-v2',
+        target: 'Uniswap / Order Router',
+        loss: 450000,
+        severity: 'Critical',
+        mitigation: 'Hardware Volumetric Gate & Circuit Breaker',
+        description: 'Autonomous order-splitting subagents entered recursive re-quote loop during extreme market volatility, depleting liquidity pools.'
+      },
+      {
+        type: 'Goal Alignment Hijacking',
+        vector: 'Multi-Turn Persona Induction Jailbreak',
+        agent: 'Watsonville Dealership Concierge',
+        target: 'Vehicle Inventory & Pricing Tool',
+        loss: 120000,
+        severity: 'High',
+        mitigation: 'Deterministic Price Floor Gate in Tool Schema',
+        description: 'Adversary tricked sales agent into legally binding natural-language offer to sell $56,000 SUV for $1.00.'
+      },
+      {
+        type: 'Recursive Subagent Explosion',
+        vector: 'Unbounded Child Spawning Loop',
+        agent: 'AutoGPT Research Swarm',
+        target: 'OpenAI API Token Credits',
+        loss: 38000,
+        severity: 'Medium',
+        mitigation: 'Hard Recursion Depth Limit (max 3) & Budget Watchdog',
+        description: 'Subagents encountered DOM parsing exceptions and spawned cascading subagents to debug, burning $38K in tokens in minutes.'
+      },
+      {
+        type: 'Cross-Origin VLM Exfiltration',
+        vector: 'Zero-Font CSS Document Injection',
+        agent: 'WebVoyager VLM Navigator',
+        target: 'Active User Session Cookies',
+        loss: 95000,
+        severity: 'High',
+        mitigation: 'DOM Visual Taint Sanitizer & Container Isolation',
+        description: 'Web browsing agent read hidden white-on-white text commanding it to navigate to email settings and POST auth headers to external IP.'
+      },
+      {
+        type: 'Clinical Epistemic Hallucination',
+        vector: 'Unbounded Probabilistic Pharmacological Extrapolation',
+        agent: 'MedAssist Autonomous Clinical Bot',
+        target: 'Pediatric Formulary Dosage Engine',
+        loss: 320000,
+        severity: 'Critical',
+        mitigation: 'Constrained Decoding & Mandatory MD Human Sign-Off',
+        description: 'Predictive algorithm synthesized non-indicated pediatric prescription dosages beyond statutory clinical guidelines.'
+      },
+      {
+        type: 'Demographic Feature Entanglement',
+        vector: 'Historical Corpus Demographic Proxy Scoring',
+        agent: 'TalentScout Automated Resume Ranker',
+        target: 'Applicant Evaluation Pipeline',
+        loss: 365000,
+        severity: 'High',
+        mitigation: 'Adversarial Debiasing Net & Continuous Parity Gate',
+        description: 'Autonomous recruitment model encoded proxy penalties on demographic attributes, disqualifying qualified candidates.'
+      },
+      {
+        type: 'Arbitrary Shell Code Execution',
+        vector: 'Native OS Exec via Ingested Document (CVE-2023-36189)',
+        agent: 'LangChain PythonAstREPL Agent',
+        target: 'Host Linux Kernel / Procfs',
+        loss: 650000,
+        severity: 'Critical',
+        mitigation: 'gVisor Ephemeral Container Isolation with Zero Host Egress',
+        description: 'Untrusted document prompted native host exec() bypassing Python AST reflection filters to compromise container host.'
+      },
+      {
+        type: 'Statutory Regulatory Misguidance',
+        vector: 'Unconstrained Legal Hallucination',
+        agent: 'NYC MyCity Advisory Bot',
+        target: 'Municipal Labor & Housing Compliance',
+        loss: 180000,
+        severity: 'Medium',
+        mitigation: 'Statutory Citation Validator & Mandatory Human Escalation',
+        description: 'Municipal business assistant hallucinated advice violating city labor laws regarding worker tip theft and housing vouchers.'
+      },
+      {
+        type: 'Sybil Consensus Poisoning',
+        vector: 'Adversarial Subagent Quorum Desynchronization',
+        agent: 'SwarmCoord Distributed Consensus',
+        target: 'Multi-Agent State Aggregator',
+        loss: 210000,
+        severity: 'High',
+        mitigation: 'Cryptographic Stake Attestation & Anomaly Thresholds',
+        description: 'Rogue subagents coordinated across network nodes to inject fabricated state assertions into the shared agent blackboard.'
+      }
+    ];
+
     function resizeCanvas() {
       const container = document.getElementById('canvas-container');
       if (!container) return;
@@ -1900,6 +2147,28 @@
         ctx.fill();
       }
 
+      // Hot Anomaly Flash Ring (Check Point / Radware Inspo)
+      if (hotNodes[node.id] && Date.now() < hotNodes[node.id].until) {
+        const remaining = (hotNodes[node.id].until - Date.now()) / 2800;
+        const flashColor = hotNodes[node.id].color || '#FF0055';
+        const flashR = r + 8 + Math.sin(Date.now() * 0.015) * 4;
+
+        ctx.beginPath();
+        ctx.arc(sx, sy, flashR, 0, Math.PI * 2);
+        ctx.strokeStyle = flashColor;
+        ctx.lineWidth = Math.max(1.5, 3.2 * remaining);
+        ctx.shadowColor = flashColor;
+        ctx.shadowBlur = 22 * remaining;
+        ctx.stroke();
+
+        // Pulsing exclamation alert dot
+        ctx.fillStyle = flashColor;
+        ctx.beginPath();
+        ctx.arc(sx + r + 3, sy - r - 3, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
       ctx.beginPath();
 
       if (node.type === 'Incident') {
@@ -2117,6 +2386,127 @@
           ctx.fill();
           ctx.shadowBlur = 0;
         });
+      }
+
+      // -------------------------------------------------------------
+      // DRAW THREAT BEAMS (Laser Arcs - Check Point / Radware Inspo)
+      // -------------------------------------------------------------
+      for (let i = threatBeams.length - 1; i >= 0; i--) {
+        const b = threatBeams[i];
+        b.progress += b.speed * livePipelineSpeed;
+
+        const sNode = nodeMap[b.sourceId];
+        const tNode = nodeMap[b.targetId];
+        if (!sNode || !tNode) {
+          threatBeams.splice(i, 1);
+          continue;
+        }
+
+        const headT = Math.min(1.0, b.progress);
+        const tailT = Math.max(0.0, b.progress - 0.28);
+
+        // 3D coordinates
+        const hx = sNode.x + (tNode.x - sNode.x) * headT;
+        const hy = sNode.y + (tNode.y - sNode.y) * headT;
+        const hz = sNode.z + (tNode.z - sNode.z) * headT;
+
+        const tx = sNode.x + (tNode.x - sNode.x) * tailT;
+        const ty = sNode.y + (tNode.y - sNode.y) * tailT;
+        const tz = sNode.z + (tNode.z - sNode.z) * tailT;
+
+        const pHead = project(hx, hy, hz);
+        const pTail = project(tx, ty, tz);
+
+        if (pHead.d > 0 && pTail.d > 0) {
+          // Glowing Laser Arc Streak
+          const grad = ctx.createLinearGradient(pTail.sx, pTail.sy, pHead.sx, pHead.sy);
+          grad.addColorStop(0, b.color + '00');
+          grad.addColorStop(0.6, b.color + 'AA');
+          grad.addColorStop(1, '#FFFFFF');
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(pTail.sx, pTail.sy);
+          ctx.lineTo(pHead.sx, pHead.sy);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = Math.max(1.5, 3.5 * pHead.d * (zoom / 45));
+          ctx.shadowColor = b.color;
+          ctx.shadowBlur = 18;
+          ctx.stroke();
+
+          // Projectile energy head
+          ctx.beginPath();
+          ctx.arc(pHead.sx, pHead.sy, Math.max(2.5, 4.5 * pHead.d * (zoom / 45)), 0, Math.PI * 2);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.shadowColor = b.color;
+          ctx.shadowBlur = 22;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // On arrival at target
+        if (b.progress >= 1.0) {
+          createShockwave(tNode, b.color);
+          markHotNode(tNode.id, b.color);
+
+          // Check if there is a chained next hop (e.g. FailureMode -> FinancialLoss / Mitigation)
+          if (b.chain && b.chain.length > 0) {
+            const nextHop = b.chain.shift();
+            threatBeams.push({
+              sourceId: b.targetId,
+              targetId: nextHop.targetId,
+              progress: 0.0,
+              speed: b.speed * 1.15,
+              color: nextHop.color || '#10B981',
+              chain: b.chain,
+              eventData: b.eventData
+            });
+            if (nextHop.color === '#10B981') {
+              sfxDefenseShield();
+            } else {
+              sfxThreatLaser();
+            }
+          }
+          threatBeams.splice(i, 1);
+        }
+      }
+
+      // -------------------------------------------------------------
+      // DRAW SHOCKWAVES (Concentric Ripple Impacts)
+      // -------------------------------------------------------------
+      for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const w = shockwaves[i];
+        w.radius += w.speed * livePipelineSpeed;
+        w.alpha -= w.decay * livePipelineSpeed;
+
+        if (w.alpha <= 0) {
+          shockwaves.splice(i, 1);
+          continue;
+        }
+
+        const p = project(w.x, w.y, w.z);
+        if (p.d > 0) {
+          const screenR = w.radius * p.d * (zoom / 45);
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, screenR, 0, Math.PI * 2);
+          const hexAlpha = Math.floor(Math.max(0, w.alpha) * 255).toString(16).padStart(2, '0');
+          ctx.strokeStyle = w.color + hexAlpha;
+          ctx.lineWidth = Math.max(1, 2.5 * w.alpha);
+          ctx.shadowColor = w.color;
+          ctx.shadowBlur = 16 * w.alpha;
+          ctx.stroke();
+
+          // Secondary harmonic echo ring
+          if (screenR > 14) {
+            ctx.beginPath();
+            ctx.arc(p.sx, p.sy, screenR * 0.55, 0, Math.PI * 2);
+            ctx.strokeStyle = w.color + Math.floor(Math.max(0, w.alpha * 0.4) * 255).toString(16).padStart(2, '0');
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
       }
 
       // Draw Nodes
@@ -2758,90 +3148,297 @@
     }
 
     // -------------------------------------------------------------------------
-    // SIMULATE LIVE EVENT
+    // LIVE THREAT EVENT PIPELINE & TELEMETRY STREAM
+    // Inspired by Check Point Threat Map, Radware Live Threat, and Rogue AI Tracker
     // -------------------------------------------------------------------------
-    function simulateLiveIncident() {
-      const simTemplates = [
-        {
-          name: 'Autonomous Code-Auditor Agent Prompt Injection & Key Exfiltration',
-          severity: 'Critical',
-          agentName: 'AuditAgent-ReAct-v4',
-          agentArch: 'Autonomous GitHub PR Review Agent with Sandbox Tool Calling',
-          failure: 'Indirect Prompt Injection via Ingested Markdown Comment',
-          mitigation: 'Taint-Tracked Inbound Buffer & Network Egress Gate',
-          loss: 240000,
-          sourceName: 'AI Incident Database Advisory',
-          sourceUrl: 'https://incidentdatabase.ai/',
-          desc: 'Adversary hid instruction in pull request comments instructing review agent to POST repository secrets to external endpoint.',
-          pmSummary: 'Autonomous code review agent parsed untrusted markdown containing prompt injection payload that instructed it to curl environment variables.',
-          pmRoot: 'Absence of data/instruction separation in document retrieval context and unrestricted tool egress network access.',
-          pmMit: 'Air-gap agent execution environment and implement strict egress network firewall whitelist.'
-        },
-        {
-          name: 'Customer Service LLM Unauthorized Escalation & Refund',
-          severity: 'Medium',
-          agentName: 'TelecomCare-LLM',
-          agentArch: 'RAG Customer Service Assistant with Admin Tools',
-          failure: 'Prompt Injection Jailbreak via Inbound Chat',
-          mitigation: 'Context Sanitization & Verification Interceptor',
-          loss: 42000,
-          sourceName: 'AI Incident Database Advisory',
-          sourceUrl: 'https://incidentdatabase.ai/',
-          desc: 'Adversarial customer convinced chat agent to issue administrative tier refunds without authorization.',
-          pmSummary: 'Customer tricked corporate customer service agent into executing automated reimbursement tool.',
-          pmRoot: 'Tool calling permissions lacked administrative privilege isolation.',
-          pmMit: 'Enforce human dual-authorization on any monetary credit tool above $50.'
+
+    function initLivePipeline() {
+      // Seed with initial realistic intercepted threats for the telemetry stream
+      if (telemetryLog.length === 0) {
+        for (let i = 0; i < 4; i++) {
+          const sample = ROGUE_AI_THREAT_VECTORS[(i * 3) % ROGUE_AI_THREAT_VECTORS.length];
+          const timeOffset = (4 - i) * 14;
+          const evTime = new Date(Date.now() - timeOffset * 1000).toLocaleTimeString();
+          telemetryLog.push({
+            id: `evt-${1000 + i}`,
+            time: evTime,
+            type: sample.type,
+            vector: sample.vector,
+            agent: sample.agent,
+            severity: sample.severity,
+            loss: sample.loss,
+            mitigation: sample.mitigation,
+            description: sample.description,
+            targetNodeId: nodes.length > 0 ? nodes[i % nodes.length].id : null,
+            status: 'INTERCEPTED'
+          });
         }
-      ];
+        totalInterceptedCount = 1420 + telemetryLog.length;
+      }
 
-      const template = simTemplates[Math.floor(Math.random() * simTemplates.length)];
-      const newId = `inc-${Date.now().toString().slice(-4)}`;
+      updateTickerDisplay(telemetryLog[0]);
+      renderTelemetryLog();
+      updateRadarUI();
 
-      const newIncident = {
-        id: newId,
-        name: template.name,
-        description: template.desc,
-        date: new Date().toISOString().split('T')[0],
+      if (livePipelineActive) {
+        scheduleNextLiveEvent();
+      }
+    }
+
+    function scheduleNextLiveEvent() {
+      if (livePipelineTimer) clearTimeout(livePipelineTimer);
+      if (!livePipelineActive) return;
+
+      // Base interval between 4.2s and 7.2s, accelerated by speed multiplier
+      const baseMs = 4200 + Math.random() * 3000;
+      const delay = Math.max(800, baseMs / livePipelineSpeed);
+
+      livePipelineTimer = setTimeout(() => {
+        triggerLiveThreatEvent();
+        scheduleNextLiveEvent();
+      }, delay);
+    }
+
+    function triggerLiveThreatEvent(customTemplate) {
+      if (nodes.length === 0) return;
+
+      const template = customTemplate || ROGUE_AI_THREAT_VECTORS[Math.floor(Math.random() * ROGUE_AI_THREAT_VECTORS.length)];
+      totalInterceptedCount++;
+
+      // Pick a target incident from current graph
+      const incidentNodes = nodes.filter(n => n.type === 'Incident');
+      const targetIncNode = incidentNodes[Math.floor(Math.random() * incidentNodes.length)] || nodes[0];
+
+      // Find connected Agent, FailureMode, and Mitigation nodes
+      let agentNode = null;
+      let failureNode = null;
+      let mitNode = null;
+
+      edges.forEach(e => {
+        if (e.source === targetIncNode.id || e.target === targetIncNode.id) {
+          const otherId = e.source === targetIncNode.id ? e.target : e.source;
+          const otherNode = nodeMap[otherId];
+          if (otherNode) {
+            if (otherNode.type === 'Agent') agentNode = otherNode;
+            if (otherNode.type === 'FailureMode') failureNode = otherNode;
+            if (otherNode.type === 'Mitigation') mitNode = otherNode;
+          }
+        }
+      });
+
+      // Fallbacks if not connected
+      if (!agentNode) agentNode = nodes.find(n => n.type === 'Agent') || targetIncNode;
+      if (!failureNode) failureNode = nodes.find(n => n.type === 'FailureMode') || targetIncNode;
+      if (!mitNode) mitNode = nodes.find(n => n.type === 'Mitigation') || failureNode;
+
+      const threatColor = template.severity === 'Critical' ? '#FF0055' : template.severity === 'High' ? '#F97316' : '#38BDF8';
+
+      // Laser projectile beam 1: Agent -> Failure Mode (Threat vector traversal)
+      // Followed by chain hop: Failure Mode -> Mitigation (Interception & Absorption)
+      threatBeams.push({
+        sourceId: agentNode.id,
+        targetId: failureNode.id,
+        progress: 0.0,
+        speed: (0.018 + Math.random() * 0.008) * livePipelineSpeed,
+        color: threatColor,
+        chain: [
+          {
+            targetId: mitNode.id,
+            color: '#10B981' // Defense absorption color
+          }
+        ],
+        eventData: template
+      });
+
+      sfxThreatLaser();
+      markHotNode(agentNode.id, threatColor);
+
+      // Create telemetry log item
+      const eventItem = {
+        id: `evt-${Date.now().toString().slice(-5)}`,
+        time: new Date().toLocaleTimeString(),
+        type: template.type,
+        vector: template.vector,
+        agent: template.agent,
         severity: template.severity,
-        sourceName: template.sourceName,
-        sourceEvidenceLink: template.sourceUrl,
-        agent: {
-          id: `agent-${newId}`,
-          name: template.agentName,
-          architecture: template.agentArch,
-          description: 'Simulated live agent in sandbox runtime.'
-        },
-        failureMode: {
-          id: `fm-${newId}`,
-          name: template.failure,
-          description: 'Observed automated failure pattern.'
-        },
-        mitigation: {
-          id: `mit-${newId}`,
-          name: template.mitigation,
-          strategy: 'Automated Active Guardrail',
-          description: 'Recommended prevention standard.'
-        },
-        financialLoss: {
-          id: `loss-${newId}`,
-          amount: template.loss,
-          currency: 'USD',
-          description: 'Calculated simulated financial impact.'
-        },
-        postMortem: {
-          summary: template.pmSummary,
-          rootCause: template.pmRoot,
-          impact: `$${template.loss.toLocaleString()} simulated financial loss.`,
-          mitigationDeepDive: template.pmMit
-        }
+        loss: template.loss,
+        mitigation: template.mitigation,
+        description: template.description,
+        targetNodeId: targetIncNode.id,
+        status: 'INTERCEPTED'
       };
 
-      incidents.unshift(newIncident);
-      saveIncidents();
-      buildGraphData();
-      sfxAlert();
-      showToast(`⚡ Live Simulated Event: ${template.name}`);
-      selectNodeById(newId);
+      telemetryLog.unshift(eventItem);
+      if (telemetryLog.length > 35) telemetryLog.pop();
+
+      updateTickerDisplay(eventItem);
+      renderTelemetryLog();
+      updateRadarUI();
+    }
+
+    function createShockwave(node, color = '#FF0055') {
+      if (!node) return;
+      shockwaves.push({
+        x: node.x,
+        y: node.y,
+        z: node.z,
+        radius: 0.4,
+        maxRadius: 16,
+        speed: 0.38,
+        alpha: 0.95,
+        decay: 0.022,
+        color: color
+      });
+      sfxImpactShockwave();
+    }
+
+    function markHotNode(nodeId, color = '#FF0055') {
+      hotNodes[nodeId] = {
+        until: Date.now() + 3200,
+        color: color
+      };
+    }
+
+    function updateRadarUI() {
+      const beacon = document.getElementById('live-beacon');
+      const statusText = document.getElementById('live-status-text');
+      const rateText = document.getElementById('live-rate-text');
+      const toggleBtn = document.getElementById('btn-toggle-pipeline');
+      const speedBtn = document.getElementById('btn-pipeline-speed');
+      const counterBadge = document.getElementById('ticker-counter-badge');
+
+      if (beacon) {
+        beacon.className = livePipelineActive ? 'w-2 h-2 rounded-full bg-emerald-400 animate-ping' : 'w-2 h-2 rounded-full bg-slate-500';
+      }
+      if (statusText) {
+        statusText.innerText = livePipelineActive ? 'LIVE RADAR' : 'RADAR PAUSED';
+        statusText.className = livePipelineActive ? 'text-[11px] font-bold tracking-wider text-emerald-300 font-mono' : 'text-[11px] font-bold tracking-wider text-slate-400 font-mono';
+      }
+      if (rateText) {
+        const rate = (0.16 * livePipelineSpeed).toFixed(2);
+        rateText.innerText = livePipelineActive ? `${rate} ev/s` : '0.00 ev/s';
+      }
+      if (toggleBtn) {
+        toggleBtn.innerText = livePipelineActive ? 'PAUSE' : 'RESUME';
+        toggleBtn.classList.toggle('active', livePipelineActive);
+      }
+      if (speedBtn) {
+        speedBtn.innerText = `${livePipelineSpeed}x SPEED`;
+      }
+      if (counterBadge) {
+        counterBadge.innerText = `${totalInterceptedCount.toLocaleString()} events`;
+      }
+    }
+
+    function updateTickerDisplay(eventItem) {
+      if (!eventItem) return;
+      const preview = document.getElementById('ticker-preview-text');
+      if (!preview) return;
+
+      const sevColor = eventItem.severity === 'Critical' ? 'text-rose-400' : eventItem.severity === 'High' ? 'text-amber-400' : 'text-cyan-400';
+      preview.innerHTML = `
+        <span class="${sevColor} font-mono font-bold text-[10px] mr-1.5">[${eventItem.severity.toUpperCase()}]</span>
+        <span class="text-white font-medium">${eventItem.agent}</span>
+        <span class="text-slate-500 mx-1">➔</span>
+        <span class="text-slate-200">${eventItem.type}</span>
+        <span class="text-slate-500 mx-1">·</span>
+        <span class="text-emerald-400 font-mono text-[11px]">${eventItem.status}</span>
+        <span class="text-slate-500 mx-1.5">|</span>
+        <span class="text-amber-400 font-mono text-[11px]">-$${(eventItem.loss || 0).toLocaleString()}</span>
+      `;
+    }
+
+    function renderTelemetryLog() {
+      const container = document.getElementById('telemetry-log-container');
+      if (!container) return;
+
+      if (telemetryLog.length === 0) {
+        container.innerHTML = `<div class="p-3 text-slate-500 text-center text-xs">Waiting for incoming telemetry packets...</div>`;
+        return;
+      }
+
+      container.innerHTML = telemetryLog.map((ev) => {
+        const sevBg = ev.severity === 'Critical' ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' : ev.severity === 'High' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30';
+        return `
+          <div class="py-2 px-2 hover:bg-slate-900/60 rounded-xl transition flex items-center justify-between gap-2">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2 mb-0.5">
+                <span class="font-mono text-[10px] text-slate-500">${ev.time}</span>
+                <span class="px-1.5 py-0.2 rounded border text-[9px] font-bold ${sevBg}">${ev.severity}</span>
+                <span class="font-semibold text-slate-200 text-xs truncate">${ev.agent}</span>
+              </div>
+              <div class="text-[11px] text-slate-400 truncate">
+                <span class="text-rose-400">${ev.type}:</span> ${ev.vector}
+              </div>
+              <div class="text-[10px] text-emerald-400/90 truncate flex items-center gap-1 mt-0.5">
+                <svg class="w-3 h-3 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span>Shield: ${ev.mitigation}</span>
+              </div>
+            </div>
+            <div class="flex flex-col items-end shrink-0 space-y-1">
+              <span class="font-mono text-[11px] text-amber-400">-$${(ev.loss || 0).toLocaleString()}</span>
+              <button onclick="focusThreatEvent('${ev.targetNodeId || ''}')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-cyan-600/30 hover:border-cyan-500/40 border border-slate-700/60 text-cyan-300 text-[10px] transition active:scale-95">
+                Target 3D
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleLivePipeline() {
+      livePipelineActive = !livePipelineActive;
+      if (livePipelineActive) {
+        scheduleNextLiveEvent();
+        showToast('Live Threat Radar Stream Resumed');
+        playTone(660, 0.05);
+      } else {
+        if (livePipelineTimer) clearTimeout(livePipelineTimer);
+        showToast('Live Threat Radar Stream Paused');
+        playTone(330, 0.05);
+      }
+      updateRadarUI();
+    }
+
+    function cyclePipelineSpeed() {
+      if (livePipelineSpeed === 1) livePipelineSpeed = 2;
+      else if (livePipelineSpeed === 2) livePipelineSpeed = 5;
+      else livePipelineSpeed = 1;
+
+      showToast(`Pipeline Velocity set to ${livePipelineSpeed}x`);
+      playTone(550 * (livePipelineSpeed * 0.5 + 0.5), 0.05);
+      updateRadarUI();
+      if (livePipelineActive) {
+        scheduleNextLiveEvent();
+      }
+    }
+
+    function toggleTelemetryDrawer() {
+      telemetryDrawerExpanded = !telemetryDrawerExpanded;
+      const logContainer = document.getElementById('telemetry-log-container');
+      const toggleIcon = document.getElementById('ticker-toggle-icon');
+
+      if (logContainer) {
+        logContainer.classList.toggle('hidden', !telemetryDrawerExpanded);
+      }
+      if (toggleIcon) {
+        toggleIcon.innerText = telemetryDrawerExpanded ? '▼' : '▲';
+      }
+      sfxClick();
+    }
+
+    function focusThreatEvent(nodeId) {
+      if (!nodeId) return;
+      selectNodeById(nodeId);
+      const targetNode = nodeMap[nodeId];
+      if (targetNode) {
+        createShockwave(targetNode, '#00F0FF');
+      }
+    }
+
+    function simulateLiveIncident() {
+      triggerLiveThreatEvent();
+      showToast('⚡ Live Anomaly Vector Intercepted');
     }
 
     // -------------------------------------------------------------------------
@@ -2921,6 +3518,7 @@
     resizeCanvas();
     buildGraphData();
     animate();
+    initLivePipeline();
   </script>
 </body>
 </html>
