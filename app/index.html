@@ -1831,6 +1831,17 @@
                   agentObj.id = target.id;
                   agentObj.name = target.name || agentObj.name;
                   agentObj.description = target.description || agentObj.description;
+                  if (target.relations && target.relations.nodes) {
+                    for (const agRel of target.relations.nodes) {
+                      if (agRel.type?.name?.toLowerCase() === 'model' && agRel.toEntity) {
+                        agentObj.model = agRel.toEntity.name;
+                      }
+                    }
+                  }
+                } else if (relName === 'has severity') {
+                  if (target.name) {
+                    sevVal = target.name.replace(' Severity', '');
+                  }
                 } else if (relName === 'exhibits') {
                   failureObj.id = target.id;
                   failureObj.name = target.name || failureObj.name;
