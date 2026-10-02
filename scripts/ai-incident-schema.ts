@@ -27,13 +27,11 @@ import { privateKeyToAccount } from 'viem/accounts';
 // CONFIGURATION & CREDENTIALS
 // ============================================================================
 
-// TRIAL MODE SAFETY LOCK:
-// When TRIAL_MODE is true, the script will NEVER broadcast to Geo or the blockchain.
-// Everything runs strictly as a local simulation.
-const TRIAL_MODE = true;
+// Set TRIAL_MODE to false to allow live Geo publication
+const TRIAL_MODE = false;
 
-// Two-phase execution flag (forced true in trial mode)
-const DRY_RUN = TRIAL_MODE || process.env.DRY_RUN !== 'false';
+// Two-phase execution flag (defaults to true for safety)
+const DRY_RUN = process.env.DRY_RUN !== 'false';
 
 const rawKey = process.env.GEO_PRIVATE_KEY ?? process.env.PK_SW;
 const privateKey = rawKey
