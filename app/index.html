@@ -3,89 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FaultGraph — 3D AI Agent Incident &amp; Vulnerability Knowledge Graph</title>
+  <title>FaultGraph — AI Agent Incident &amp; Vulnerability Knowledge Graph</title>
   <link rel="icon" type="image/png" href="logo.png">
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     html, body {
-      background: #080d1a;
-      color: #F8F9FF;
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #08090d;
+      color: #F4F4F5;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       overflow-x: hidden;
       overflow-y: auto;
-      transition: background-color 0.25s ease, color 0.25s ease;
     }
     .mono { font-family: 'DM Mono', monospace; }
 
-    /* Custom Scrollbars */
-    ::-webkit-scrollbar { width: 7px; height: 7px; }
-    ::-webkit-scrollbar-track { background: rgba(11, 15, 23, 0.8); }
-    ::-webkit-scrollbar-thumb { background: rgba(14, 165, 233, 0.35); border-radius: 6px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(14, 165, 233, 0.7); }
+    /* Custom Sleek Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(8, 9, 13, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); }
 
-    /* Glassmorphism */
+    /* Glass Surfaces */
     .glass-panel {
-      background: rgba(14, 21, 36, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.5);
-      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
-    }
-    .glass-card {
-      background: rgba(14, 21, 36, 0.78);
+      background: rgba(14, 16, 23, 0.78);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+    .glass-card {
+      background: rgba(15, 17, 24, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .glass-card:hover {
-      background: rgba(20, 31, 52, 0.92);
-      border-color: rgba(14, 165, 233, 0.45);
+      background: rgba(22, 25, 36, 0.85);
+      border-color: rgba(255, 255, 255, 0.16);
       transform: translateY(-2px);
-      box-shadow: 0 14px 32px -8px rgba(14, 165, 233, 0.18);
+      box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.5);
     }
 
-    /* Buttons */
+    /* Minimalist Segmented Controls */
     .ctrl-btn {
-      background: rgba(14, 21, 36, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       color: #94A3B8;
       font-size: 11px;
       font-weight: 500;
-      padding: 6px 13px;
+      padding: 5px 11px;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
     .ctrl-btn:hover {
-      border-color: #0EA5E9;
-      color: #F8F9FF;
-      transform: translateY(-1px);
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.16);
     }
     .ctrl-btn.active {
-      border-color: #0EA5E9;
-      color: #38BDF8;
-      background: rgba(14, 165, 233, 0.15);
-      box-shadow: 0 0 16px rgba(14, 165, 233, 0.22);
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 3px 8px;
-      border-radius: 9999px;
-      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 500;
       font-size: 10px;
-      letter-spacing: 0.02em;
     }
 
     /* Canvas cursor */
@@ -99,264 +96,121 @@
       cursor: grabbing;
     }
 
-    /* Floating tooltip */
+    /* Floating Tooltip */
     #graph-tooltip {
       position: absolute;
       display: none;
-      background: rgba(10, 18, 30, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(10, 12, 18, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 12px;
-      padding: 12px 14px;
-      max-width: 320px;
+      padding: 10px 14px;
+      max-width: 300px;
       pointer-events: none;
       z-index: 40;
-      box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
       backdrop-filter: blur(16px);
       transition: opacity 0.15s ease-out;
     }
 
-    /* Layout Mode Indicator */
     #mode-indicator {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 42px;
-      font-weight: 800;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.04);
-      pointer-events: none;
-      transition: opacity 0.6s ease;
-      opacity: 0;
-      z-index: 5;
-    }
-
-    /* Telemetry Feed Scrollbar & Cyber Glow (Check Point / Radware Inspo) */
-    #telemetry-log-container::-webkit-scrollbar {
-      width: 4px;
-    }
-    #telemetry-log-container::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
-    }
-    #telemetry-log-container::-webkit-scrollbar-thumb {
-      background: rgba(56, 189, 248, 0.4);
-      border-radius: 4px;
-    }
-    #telemetry-log-container::-webkit-scrollbar-thumb:hover {
-      background: rgba(56, 189, 248, 0.8);
-    }
-
-    @keyframes livePulseGlow {
-      0%, 100% { box-shadow: 0 0 10px rgba(244, 63, 94, 0.3); }
-      50% { box-shadow: 0 0 22px rgba(244, 63, 94, 0.7); }
-    }
-    .telemetry-alert-active {
-      animation: livePulseGlow 1.8s infinite ease-in-out;
+      display: none;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-slate-950">
+<body class="min-h-screen flex flex-col antialiased selection:bg-zinc-700 selection:text-white">
 
   <!-- TOAST NOTIFICATION -->
   <div id="toast-banner" class="fixed top-5 left-1/2 -translate-x-1/2 z-[110] pointer-events-none hidden transition-all duration-300">
-    <div class="px-4 py-2.5 rounded-full bg-slate-900/95 border border-cyan-500/50 text-xs shadow-2xl flex items-center space-x-2.5 backdrop-blur-xl text-white">
-      <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+    <div class="px-4 py-2 rounded-full bg-zinc-900/95 border border-white/15 text-xs shadow-2xl flex items-center space-x-2 backdrop-blur-xl text-zinc-100">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
       <span id="toast-text" class="font-medium">Incident registered</span>
     </div>
   </div>
 
   <!-- TOP APP HEADER -->
-  <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-2xl sticky top-0 z-40 px-6 py-3 flex items-center justify-between shadow-xl">
-    <div class="flex items-center space-x-3.5">
-      <div class="relative group cursor-pointer" onclick="scrollToSection('section-graph')" title="FaultGraph 3D Canvas">
-        <div class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-cyan-500 via-amber-500 to-rose-500 opacity-60 blur group-hover:opacity-100 transition duration-500"></div>
-        <img src="logo.png" alt="FaultGraph Logo" class="relative h-11 w-11 rounded-xl object-contain bg-slate-950 p-1 border border-slate-700/80 shadow-xl group-hover:scale-105 transition-transform duration-300">
-      </div>
-
-      <div>
-        <div class="flex items-center space-x-2">
-          <h1 class="font-bold text-base sm:text-lg tracking-tight text-white flex items-center gap-2">
-            <span>FaultGraph</span>
-            <span class="h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
-          </h1>
-        </div>
-        <p class="text-xs text-slate-400">AI Agent Incident &amp; Vulnerability Knowledge Graph</p>
-      </div>
-    </div>
-
-    <!-- Live Metrics Pills & Global Action Controls -->
+  <header class="border-b border-white/[0.08] bg-zinc-950/85 backdrop-blur-xl sticky top-0 z-40 px-6 py-2.5 flex items-center justify-between">
     <div class="flex items-center space-x-3">
-      <div class="hidden xl:flex items-center space-x-3 px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-300 shadow-inner mono">
-        <div class="flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-          <span class="text-slate-400">Incidents:</span>
-          <span id="stat-incidents" class="font-semibold text-white">15</span>
-        </div>
-        <div class="w-px h-3 bg-slate-800"></div>
-        <div class="flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-          <span class="text-slate-400">Agents:</span>
-          <span id="stat-agents" class="font-semibold text-white">15</span>
-        </div>
-        <div class="w-px h-3 bg-slate-800"></div>
-        <div class="flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span class="text-slate-400">Mitigations:</span>
-          <span id="stat-mitigations" class="font-semibold text-white">15</span>
-        </div>
-        <div class="w-px h-3 bg-slate-800"></div>
-        <div class="flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span class="text-slate-400">Total Loss:</span>
-          <span id="stat-loss" class="font-semibold text-amber-300">$591.0M</span>
-        </div>
-      </div>
-
-      <!-- Geo Knowledge Graph Live Source Badge -->
-      <a href="https://www.geobrowser.io/space/fb47f7907b4cc91be446bbf9fb51ccad" target="_blank" rel="noopener" id="geo-source-badge" class="px-2.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-emerald-500/40 text-emerald-300 text-xs flex items-center space-x-1.5 transition active:scale-95 shadow-sm" title="Connected to Geo Knowledge Graph (Testnet Space: fb47f7907b4cc91be446bbf9fb51ccad)">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="font-mono text-[10px] font-bold tracking-wider">GEO GRAPH</span>
-        <span class="text-slate-400 font-mono text-[9px] hidden sm:inline">fb47f790 ↗</span>
-      </a>
-
-      <!-- Quick Simulate Action Button -->
-      <button onclick="simulateLiveIncident()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs font-medium flex items-center space-x-1.5 transition active:scale-95 shadow-sm" title="Inject a live simulated autonomous agent failure">
-        <span class="text-amber-400">⚡</span>
-        <span class="hidden md:inline">Simulate Event</span>
-      </button>
-
-      <!-- Add Incident Button -->
-      <button onclick="openModal()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-500 hover:from-sky-500 hover:to-cyan-400 text-white font-medium text-xs shadow-lg shadow-cyan-600/25 flex items-center space-x-1.5 transition active:scale-95">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-        <span>New Incident</span>
-      </button>
-
-
-      <!-- Audio Mute Toggle Button -->
-      <button onclick="toggleAudio()" id="btn-audio" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs border border-slate-700/80 transition active:scale-95" title="Sound Effects Toggle (Click to test audio!)">
-        <span id="audio-icon">🔊</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- NAVIGATION BAR (Smooth Scrolling Anchors & Local Database Controls) -->
-  <nav class="bg-slate-950/80 border-b border-slate-800/80 px-6 flex flex-wrap items-center justify-between text-xs gap-3 backdrop-blur-md sticky top-[57px] z-40">
-    <div class="flex flex-wrap items-center space-x-2">
-      <button onclick="scrollToSection('section-graph')" id="nav-btn-graph" class="px-4 py-3 border-b-2 border-cyan-400 text-white font-semibold flex items-center space-x-2 transition duration-200">
-        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span>Interactive 3D Graph</span>
-      </button>
-      <button onclick="scrollToSection('section-catalog')" id="nav-btn-catalog" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2 transition duration-200">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-        <span>Incident Dossiers &amp; Reports</span>
-      </button>
-      <button onclick="scrollToSection('section-triples')" id="nav-btn-triples" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-medium flex items-center space-x-2 transition duration-200">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        <span>System Triples Matrix</span>
-      </button>
-    </div>
-
-    <!-- Search in Top Nav -->
-    <div class="flex items-center space-x-2 py-1.5 relative z-50" id="search-nav-container">
-      <div class="relative flex items-center">
-        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input id="search-input" type="text" oninput="handleGlobalSearch()" onfocus="handleGlobalSearch()" onkeydown="handleSearchKey(event)" placeholder="Search incidents, flaws, models..." class="w-48 sm:w-72 bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-7 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition shadow-inner">
-        <button id="search-clear-btn" onclick="clearGlobalSearch()" class="hidden absolute right-2 text-slate-400 hover:text-white text-xs font-bold px-1 transition" title="Clear search">✕</button>
-      </div>
-      <select id="search-category" onchange="handleGlobalSearch()" class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 cursor-pointer">
-        <option value="all">All Fields</option>
-        <option value="Incident">Incidents</option>
-        <option value="Agent">Agents</option>
-        <option value="FailureMode">Failure Modes</option>
-        <option value="Mitigation">Mitigations</option>
-        <option value="FinancialLoss">Financial Losses</option>
-      </select>
-
-      <!-- Interactive Autocomplete Dropdown -->
-      <div id="search-autocomplete-dropdown" class="hidden absolute top-full right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto bg-slate-950/95 backdrop-blur-2xl border border-slate-700/80 rounded-2xl shadow-2xl p-2 z-[60] text-xs">
-        <!-- Injected via JavaScript -->
+      <div class="cursor-pointer flex items-center space-x-2.5" onclick="scrollToSection('section-graph')" title="FaultGraph 3D Canvas">
+        <img src="logo.png" alt="FaultGraph Logo" class="h-8 w-8 rounded-lg object-contain bg-zinc-900 border border-white/10 p-0.5 shadow-sm">
+        <span class="font-semibold text-sm tracking-tight text-zinc-100">FaultGraph</span>
+        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-400 border border-white/5">GRC-20</span>
       </div>
     </div>
-  </nav>
 
-  <!-- ========================================================================= -->
-  <!-- SECTION 1: 3D INTERACTIVE KNOWLEDGE GRAPH VIEWPORT                        -->
-  <!-- ========================================================================= -->
-  <section id="section-graph" class="relative w-full h-[78vh] min-h-[580px] bg-[#070c18] border-b border-slate-800/80 flex flex-col md:flex-row overflow-hidden">
+    <!-- Center Navigation Tabs -->
+    <nav class="hidden md:flex items-center space-x-1 p-1 rounded-xl bg-zinc-900/60 border border-white/5 text-xs text-zinc-400">
+      <button onclick="scrollToSection('section-graph')" id="nav-btn-graph" class="px-3 py-1.5 rounded-lg text-white font-medium bg-white/10 transition">3D Graph</button>
+      <button onclick="scrollToSection('section-catalog')" id="nav-btn-catalog" class="px-3 py-1.5 rounded-lg hover:text-white transition">Incident Catalog</button>
+      <button onclick="scrollToSection('section-triples')" id="nav-btn-triples" class="px-3 py-1.5 rounded-lg hover:text-white transition">Triples Matrix</button>
+    </nav>
 
-    <!-- 3D Canvas Canvas Container -->
-    <div id="canvas-container" class="flex-1 relative overflow-hidden select-none">
-      <canvas id="graph-canvas"></canvas>
+    <!-- Right: Search, Stats, Geo Link, New Incident -->
+    <div class="flex items-center space-x-2 text-xs">
+      <!-- Search Input Container -->
+      <div class="relative flex items-center" id="search-nav-container">
+        <svg class="w-3.5 h-3.5 text-zinc-400 absolute left-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="search-input" type="text" oninput="handleGlobalSearch()" onfocus="handleGlobalSearch()" onkeydown="handleSearchKey(event)" placeholder="Search incidents, flaws, models..." class="w-36 sm:w-60 bg-zinc-900/80 border border-white/10 rounded-lg pl-8 pr-7 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+        <button id="search-clear-btn" onclick="clearGlobalSearch()" class="hidden absolute right-2 text-zinc-400 hover:text-white text-xs font-bold px-1 transition" title="Clear search">✕</button>
 
-      <!-- Top-Right Live Threat Pipeline Radar & Active Search Status -->
-      <div class="absolute top-4 right-4 z-20 flex flex-wrap items-center gap-2">
-        <!-- Active Filter Pill on Canvas -->
-        <div id="graph-search-status" class="hidden glass-panel px-3 py-1.5 rounded-xl text-xs flex items-center space-x-2 border border-cyan-500/40 shadow-lg">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-          <span id="graph-search-status-text" class="text-slate-200 font-medium"></span>
-          <button onclick="clearGlobalSearch()" class="text-slate-400 hover:text-rose-400 font-bold ml-1 transition" title="Clear filter">✕</button>
-        </div>
+        <!-- Category Dropdown (accessible via autocomplete) -->
+        <select id="search-category" onchange="handleGlobalSearch()" class="hidden">
+          <option value="all">All Fields</option>
+          <option value="Incident">Incidents</option>
+          <option value="Agent">Agents</option>
+          <option value="FailureMode">Failure Modes</option>
+          <option value="Mitigation">Mitigations</option>
+          <option value="FinancialLoss">Financial Losses</option>
+        </select>
 
-        <!-- Live Threat Pipeline Pill (Check Point / Radware Inspo) -->
-        <div class="glass-panel p-1 rounded-xl flex items-center space-x-1.5 text-xs shadow-lg border border-slate-700/60">
-          <div class="flex items-center space-x-1.5 px-2 py-0.5">
-            <span id="live-beacon" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span id="live-status-text" class="text-[11px] font-bold tracking-wider text-emerald-300 font-mono">LIVE RADAR</span>
-            <span class="text-slate-600 font-mono">|</span>
-            <span id="live-rate-text" class="text-cyan-400 font-mono text-[10px]">0.14 ev/s</span>
-          </div>
-
-          <div class="h-4 w-px bg-slate-800"></div>
-
-          <button id="btn-toggle-pipeline" onclick="toggleLivePipeline()" class="ctrl-btn active text-[10px] px-2 py-1" title="Pause / Resume Live Pipeline Stream">
-            PAUSE
-          </button>
-
-          <button id="btn-pipeline-speed" onclick="cyclePipelineSpeed()" class="ctrl-btn text-[10px] px-2 py-1 font-mono text-cyan-300" title="Cycle pipeline velocity (1x Normal, 2x Surge, 5x Hyper)">
-            1x SPEED
-          </button>
-
-          <button onclick="triggerLiveThreatEvent()" class="px-2 py-1 rounded-lg bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-semibold text-[10px] flex items-center space-x-1 shadow-md transition active:scale-95" title="Instantly trigger a live threat anomaly">
-            <span>⚡ Strike Anomaly</span>
-          </button>
-
-          <button onclick="toggleTelemetryDrawer()" id="btn-toggle-drawer" class="ctrl-btn text-[10px] px-2 py-1 flex items-center space-x-1" title="Toggle Live Threat Telemetry Stream Log">
-            <span>Feed</span>
-            <span id="drawer-pill-badge" class="px-1 py-0.2 rounded-full bg-rose-500/80 text-white text-[9px] font-mono">LIVE</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Live Threat Telemetry Stream Drawer (Radware / Check Point Inspo) -->
-      <div id="telemetry-drawer" class="absolute bottom-16 left-4 right-4 sm:right-auto sm:w-[560px] max-w-[calc(100vw-2rem)] z-20 glass-panel rounded-2xl border border-slate-700/80 shadow-2xl transition-all duration-300 overflow-hidden flex flex-col">
-        <!-- Ticker Header Bar -->
-        <div class="px-3.5 py-2 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/80 cursor-pointer select-none group" onclick="toggleTelemetryDrawer()">
-          <div class="flex items-center space-x-2.5 min-w-0 flex-1">
-            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400 font-mono shrink-0">THREAT TELEMETRY FEED</span>
-            <span class="text-slate-600 shrink-0">|</span>
-            <div id="ticker-preview-text" class="text-xs text-slate-300 font-medium truncate flex-1">
-              Initializing live threat ingestion pipeline...
-            </div>
-          </div>
-          <div class="flex items-center space-x-2 shrink-0 text-slate-400 group-hover:text-white text-xs pl-2">
-            <span id="ticker-counter-badge" class="px-1.5 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-[10px] font-mono text-cyan-400">1,420 events</span>
-            <span id="ticker-toggle-icon" class="text-xs transition-transform duration-200">▲</span>
-          </div>
-        </div>
-
-        <!-- Expanded Event Log Stream (Smooth Scroll Area) -->
-        <div id="telemetry-log-container" class="hidden max-h-56 overflow-y-auto divide-y divide-slate-800/60 p-2 text-xs bg-slate-950/95">
+        <!-- Autocomplete Dropdown -->
+        <div id="search-autocomplete-dropdown" class="hidden absolute top-full right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto bg-zinc-950/95 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl p-2 z-[60] text-xs">
           <!-- Injected via JavaScript -->
         </div>
       </div>
 
-      <!-- Mode Label Overlay -->
-      <div id="mode-indicator">CLUSTER</div>
+      <!-- Quick Metrics Pill -->
+      <div class="hidden lg:flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-zinc-900/80 border border-white/5 text-[11px] font-mono text-zinc-400">
+        <span class="text-zinc-200 font-semibold" id="stat-incidents">15</span>
+        <span>incidents</span>
+        <span class="text-zinc-600">·</span>
+        <span class="text-amber-400/90 font-semibold" id="stat-loss">$591.0M</span>
+        <span class="hidden" id="stat-agents">15</span>
+        <span class="hidden" id="stat-mitigations">15</span>
+      </div>
 
-      <!-- Top-Left Floating Toolbar (Layouts & Rotation) -->
-      <div class="absolute top-4 left-4 flex flex-wrap gap-2 z-10">
+      <!-- Geo Link Badge -->
+      <a href="https://www.geobrowser.io/space/fb47f7907b4cc91be446bbf9fb51ccad" target="_blank" rel="noopener" id="geo-source-badge" class="px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-zinc-300 text-[11px] flex items-center space-x-1.5 transition" title="Connected to Geo Knowledge Graph Space fb47f7907b4cc91be446bbf9fb51ccad">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        <span class="font-mono text-[10px]">Geo Testnet ↗</span>
+      </a>
+
+      <!-- New Incident Button -->
+      <button onclick="openModal()" class="px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center space-x-1.5 transition active:scale-95 shadow-sm">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/></svg>
+        <span>New Incident</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 1: 3D INTERACTIVE KNOWLEDGE GRAPH VIEWPORT                        -->
+  <!-- ========================================================================= -->
+  <section id="section-graph" class="relative w-full h-[78vh] min-h-[580px] bg-[#08090d] border-b border-white/[0.08] flex flex-col md:flex-row overflow-hidden">
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container" class="flex-1 relative overflow-hidden select-none">
+      <canvas id="graph-canvas"></canvas>
+
+      <!-- Active Filter Pill on Canvas -->
+      <div id="graph-search-status" class="hidden absolute top-4 right-4 z-20 glass-panel px-3 py-1.5 rounded-xl text-xs flex items-center space-x-2 border border-white/10 shadow-lg">
+        <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+        <span id="graph-search-status-text" class="text-zinc-200 font-medium"></span>
+        <button onclick="clearGlobalSearch()" class="text-zinc-400 hover:text-rose-400 font-bold ml-1 transition" title="Clear filter">✕</button>
+      </div>
+
+      <!-- Top-Left Floating Controls Dock -->
+      <div class="absolute top-4 left-4 flex flex-wrap gap-2 z-20">
+        <!-- Layout Switcher Segmented Control -->
         <div class="glass-panel p-1 rounded-xl flex items-center space-x-1">
           <button class="ctrl-btn active" id="btn-layout-cluster" onclick="setLayout('cluster')">
             <span>System Cluster</span>
@@ -369,124 +223,116 @@
           </button>
         </div>
 
+        <!-- Camera Controls -->
         <div class="glass-panel p-1 rounded-xl flex items-center space-x-1">
           <button class="ctrl-btn active" id="btn-toggle-rotate" onclick="toggleAutoRotate()">
             <span id="rotate-text">Auto-Spin</span>
           </button>
           <button class="ctrl-btn" id="btn-reset-cam" onclick="resetCamera()">
-            <span>Reset Cam</span>
+            <span>Reset View</span>
           </button>
         </div>
       </div>
 
-      <!-- Bottom-Left Relation Edge Toggles -->
-      <div class="absolute bottom-4 left-4 z-10 glass-panel p-2 rounded-2xl flex flex-wrap items-center gap-2 text-xs">
-        <span class="text-[10px] uppercase font-bold text-slate-400 px-1">Relations:</span>
+      <!-- Bottom-Left Floating Relations Filter -->
+      <div class="absolute bottom-4 left-4 z-20 glass-panel p-1.5 rounded-xl flex flex-wrap items-center gap-1.5 text-xs">
+        <span class="text-[10px] uppercase font-mono font-medium text-zinc-500 px-1.5">Relations:</span>
         <button class="ctrl-btn active text-[11px]" id="btn-edge-all" onclick="toggleEdgeFilter('all')">All</button>
         <button class="ctrl-btn active text-[11px]" id="btn-edge-agent" onclick="toggleEdgeFilter('involves_agent')">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
-          <span>Agents</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-400 inline-block mr-0.5"></span>Agents
         </button>
         <button class="ctrl-btn active text-[11px]" id="btn-edge-failure" onclick="toggleEdgeFilter('exhibits')">
-          <span class="w-2 h-2 rounded-full bg-rose-400 inline-block"></span>
-          <span>Failures</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block mr-0.5"></span>Failures
         </button>
         <button class="ctrl-btn active text-[11px]" id="btn-edge-mitigation" onclick="toggleEdgeFilter('mitigated_by')">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
-          <span>Defenses</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block mr-0.5"></span>Mitigations
         </button>
         <button class="ctrl-btn active text-[11px]" id="btn-edge-loss" onclick="toggleEdgeFilter('resulted_in')">
-          <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
-          <span>Losses</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block mr-0.5"></span>Losses
         </button>
       </div>
 
       <!-- Zoom Controls (Right Middle) -->
-      <div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col space-y-2 z-10 glass-panel p-1.5 rounded-2xl">
-        <button onclick="zoomIn()" class="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-lg font-bold transition active:scale-90" title="Zoom In">+</button>
-        <button onclick="zoomOut()" class="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-lg font-bold transition active:scale-90" title="Zoom Out">−</button>
-        <button onclick="resetCamera()" class="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition active:scale-90" title="Reset Camera">⛶</button>
+      <div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col space-y-1.5 z-20 glass-panel p-1 rounded-xl">
+        <button onclick="zoomIn()" class="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white rounded-lg text-sm font-medium transition" title="Zoom In">+</button>
+        <button onclick="zoomOut()" class="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white rounded-lg text-sm font-medium transition" title="Zoom Out">−</button>
       </div>
 
       <!-- Floating Tooltip HUD -->
       <div id="graph-tooltip">
-        <div id="tt-type" class="text-[10px] uppercase font-bold tracking-wider text-cyan-400 mb-1">Entity</div>
-        <div id="tt-name" class="font-bold text-sm text-white leading-snug mb-1">Entity Title</div>
-        <div id="tt-meta" class="text-xs text-slate-400 mb-2 leading-relaxed">Metadata description</div>
-        <div id="tt-extra" class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-300 flex items-center justify-between">
-          <span id="tt-conns" class="mono text-cyan-300">0 connections</span>
-          <span class="text-[10px] text-slate-500">Click to inspect</span>
+        <div id="tt-type" class="text-[10px] uppercase font-mono font-semibold tracking-wider text-sky-400 mb-0.5">Entity</div>
+        <div id="tt-name" class="font-semibold text-xs text-white leading-snug mb-1">Entity Title</div>
+        <div id="tt-meta" class="text-[11px] text-zinc-400 mb-2 leading-relaxed">Metadata description</div>
+        <div id="tt-extra" class="pt-1.5 border-t border-white/[0.08] text-[10px] text-zinc-400 flex items-center justify-between">
+          <span id="tt-conns" class="mono text-sky-300">0 connections</span>
+          <span class="text-zinc-500">Click to inspect</span>
         </div>
       </div>
 
-      <!-- Scroll-Down Indicator Pill -->
-      <button onclick="scrollToSection('section-catalog')" class="absolute bottom-4 right-4 z-10 glass-panel px-3.5 py-1.5 rounded-full flex items-center space-x-2 text-xs text-cyan-300 hover:text-white hover:border-cyan-500/50 transition shadow-lg group">
-        <span>Scroll down for Post-Mortems</span>
-        <span class="group-hover:translate-y-0.5 transition-transform">↓</span>
-      </button>
-
+      <!-- Mode Label Overlay -->
+      <div id="mode-indicator" class="hidden"></div>
     </div>
 
-    <!-- Slide-Out Deep Semantic Sidepanel (Fixed Header/Footer + Smooth Scroll Area) -->
-    <aside id="sidepanel" class="w-full md:w-96 border-t md:border-t-0 md:border-l border-slate-800/90 bg-slate-950/95 flex flex-col justify-between shadow-2xl z-20 backdrop-blur-2xl shrink-0 h-full">
+    <!-- Slide-Out Deep Semantic Sidepanel -->
+    <aside id="sidepanel" class="w-full md:w-96 border-t md:border-t-0 md:border-l border-white/[0.08] bg-zinc-950/90 flex flex-col justify-between shadow-2xl z-20 backdrop-blur-xl shrink-0 h-full">
 
       <!-- Sidepanel Fixed Header -->
-      <div class="p-4 border-b border-slate-800 flex items-center justify-between shrink-0">
-        <span class="text-xs uppercase tracking-wider font-bold text-slate-400 flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+      <div class="p-4 border-b border-white/[0.08] flex items-center justify-between shrink-0">
+        <span class="text-xs uppercase tracking-wider font-semibold text-zinc-400 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
           <span>Knowledge Inspector</span>
         </span>
-        <span id="sidepanel-type-badge" class="badge bg-slate-800 text-slate-300">Overview</span>
+        <span id="sidepanel-type-badge" class="badge bg-zinc-800 text-zinc-300">Overview</span>
       </div>
 
-      <!-- Sidepanel Inner Scrollable Container (Fixed: min-h-0 + overflow-y-auto guarantees silky scroll!) -->
+      <!-- Sidepanel Scrollable Container -->
       <div id="sidepanel-scroll-container" class="flex-1 overflow-y-auto p-5 space-y-4 min-h-0">
 
         <!-- Empty Placeholder -->
-        <div id="sidepanel-empty" class="text-center py-14 text-slate-500 text-xs">
-          <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto mb-3.5 text-cyan-400 shadow-inner">
-            <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+        <div id="sidepanel-empty" class="text-center py-16 text-zinc-500 text-xs">
+          <div class="w-12 h-12 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center mx-auto mb-3 text-zinc-400 shadow-inner">
+            <svg class="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
           </div>
-          <p class="font-semibold text-slate-300 mb-1 text-sm">Select Any 3D Entity</p>
-          <p class="text-slate-400 leading-relaxed max-w-xs mx-auto">Rotate the graph and click on any node to view its verified post-mortem, parameters, and connected system relations.</p>
+          <p class="font-medium text-zinc-300 mb-1">Select Any 3D Entity</p>
+          <p class="text-zinc-500 leading-relaxed max-w-xs mx-auto">Click any node to view its verified post-mortem, parameters, and connected system relations.</p>
         </div>
 
         <!-- Populated Content Area -->
         <div id="sidepanel-content" class="hidden space-y-4">
           <div>
-            <div id="sp-category" class="text-[10px] uppercase font-bold tracking-widest text-cyan-400 mb-1">Incident</div>
-            <h3 id="sp-title" class="font-bold text-base text-white leading-snug">Incident Name</h3>
-            <p id="sp-desc" class="text-xs text-slate-300 mt-2.5 leading-relaxed bg-slate-900/80 p-3 rounded-xl border border-slate-800/80">Description goes here.</p>
+            <div id="sp-category" class="text-[10px] uppercase font-mono font-semibold tracking-wider text-sky-400 mb-1">Incident</div>
+            <h3 id="sp-title" class="font-semibold text-sm text-white leading-snug">Incident Name</h3>
+            <p id="sp-desc" class="text-xs text-zinc-300 mt-2 leading-relaxed bg-zinc-900/60 p-3 rounded-xl border border-white/5">Description goes here.</p>
           </div>
 
           <!-- Verified Post-Mortem Quick Actions -->
           <div id="sp-actions" class="space-y-2">
-            <button id="sp-read-report-btn" onclick="openPostMortemModalForCurrentNode()" class="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-500 hover:from-sky-500 hover:to-cyan-400 text-white text-xs font-semibold flex items-center justify-center space-x-2 shadow-lg shadow-cyan-600/25 transition active:scale-95">
-              <span>📖 Read Full Post-Mortem Report</span>
+            <button id="sp-read-report-btn" onclick="openPostMortemModalForCurrentNode()" class="w-full py-2 px-3 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium flex items-center justify-center space-x-2 transition active:scale-95 shadow-sm">
+              <span>Read Full Post-Mortem →</span>
             </button>
-            <a id="sp-link" href="#" target="_blank" rel="noopener" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-cyan-300 text-xs font-medium flex items-center justify-center space-x-1.5 transition">
-              <span id="sp-link-text">Official Source &rarr;</span>
+            <a id="sp-link" href="#" target="_blank" rel="noopener" class="w-full py-2 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 text-xs font-medium flex items-center justify-center space-x-1.5 transition">
+              <span id="sp-link-text">Official Source ↗</span>
             </a>
           </div>
 
           <!-- Attributes & Parameters -->
-          <div class="space-y-2 pt-2 border-t border-slate-800/80">
-            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-              <span>Attributes &amp; Parameters</span>
-              <span class="text-[10px] text-cyan-400 mono">Entity Attributes</span>
+          <div class="space-y-2 pt-2 border-t border-white/[0.08]">
+            <h4 class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Attributes</span>
+              <span class="text-[10px] text-zinc-500 font-mono">Parameters</span>
             </h4>
-            <div id="sp-properties" class="space-y-2 text-xs">
+            <div id="sp-properties" class="space-y-1.5 text-xs">
               <!-- Injected via JS -->
             </div>
           </div>
 
           <!-- Connected Triples -->
-          <div class="space-y-2 pt-2 border-t border-slate-800/80">
+          <div class="space-y-2 pt-2 border-t border-white/[0.08]">
             <div class="flex items-center justify-between">
-              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Connected Triples</h4>
-              <span class="text-[10px] text-slate-500">Subject &rarr; Predicate &rarr; Object</span>
+              <h4 class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Connected Triples</h4>
+              <span class="text-[10px] text-zinc-500 font-mono">GRC-20 Relations</span>
             </div>
-            <div id="sp-relations" class="space-y-2 text-xs">
+            <div id="sp-relations" class="space-y-1.5 text-xs">
               <!-- Injected via JS -->
             </div>
           </div>
@@ -501,29 +347,25 @@
   <!-- ========================================================================= -->
   <!-- SECTION 2: INCIDENT CATALOG & VERIFIED POST-MORTEM REPORTS               -->
   <!-- ========================================================================= -->
-  <section id="section-catalog" class="py-12 px-6 sm:px-10 bg-[#070b16] border-b border-slate-800/80">
-    <div class="max-w-7xl mx-auto space-y-8">
+  <section id="section-catalog" class="py-12 px-6 sm:px-10 bg-[#08090d] border-b border-white/[0.08]">
+    <div class="max-w-7xl mx-auto space-y-6">
 
       <!-- Section Header -->
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-800/80">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-white/[0.08]">
         <div>
-          <div class="flex items-center space-x-2 mb-1">
-            <span class="badge bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Case Studies</span>
-            <span class="badge bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Verified Sources</span>
-          </div>
-          <h2 class="text-2xl font-bold text-white tracking-tight">FaultGraph Incident Catalog &amp; Post-Mortems</h2>
-          <p class="text-xs text-slate-400 mt-1 max-w-2xl">
-            Audit-grade dossiers of real-world autonomous agent failures, court rulings, regulatory SEC filings, and security advisories.
+          <h2 class="text-xl font-semibold text-white tracking-tight">Incident Catalog &amp; Post-Mortems</h2>
+          <p class="text-xs text-zinc-400 mt-1">
+            Verified dossiers of autonomous agent failures, court rulings, regulatory SEC filings, and engineering mitigations.
           </p>
         </div>
 
         <div class="flex items-center space-x-3 w-full md:w-auto">
-          <input type="text" id="catalog-search" oninput="handleCatalogSearch()" placeholder="Filter incidents, models, flaws..." class="w-full md:w-72 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition shadow-inner">
+          <input type="text" id="catalog-search" oninput="handleCatalogSearch()" placeholder="Filter incidents, models, flaws..." class="w-full md:w-72 bg-zinc-900/80 border border-white/10 rounded-lg px-3.5 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
         </div>
       </div>
 
       <!-- Cards Grid -->
-      <div id="catalog-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div id="catalog-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <!-- Injected via JavaScript -->
       </div>
 
@@ -533,35 +375,31 @@
   <!-- ========================================================================= -->
   <!-- SECTION 3: SYSTEM TRIPLES SCHEMA MATRIX                                   -->
   <!-- ========================================================================= -->
-  <section id="section-triples" class="py-12 px-6 sm:px-10 bg-[#060a14] border-b border-slate-800/80">
+  <section id="section-triples" class="py-12 px-6 sm:px-10 bg-[#06070a] border-b border-white/[0.08]">
     <div class="max-w-7xl mx-auto space-y-6">
 
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-5 border-b border-slate-800/80">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-5 border-b border-white/[0.08]">
         <div>
-          <div class="flex items-center space-x-2 mb-1">
-            <span class="badge bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">Semantic Knowledge</span>
-            <span class="badge bg-slate-800 text-slate-300">Live Graph</span>
-          </div>
-          <h2 class="text-2xl font-bold text-white tracking-tight">Knowledge Graph Triples Matrix</h2>
-          <p class="text-xs text-slate-400 mt-1">Verifiable semantic relationships structured as Subject &rarr; Predicate &rarr; Object</p>
+          <h2 class="text-xl font-semibold text-white tracking-tight">Knowledge Graph Triples Matrix</h2>
+          <p class="text-xs text-zinc-400 mt-1">Verifiable semantic relationships structured as Subject &rarr; Predicate &rarr; Object</p>
         </div>
-        <button onclick="scrollToSection('section-graph')" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-800 text-xs font-medium transition">
+        <button onclick="scrollToSection('section-graph')" class="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 text-xs font-medium transition">
           View in 3D &uarr;
         </button>
       </div>
 
-      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+      <div class="bg-zinc-900/40 border border-white/[0.08] rounded-xl overflow-hidden shadow-xl backdrop-blur-xl">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-800/60 border-b border-slate-700/80 text-slate-300 font-semibold uppercase tracking-wider mono text-[10px]">
+            <thead class="bg-zinc-900/80 border-b border-white/[0.08] text-zinc-400 font-medium uppercase font-mono text-[10px]">
               <tr>
-                <th class="p-4">Subject (Entity)</th>
-                <th class="p-4">Predicate (Relation)</th>
-                <th class="p-4">Object (Target Entity)</th>
-                <th class="p-4 text-right">Inspect Action</th>
+                <th class="p-3.5 pl-5">Subject (Entity)</th>
+                <th class="p-3.5">Predicate (Relation)</th>
+                <th class="p-3.5">Object (Target Entity)</th>
+                <th class="p-3.5 pr-5 text-right">Inspect Action</th>
               </tr>
             </thead>
-            <tbody id="triples-table-body" class="divide-y divide-slate-800/80 text-slate-300">
+            <tbody id="triples-table-body" class="divide-y divide-white/[0.05] text-zinc-300">
               <!-- Injected via JS -->
             </tbody>
           </table>
@@ -571,39 +409,38 @@
     </div>
   </section>
 
-
   <!-- ========================================================================= -->
-  <!-- FULL POST-MORTEM REPORT MODAL (In-App Reader)                            -->
+  <!-- FULL POST-MORTEM REPORT MODAL                                            -->
   <!-- ========================================================================= -->
-  <div id="postmortem-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-slate-950 border border-slate-800 rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden animate-modal">
+  <div id="postmortem-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-950 border border-white/10 rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl relative overflow-hidden">
 
       <!-- Modal Header -->
-      <div class="p-6 border-b border-slate-800 flex items-start justify-between gap-4 shrink-0 bg-slate-900/60">
+      <div class="p-5 border-b border-white/[0.08] flex items-start justify-between gap-4 shrink-0 bg-zinc-900/40">
         <div>
-          <div class="flex items-center space-x-2 mb-2">
-            <span id="pm-severity-badge" class="badge bg-rose-500/20 text-rose-300 border border-rose-500/30">Critical</span>
-            <span id="pm-source-badge" class="badge bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Verified Source</span>
-            <span id="pm-date" class="mono text-xs text-slate-400">2026-04-18</span>
+          <div class="flex items-center space-x-2 mb-1.5">
+            <span id="pm-severity-badge" class="badge bg-rose-500/10 text-rose-300 border border-rose-500/20">Critical</span>
+            <span id="pm-source-badge" class="badge bg-zinc-800 text-zinc-300">Verified Source</span>
+            <span id="pm-date" class="mono text-[11px] text-zinc-500">2026-04-18</span>
           </div>
-          <h2 id="pm-title" class="text-xl font-bold text-white tracking-tight leading-snug">Incident Post-Mortem Report</h2>
+          <h2 id="pm-title" class="text-base font-semibold text-white tracking-tight leading-snug">Incident Post-Mortem Report</h2>
         </div>
-        <button onclick="closePostMortemModal()" class="w-9 h-9 rounded-xl bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center text-xl font-bold transition active:scale-95 shrink-0">&times;</button>
+        <button onclick="closePostMortemModal()" class="w-8 h-8 rounded-lg bg-zinc-900 text-zinc-400 hover:text-white flex items-center justify-center text-lg font-medium transition active:scale-95 shrink-0">&times;</button>
       </div>
 
       <!-- Modal Scrollable Content -->
-      <div id="pm-body" class="p-6 sm:p-8 overflow-y-auto space-y-6 text-xs leading-relaxed text-slate-300">
+      <div id="pm-body" class="p-6 overflow-y-auto space-y-5 text-xs leading-relaxed text-zinc-300">
         <!-- Injected via JavaScript -->
       </div>
 
       <!-- Modal Footer -->
-      <div class="p-4 border-t border-slate-800 flex items-center justify-between shrink-0 bg-slate-900/80">
-        <span class="text-slate-400 text-xs">FaultGraph Incident Audit Dossier</span>
-        <div class="flex items-center space-x-3">
-          <a id="pm-external-link" href="#" target="_blank" rel="noopener" class="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-500 hover:from-sky-500 hover:to-cyan-400 text-white font-medium text-xs shadow-md transition flex items-center space-x-1.5">
+      <div class="p-4 border-t border-white/[0.08] flex items-center justify-between shrink-0 bg-zinc-900/60">
+        <span class="text-zinc-500 text-xs">FaultGraph Audit Dossier</span>
+        <div class="flex items-center space-x-2.5">
+          <a id="pm-external-link" href="#" target="_blank" rel="noopener" class="px-3.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs shadow-sm transition flex items-center space-x-1.5">
             <span>Open External Source ↗</span>
           </a>
-          <button onclick="closePostMortemModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition">
+          <button onclick="closePostMortemModal()" class="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-medium text-xs transition border border-white/5">
             Close
           </button>
         </div>
@@ -612,81 +449,83 @@
     </div>
   </div>
 
-  <!-- ADD INCIDENT MODAL -->
-  <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-slate-950 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative space-y-5 animate-modal">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+  <!-- ========================================================================= -->
+  <!-- ADD INCIDENT MODAL                                                        -->
+  <!-- ========================================================================= -->
+  <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-950 border border-white/10 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
         <div>
-          <h3 class="text-base font-bold text-white tracking-tight">Add New Incident to 3D Graph</h3>
-          <p class="text-[11px] text-slate-400">Instantly attaches new semantic triples to the knowledge graph</p>
+          <h3 class="text-sm font-semibold text-white tracking-tight">Add New Incident to 3D Graph</h3>
+          <p class="text-[11px] text-zinc-400">Attaches new semantic triples to the knowledge graph</p>
         </div>
-        <button onclick="closeModal()" class="w-8 h-8 rounded-xl bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center text-lg font-bold transition active:scale-95">&times;</button>
+        <button onclick="closeModal()" class="w-7 h-7 rounded-lg bg-zinc-900 text-zinc-400 hover:text-white flex items-center justify-center text-base font-medium transition active:scale-95">&times;</button>
       </div>
 
-      <form id="incident-form" onsubmit="handleFormSubmit(event)" class="space-y-4 text-xs">
+      <form id="incident-form" onsubmit="handleFormSubmit(event)" class="space-y-3.5 text-xs">
         <div>
-          <label class="block text-slate-300 font-medium mb-1.5">Incident Title *</label>
-          <input type="text" id="form-name" required placeholder="e.g. Flash Arbitrage LLM Order Splitting Failure" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+          <label class="block text-zinc-300 font-medium mb-1">Incident Title *</label>
+          <input type="text" id="form-name" required placeholder="e.g. Flash Arbitrage LLM Order Splitting Failure" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
         </div>
 
-        <div class="grid grid-cols-2 gap-3.5">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-300 font-medium mb-1.5">Incident Date *</label>
-            <input type="date" id="form-date" required class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-cyan-500 transition">
+            <label class="block text-zinc-300 font-medium mb-1">Incident Date *</label>
+            <input type="date" id="form-date" required class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-zinc-500 transition">
           </div>
           <div>
-            <label class="block text-slate-300 font-medium mb-1.5">Severity *</label>
-            <select id="form-severity" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-cyan-500 transition">
-              <option value="Critical">🔴 Critical (Destroyed State / High Loss)</option>
-              <option value="High">🟠 High (Privilege Breach / Slippage Loop)</option>
-              <option value="Medium">🔵 Medium (Hallucination / Bounded Loss)</option>
-              <option value="Low">🟢 Low (Minor Prompt Incoherence)</option>
+            <label class="block text-zinc-300 font-medium mb-1">Severity *</label>
+            <select id="form-severity" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-zinc-500 transition">
+              <option value="Critical">Critical (Destroyed State / High Loss)</option>
+              <option value="High">High (Privilege Breach / Slippage Loop)</option>
+              <option value="Medium">Medium (Hallucination / Bounded Loss)</option>
+              <option value="Low">Low (Minor Prompt Incoherence)</option>
             </select>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3.5">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-300 font-medium mb-1.5">Agent Name *</label>
-            <input type="text" id="form-agent" required placeholder="e.g. DeFi-Arbitrageur-v2" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+            <label class="block text-zinc-300 font-medium mb-1">Agent Name *</label>
+            <input type="text" id="form-agent" required placeholder="e.g. DeFi-Arbitrageur-v2" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
           </div>
           <div>
-            <label class="block text-slate-300 font-medium mb-1.5">Agent Architecture</label>
-            <input type="text" id="form-arch" placeholder="e.g. LangGraph Multi-Agent Router" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+            <label class="block text-zinc-300 font-medium mb-1">Agent Architecture</label>
+            <input type="text" id="form-arch" placeholder="e.g. LangGraph Router" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
           </div>
         </div>
 
         <div>
-          <label class="block text-slate-300 font-medium mb-1.5">Failure Mode (Root Cause) *</label>
-          <input type="text" id="form-failure" required placeholder="e.g. Recursive Slippage Feedback Loop" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+          <label class="block text-zinc-300 font-medium mb-1">Failure Mode (Root Cause) *</label>
+          <input type="text" id="form-failure" required placeholder="e.g. Recursive Slippage Feedback Loop" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
         </div>
 
         <div>
-          <label class="block text-slate-300 font-medium mb-1.5">Mitigation Strategy *</label>
-          <input type="text" id="form-mitigation" required placeholder="e.g. Dynamic Drawdown Circuit Breaker" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+          <label class="block text-zinc-300 font-medium mb-1">Mitigation Strategy *</label>
+          <input type="text" id="form-mitigation" required placeholder="e.g. Dynamic Drawdown Circuit Breaker" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
         </div>
 
-        <div class="grid grid-cols-2 gap-3.5">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-300 font-medium mb-1.5">Financial Loss ($ USD)</label>
-            <input type="number" id="form-loss" placeholder="e.g. 1200000" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+            <label class="block text-zinc-300 font-medium mb-1">Financial Loss ($ USD)</label>
+            <input type="number" id="form-loss" placeholder="e.g. 1200000" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
           </div>
           <div>
-            <label class="block text-slate-300 font-medium mb-1.5">Source / Post-Mortem URL</label>
-            <input type="url" id="form-link" placeholder="https://example.com/postmortem" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+            <label class="block text-zinc-300 font-medium mb-1">Source / Post-Mortem URL</label>
+            <input type="url" id="form-link" placeholder="https://example.com/postmortem" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
           </div>
         </div>
 
-        <div class="flex items-center justify-end space-x-2.5 pt-4 border-t border-slate-800">
-          <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 font-medium transition">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-500 hover:from-sky-500 hover:to-cyan-400 text-white font-semibold shadow-lg shadow-cyan-600/30 transition active:scale-95">Add Triples to 3D Graph</button>
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-white/[0.08]">
+          <button type="button" onclick="closeModal()" class="px-3.5 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-medium transition">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium shadow-sm transition active:scale-95">Add Triples to Graph</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- ========================================================================= -->
-  <!-- APPLICATION ENGINE & SCRIPT                                               -->
+  <!-- APPLICATION SCRIPT & ENGINE                                               -->
   <!-- ========================================================================= -->
   <script>
     // -------------------------------------------------------------------------
@@ -696,12 +535,22 @@
       const el = document.getElementById(id);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' });
-        sfxClick();
       }
     }
 
+    // Safe silent sound no-ops
+    function sfxClick() {}
+    function sfxNodeSelect() {}
+    function sfxLayout() {}
+    function sfxModal() {}
+    function sfxAlert() {}
+    function sfxThreatLaser() {}
+    function sfxImpactShockwave() {}
+    function sfxDefenseShield() {}
+    function playTone() {}
+
     // -------------------------------------------------------------------------
-    // GLOBAL SEARCH, AUTOCOMPLETE & CATEGORY FILTERING ENGINE
+    // GLOBAL SEARCH & AUTOCOMPLETE ENGINE
     // -------------------------------------------------------------------------
     function escapeHtml(str) {
       if (!str) return '';
@@ -711,7 +560,7 @@
     function highlightQuery(text, query) {
       if (!query || !text) return escapeHtml(text || '');
       const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-      return escapeHtml(text).replace(regex, '<span class="text-cyan-400 font-bold bg-cyan-950/80 px-1 py-0.5 rounded">$1</span>');
+      return escapeHtml(text).replace(regex, '<span class="text-sky-300 font-semibold bg-sky-950/80 px-1 py-0.5 rounded">$1</span>');
     }
 
     function handleGlobalSearch() {
@@ -771,18 +620,18 @@
           dropdown.classList.remove('hidden');
           if (matches.length === 0) {
             dropdown.innerHTML = `
-              <div class="p-4 text-center text-slate-400">
-                <span class="block text-slate-500 mb-1 font-mono text-[11px]">Zero graph hits</span>
-                No entities found matching "<span class="text-white">${escapeHtml(query)}</span>"
+              <div class="p-4 text-center text-zinc-400">
+                <span class="block text-zinc-500 mb-1 font-mono text-[11px]">No results</span>
+                No graph entities found matching "<span class="text-white">${escapeHtml(query)}</span>"
               </div>
             `;
           } else {
             let html = `
-              <div class="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-800/80 flex justify-between items-center bg-slate-900/60 rounded-t-xl">
-                <span>Matching Graph Entities (${matches.length})</span>
-                <span class="text-cyan-400 lowercase font-normal">click to focus in 3D</span>
+              <div class="px-3 py-1.5 text-[10px] uppercase font-mono font-semibold text-zinc-400 border-b border-white/[0.08] flex justify-between items-center bg-zinc-900/50 rounded-t-lg">
+                <span>Matching Entities (${matches.length})</span>
+                <span class="text-zinc-500 lowercase font-normal">click to focus in 3D</span>
               </div>
-              <div class="divide-y divide-slate-900/60 max-h-72 overflow-y-auto">
+              <div class="divide-y divide-white/[0.05] max-h-72 overflow-y-auto">
             `;
             const sortedMatches = [...matches].sort((a, b) => {
               const order = { Incident: 0, Agent: 1, FailureMode: 2, Mitigation: 3, FinancialLoss: 4 };
@@ -793,15 +642,15 @@
               const typeColor = node.color || '#38BDF8';
               const parentInc = node.incidentRef ? node.incidentRef.name : '';
               html += `
-                <div onclick="selectSearchResult('${node.id}')" class="p-2.5 rounded-xl hover:bg-slate-800/80 cursor-pointer transition flex items-start space-x-2.5 group">
-                  <span class="w-2.5 h-2.5 rounded-full shrink-0 mt-1" style="background:${typeColor}; box-shadow:0 0 8px ${typeColor}"></span>
+                <div onclick="selectSearchResult('${node.id}')" class="p-2.5 rounded-lg hover:bg-zinc-800/60 cursor-pointer transition flex items-start space-x-2.5 group">
+                  <span class="w-2 h-2 rounded-full shrink-0 mt-1" style="background:${typeColor}"></span>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-1">
-                      <span class="font-semibold text-slate-200 group-hover:text-cyan-300 transition truncate text-xs">${highlightQuery(node.name, query)}</span>
-                      <span class="text-[9px] px-1.5 py-0.5 rounded font-mono uppercase bg-slate-800 text-slate-400 shrink-0">${node.type}</span>
+                      <span class="font-medium text-zinc-200 group-hover:text-white transition truncate text-xs">${highlightQuery(node.name, query)}</span>
+                      <span class="text-[9px] px-1.5 py-0.5 rounded font-mono uppercase bg-zinc-800 text-zinc-400 shrink-0">${node.type}</span>
                     </div>
-                    ${node.description ? `<p class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtml(node.description)}</p>` : ''}
-                    ${parentInc && node.type !== 'Incident' ? `<p class="text-[10px] text-cyan-400/80 truncate mt-0.5">↳ Dossier: ${escapeHtml(parentInc)}</p>` : ''}
+                    ${node.description ? `<p class="text-[11px] text-zinc-400 truncate mt-0.5">${escapeHtml(node.description)}</p>` : ''}
+                    ${parentInc && node.type !== 'Incident' ? `<p class="text-[10px] text-zinc-500 truncate mt-0.5">↳ In incident: ${escapeHtml(parentInc)}</p>` : ''}
                   </div>
                 </div>
               `;
@@ -832,7 +681,6 @@
       if (dropdown) dropdown.classList.add('hidden');
 
       focusNodeIn3D(node);
-      sfxNodeSelect();
     }
 
     function clearGlobalSearch() {
@@ -856,7 +704,6 @@
       draw();
       renderIncidentCatalog();
       renderTriplesTable();
-      sfxClick();
     }
 
     function handleSearchKey(event) {
@@ -880,7 +727,6 @@
     function focusNodeIn3D(node) {
       if (!node) return;
       scrollToSection('section-graph');
-      // Rotate camera to face node directly and zoom in
       const angleY = Math.atan2(node.x, node.z);
       rotY = -angleY;
       rotX = 0.22;
@@ -900,7 +746,6 @@
       handleGlobalSearch();
     }
 
-    // Dismiss search dropdown when clicking elsewhere
     document.addEventListener('click', (e) => {
       const searchContainer = document.getElementById('search-nav-container');
       const dropdown = document.getElementById('search-autocomplete-dropdown');
@@ -908,149 +753,6 @@
         dropdown.classList.add('hidden');
       }
     });
-
-    // -------------------------------------------------------------------------
-    // SOUND FEEDBACK (High-Fidelity Web Audio Synthesizer)
-    // -------------------------------------------------------------------------
-    let audioEnabled = true;
-    let audioCtx = null;
-
-    function initAudio() {
-      if (!audioCtx) {
-        const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtxClass) {
-          audioCtx = new AudioCtxClass();
-        }
-      }
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-    }
-
-    // Proactive gesture unlock on first user interaction anywhere
-    ['click', 'touchstart', 'keydown'].forEach(evt => {
-      window.addEventListener(evt, () => {
-        initAudio();
-      }, { passive: true });
-    });
-
-    function playTone(freq = 600, duration = 0.08, type = 'sine', volume = 0.25) {
-      if (!audioEnabled) return;
-      try {
-        initAudio();
-        if (!audioCtx) return;
-
-        const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, now);
-
-        // Exponential decay envelope for clean audible chime
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(volume, now + 0.012);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start(now);
-        osc.stop(now + duration + 0.02);
-      } catch (err) {}
-    }
-
-    function sfxClick() {
-      playTone(920, 0.07, 'triangle', 0.22);
-    }
-
-    function sfxNodeSelect() {
-      playTone(523.25, 0.12, 'sine', 0.28); // C5
-      setTimeout(() => playTone(783.99, 0.14, 'sine', 0.24), 65); // G5
-    }
-
-    function sfxLayout() {
-      playTone(440, 0.12, 'sine', 0.24); // A4
-      setTimeout(() => playTone(587.33, 0.14, 'sine', 0.24), 70); // D5
-      setTimeout(() => playTone(880, 0.18, 'sine', 0.22), 140); // A5
-    }
-
-    function sfxModal() {
-      playTone(659.25, 0.14, 'sine', 0.26); // E5
-      setTimeout(() => playTone(987.77, 0.2, 'triangle', 0.24), 80); // B5
-    }
-
-    function sfxAlert() {
-      playTone(880, 0.15, 'sawtooth', 0.25);
-      setTimeout(() => playTone(440, 0.22, 'sawtooth', 0.28), 100);
-    }
-
-    function sfxThreatLaser() {
-      if (!audioEnabled) return;
-      try {
-        initAudio();
-        if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(1050, now);
-        osc.frequency.exponentialRampToValueAtTime(220, now + 0.16);
-        gain.gain.setValueAtTime(0.18, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.17);
-      } catch (e) {}
-    }
-
-    function sfxImpactShockwave() {
-      if (!audioEnabled) return;
-      try {
-        initAudio();
-        if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(160, now);
-        osc.frequency.exponentialRampToValueAtTime(45, now + 0.24);
-        gain.gain.setValueAtTime(0.24, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.25);
-      } catch (e) {}
-    }
-
-    function sfxDefenseShield() {
-      if (!audioEnabled) return;
-      try {
-        initAudio();
-        if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-        playTone(659.25, 0.11, 'sine', 0.20);
-        setTimeout(() => playTone(1046.50, 0.16, 'triangle', 0.22), 65);
-      } catch (e) {}
-    }
-
-    function toggleAudio() {
-      initAudio();
-      audioEnabled = !audioEnabled;
-      const icon = document.getElementById('audio-icon');
-      if (icon) icon.innerText = audioEnabled ? '🔊' : '🔇';
-
-      if (audioEnabled) {
-        // Immediate loud test chime so the user can verify sound is working right now!
-        playTone(659.25, 0.12, 'sine', 0.32);
-        setTimeout(() => playTone(987.77, 0.18, 'sine', 0.30), 90);
-        showToast('🔊 Sound Enabled (Audio chime tested!)');
-      } else {
-        showToast('🔇 Sound Effects Muted');
-      }
-    }
 
     function showToast(msg) {
       const banner = document.getElementById('toast-banner');
@@ -1060,7 +762,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // VERIFIED REAL-WORLD INCIDENT DATA & COMPREHENSIVE POST-MORTEMS
+    // VERIFIED REAL-WORLD INCIDENT DATA
     // -------------------------------------------------------------------------
     const DEFAULT_INCIDENTS = [
       {
@@ -1651,13 +1353,12 @@
     ];
 
     // -------------------------------------------------------------------------
-    // LOCAL DATABASE PERSISTENCE & JSON PORTABILITY
+    // LOCAL STORAGE & GEO GRAPHQL PERSISTENCE
     // -------------------------------------------------------------------------
     const STORAGE_KEY = 'faultgraph_incidents_v16';
     let incidents = [];
 
     function loadIncidents() {
-      // Clear legacy storage versions that cached 404 links
       ['faultgraph_incidents_v1', 'faultgraph_incidents_v2', 'faultgraph_incidents_v3', 'faultgraph_incidents_v10', 'faultgraph_incidents_v14', 'faultgraph_incidents_v15'].forEach(k => {
         try { localStorage.removeItem(k); } catch(e) {}
       });
@@ -1668,7 +1369,6 @@
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
             incidents = parsed;
-            // Synchronize verified links and sources so user never sees stale broken URLs
             const defaultMap = {};
             DEFAULT_INCIDENTS.forEach(d => { defaultMap[d.id] = d; });
             incidents.forEach(inc => {
@@ -1699,10 +1399,6 @@
       }
     }
 
-    // -------------------------------------------------------------------------
-    // GEO KNOWLEDGE GRAPH LIVE GRAPHQL INGESTION
-    // Queries Geo Testnet Space fb47f7907b4cc91be446bbf9fb51ccad directly via GraphQL
-    // -------------------------------------------------------------------------
     async function fetchGeoKnowledgeGraph() {
       const SPACE_ID = 'fb47f7907b4cc91be446bbf9fb51ccad';
       const INCIDENT_TYPE = 'a0010001000000000000000000000001';
@@ -1909,54 +1605,8 @@
       }
     }
 
-    function resetIncidentsToDefault() {
-      if (confirm('Reset graph to the 15 verified real-world baseline incidents? This will clear locally added custom incidents.')) {
-        incidents = JSON.parse(JSON.stringify(DEFAULT_INCIDENTS));
-        saveIncidents();
-        buildGraphData();
-        showToast('↺ Knowledge Graph restored to verified baseline');
-        sfxAlert();
-      }
-    }
-
-    function exportGraphJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(incidents, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `faultgraph_incidents_${new Date().toISOString().slice(0,10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-      showToast('Graph database exported to JSON file');
-      sfxClick();
-    }
-
-    function importGraphJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (Array.isArray(imported) && imported.length > 0) {
-            incidents = imported;
-            saveIncidents();
-            buildGraphData();
-            showToast(`Imported ${imported.length} incidents into Knowledge Graph!`);
-            sfxModal();
-          } else {
-            alert('Invalid JSON file format: expected an array of incident objects.');
-          }
-        } catch (err) {
-          alert('Failed to parse JSON file: ' + err.message);
-        }
-        event.target.value = '';
-      };
-      reader.readAsText(file);
-    }
-
     // -------------------------------------------------------------------------
-    // 3D SPATIAL ENGINE & PROJECTION (GraphAtlas Inspired Architecture)
+    // 3D SPATIAL ENGINE & PROJECTION
     // -------------------------------------------------------------------------
     const canvas = document.getElementById('graph-canvas');
     const ctx = canvas.getContext('2d');
@@ -1967,7 +1617,6 @@
     let edges = [];
     let nodeMap = {};
 
-    // Camera parameters
     let rotX = 0.35;
     let rotY = -0.55;
     let zoom = 52;
@@ -1975,14 +1624,12 @@
     let dragging = false;
     let lastX = 0, lastY = 0;
 
-    // Selection & Highlighting
     let hoveredNode = null;
     let hoveredEdge = null;
     let selectedNode = null;
     let hlNodes = new Set();
     let hlEdges = new Set();
 
-    // Edge Filter state
     let edgeFilters = {
       all: true,
       involves_agent: true,
@@ -1991,144 +1638,23 @@
       resulted_in: true
     };
 
-    // Type Visibility filters
     let hiddenTypes = new Set();
 
-    // Layout Transition & Interpolation
-    let currentLayout = 'cluster'; // 'cluster' | 'causal' | 'impact'
+    let currentLayout = 'cluster';
     let interpT = 1.0;
     let interpFrom = 'cluster';
     let interpTo = 'cluster';
 
-    // Particle flow stream
     let flowParticles = [];
-    const NUM_PARTICLES = 36;
+    const NUM_PARTICLES = 32;
 
-    // Entity Colors
     const TYPE_COLORS = {
-      Incident: '#F43F5E',     // Rose-500
-      Agent: '#00E5FF',        // Electric Cyan
-      FailureMode: '#FB923C',  // High-Voltage Amber / Warning Orange
-      Mitigation: '#10B981',   // Emerald-500
-      FinancialLoss: '#F59E0B' // Amber-500
+      Incident: '#F43F5E',     // Clean Rose
+      Agent: '#38BDF8',        // Clean Sky Blue
+      FailureMode: '#FB923C',  // Warm Amber / Orange
+      Mitigation: '#10B981',   // Fresh Emerald
+      FinancialLoss: '#EAB308' // Refined Gold
     };
-
-    // -------------------------------------------------------------------------
-    // LIVE THREAT PIPELINE & RADAR STATE (Check Point & Radware Threat Map Inspo)
-    // -------------------------------------------------------------------------
-    let livePipelineActive = true;
-    let livePipelineSpeed = 1; // 1x = ~7s, 2x = ~3.5s, 5x = ~1.4s
-    let livePipelineTimer = null;
-    let totalInterceptedCount = 1420;
-    let threatBeams = [];
-    let shockwaves = [];
-    let hotNodes = {}; // nodeId -> { until: timestamp, color: string }
-    let telemetryLog = [];
-    let telemetryDrawerExpanded = false;
-
-    // Authentic Autonomous Agent Threat Catalog (Inspo: rogueaitracker.com & AI Incident Database)
-    const ROGUE_AI_THREAT_VECTORS = [
-      {
-        type: 'Indirect Prompt Injection',
-        vector: 'Adversarial Unicode Token Shift',
-        agent: 'AuditAgent-ReAct-v4',
-        target: 'AWS KMS Key Store',
-        loss: 120000,
-        severity: 'Critical',
-        mitigation: 'Taint-Tracked Inbound Buffer & Egress Filter',
-        description: 'Adversary concealed instructions in pull request markdown instructing autonomous review bot to curl repository environment variables.'
-      },
-      {
-        type: 'Autonomous Runaway Loop',
-        vector: 'Multi-Agent Slippage Feedback Spiral',
-        agent: 'ArbitrageHFT-Agent-v2',
-        target: 'Uniswap / Order Router',
-        loss: 450000,
-        severity: 'Critical',
-        mitigation: 'Hardware Volumetric Gate & Circuit Breaker',
-        description: 'Autonomous order-splitting subagents entered recursive re-quote loop during extreme market volatility, depleting liquidity pools.'
-      },
-      {
-        type: 'Goal Alignment Hijacking',
-        vector: 'Multi-Turn Persona Induction Jailbreak',
-        agent: 'Watsonville Dealership Concierge',
-        target: 'Vehicle Inventory & Pricing Tool',
-        loss: 120000,
-        severity: 'High',
-        mitigation: 'Deterministic Price Floor Gate in Tool Schema',
-        description: 'Adversary tricked sales agent into legally binding natural-language offer to sell $56,000 SUV for $1.00.'
-      },
-      {
-        type: 'Recursive Subagent Explosion',
-        vector: 'Unbounded Child Spawning Loop',
-        agent: 'AutoGPT Research Swarm',
-        target: 'OpenAI API Token Credits',
-        loss: 38000,
-        severity: 'Medium',
-        mitigation: 'Hard Recursion Depth Limit (max 3) & Budget Watchdog',
-        description: 'Subagents encountered DOM parsing exceptions and spawned cascading subagents to debug, burning $38K in tokens in minutes.'
-      },
-      {
-        type: 'Cross-Origin VLM Exfiltration',
-        vector: 'Zero-Font CSS Document Injection',
-        agent: 'WebVoyager VLM Navigator',
-        target: 'Active User Session Cookies',
-        loss: 95000,
-        severity: 'High',
-        mitigation: 'DOM Visual Taint Sanitizer & Container Isolation',
-        description: 'Web browsing agent read hidden white-on-white text commanding it to navigate to email settings and POST auth headers to external IP.'
-      },
-      {
-        type: 'Clinical Epistemic Hallucination',
-        vector: 'Unbounded Probabilistic Pharmacological Extrapolation',
-        agent: 'MedAssist Autonomous Clinical Bot',
-        target: 'Pediatric Formulary Dosage Engine',
-        loss: 320000,
-        severity: 'Critical',
-        mitigation: 'Constrained Decoding & Mandatory MD Human Sign-Off',
-        description: 'Predictive algorithm synthesized non-indicated pediatric prescription dosages beyond statutory clinical guidelines.'
-      },
-      {
-        type: 'Demographic Feature Entanglement',
-        vector: 'Historical Corpus Demographic Proxy Scoring',
-        agent: 'TalentScout Automated Resume Ranker',
-        target: 'Applicant Evaluation Pipeline',
-        loss: 365000,
-        severity: 'High',
-        mitigation: 'Adversarial Debiasing Net & Continuous Parity Gate',
-        description: 'Autonomous recruitment model encoded proxy penalties on demographic attributes, disqualifying qualified candidates.'
-      },
-      {
-        type: 'Arbitrary Shell Code Execution',
-        vector: 'Native OS Exec via Ingested Document (CVE-2023-36189)',
-        agent: 'LangChain PythonAstREPL Agent',
-        target: 'Host Linux Kernel / Procfs',
-        loss: 650000,
-        severity: 'Critical',
-        mitigation: 'gVisor Ephemeral Container Isolation with Zero Host Egress',
-        description: 'Untrusted document prompted native host exec() bypassing Python AST reflection filters to compromise container host.'
-      },
-      {
-        type: 'Statutory Regulatory Misguidance',
-        vector: 'Unconstrained Legal Hallucination',
-        agent: 'NYC MyCity Advisory Bot',
-        target: 'Municipal Labor & Housing Compliance',
-        loss: 180000,
-        severity: 'Medium',
-        mitigation: 'Statutory Citation Validator & Mandatory Human Escalation',
-        description: 'Municipal business assistant hallucinated advice violating city labor laws regarding worker tip theft and housing vouchers.'
-      },
-      {
-        type: 'Sybil Consensus Poisoning',
-        vector: 'Adversarial Subagent Quorum Desynchronization',
-        agent: 'SwarmCoord Distributed Consensus',
-        target: 'Multi-Agent State Aggregator',
-        loss: 210000,
-        severity: 'High',
-        mitigation: 'Cryptographic Stake Attestation & Anomaly Thresholds',
-        description: 'Rogue subagents coordinated across network nodes to inject fabricated state assertions into the shared agent blackboard.'
-      }
-    ];
 
     function resizeCanvas() {
       const container = document.getElementById('canvas-container');
@@ -2139,7 +1665,6 @@
     }
     window.addEventListener('resize', resizeCanvas);
 
-    // 3D Perspective Projection
     function project(x, y, z) {
       const cX = Math.cos(rotX), sX = Math.sin(rotX);
       const cY = Math.cos(rotY), sY = Math.sin(rotY);
@@ -2168,9 +1693,6 @@
       return { x: node.cx, y: node.cy, z: node.cz };
     }
 
-    // -------------------------------------------------------------------------
-    // GRAPH BUILDER & 3D COORDINATE GENERATION
-    // -------------------------------------------------------------------------
     function buildGraphData() {
       nodes = [];
       edges = [];
@@ -2179,7 +1701,6 @@
       const count = incidents.length;
 
       incidents.forEach((inc, idx) => {
-        // --- Cluster Coordinates ---
         const clusterAngle = (idx / count) * Math.PI * 2;
         const clusterRadius = 8.6;
         const incX = Math.cos(clusterAngle) * clusterRadius;
@@ -2189,11 +1710,9 @@
         const satAngle = (i) => clusterAngle + (i * Math.PI / 2.2);
         const satR = 2.1;
 
-        // --- Causal Coordinates ---
         const rowY = (idx - count / 2) * 1.35;
         const rowZ = ((idx % 4) - 1.5) * 1.8;
 
-        // --- Severity Coordinates ---
         let sevY = 0;
         if (inc.severity === 'Critical') sevY = -5.5;
         else if (inc.severity === 'High') sevY = -2.0;
@@ -2213,7 +1732,7 @@
           sourceEvidenceLink: inc.sourceEvidenceLink,
           sourceName: inc.sourceName,
           incidentRef: inc,
-          size: 16,
+          size: 15,
           color: TYPE_COLORS.Incident,
           cx: incX, cy: incY, cz: incZ,
           px: 0.5, py: rowY, pz: rowZ,
@@ -2295,11 +1814,11 @@
         nodes.push(lossNode);
         nodeMap[lossNode.id] = lossNode;
 
-        // Edges (Semantic Relations)
-        edges.push({ source: inc.id, target: inc.agent.id, relation: 'involves_agent', label: 'involves_agent', color: '#00E5FF' });
+        // Edges
+        edges.push({ source: inc.id, target: inc.agent.id, relation: 'involves_agent', label: 'involves_agent', color: '#38BDF8' });
         edges.push({ source: inc.id, target: inc.failureMode.id, relation: 'exhibits', label: 'exhibits', color: '#FB923C' });
         edges.push({ source: inc.failureMode.id, target: inc.mitigation.id, relation: 'mitigated_by', label: 'mitigated_by', color: '#10B981' });
-        edges.push({ source: inc.id, target: inc.financialLoss.id, relation: 'resulted_in', label: 'resulted_in', color: '#F59E0B' });
+        edges.push({ source: inc.id, target: inc.financialLoss.id, relation: 'resulted_in', label: 'resulted_in', color: '#EAB308' });
       });
 
       nodes.forEach(n => {
@@ -2314,7 +1833,7 @@
         flowParticles.push({
           edgeIndex: Math.floor(Math.random() * edges.length),
           progress: Math.random(),
-          speed: 0.006 + Math.random() * 0.008
+          speed: 0.004 + Math.random() * 0.006
         });
       }
 
@@ -2325,97 +1844,67 @@
     }
 
     function updateMetrics() {
-      document.getElementById('stat-incidents').innerText = incidents.length;
-      document.getElementById('stat-agents').innerText = incidents.length;
-      document.getElementById('stat-mitigations').innerText = incidents.length;
+      const countEl = document.getElementById('stat-incidents');
+      if (countEl) countEl.innerText = incidents.length;
       const totalLoss = incidents.reduce((sum, item) => sum + (item.financialLoss.amount || 0), 0);
-      document.getElementById('stat-loss').innerText = `$${(totalLoss / 1e6).toFixed(1)}M`;
+      const lossEl = document.getElementById('stat-loss');
+      if (lossEl) lossEl.innerText = `$${(totalLoss / 1e6).toFixed(1)}M`;
     }
 
     // -------------------------------------------------------------------------
-    // 3D DRAWING & RENDERING ENGINE
+    // 3D NODE RENDERING
     // -------------------------------------------------------------------------
     function drawNodeShape(sx, sy, r, node, isHovered, isSelected, isDimmed, isConnected, isSearchMatch = false) {
       const col = node.color;
-      const alpha = isDimmed ? '22' : isConnected ? 'FF' : 'DD';
+      const alpha = isDimmed ? '25' : isConnected ? 'FF' : 'E5';
 
       ctx.save();
 
-      // Search Match Animated Target Ring
-      if (isSearchMatch) {
-        const pulseR = r + 6 + Math.sin(Date.now() * 0.008) * 3;
+      // Subtle hover halo
+      if (isSelected || isHovered || (node.type === 'Incident' && !isDimmed)) {
         ctx.beginPath();
-        ctx.arc(sx, sy, pulseR, 0, Math.PI * 2);
-        ctx.strokeStyle = '#00F0FF';
-        ctx.lineWidth = 2.2;
-        ctx.shadowColor = '#00F0FF';
-        ctx.shadowBlur = 12;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-      }
-
-      // Halo for Incident or Selected node
-      if (isSelected || (node.type === 'Incident' && !isDimmed)) {
-        ctx.beginPath();
-        ctx.arc(sx, sy, r * 2.2, 0, Math.PI * 2);
-        const glowGrad = ctx.createRadialGradient(sx, sy, r * 0.5, sx, sy, r * 2.2);
-        glowGrad.addColorStop(0, col + '55');
+        ctx.arc(sx, sy, r * 1.8, 0, Math.PI * 2);
+        const glowGrad = ctx.createRadialGradient(sx, sy, r * 0.3, sx, sy, r * 1.8);
+        glowGrad.addColorStop(0, col + '40');
         glowGrad.addColorStop(1, col + '00');
         ctx.fillStyle = glowGrad;
         ctx.fill();
       }
 
-      // Hot Anomaly Flash Ring (Check Point / Radware Inspo)
-      if (hotNodes[node.id] && Date.now() < hotNodes[node.id].until) {
-        const remaining = (hotNodes[node.id].until - Date.now()) / 2800;
-        const flashColor = hotNodes[node.id].color || '#FF0055';
-        const flashR = r + 8 + Math.sin(Date.now() * 0.015) * 4;
-
+      // Search match indicator
+      if (isSearchMatch) {
         ctx.beginPath();
-        ctx.arc(sx, sy, flashR, 0, Math.PI * 2);
-        ctx.strokeStyle = flashColor;
-        ctx.lineWidth = Math.max(1.5, 3.2 * remaining);
-        ctx.shadowColor = flashColor;
-        ctx.shadowBlur = 22 * remaining;
+        ctx.arc(sx, sy, r + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 1.5;
         ctx.stroke();
-
-        // Pulsing exclamation alert dot
-        ctx.fillStyle = flashColor;
-        ctx.beginPath();
-        ctx.arc(sx + r + 3, sy - r - 3, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
       }
 
       ctx.beginPath();
 
       if (node.type === 'Incident') {
-        ctx.arc(sx, sy, isHovered ? r * 1.3 : r, 0, Math.PI * 2);
-        const radGrad = ctx.createRadialGradient(sx - r * 0.3, sy - r * 0.3, r * 0.1, sx, sy, r);
-        radGrad.addColorStop(0, '#FFFFFF');
-        radGrad.addColorStop(0.3, col);
-        radGrad.addColorStop(1, '#7F1D1D');
-        ctx.fillStyle = isDimmed ? col + '33' : radGrad;
+        ctx.arc(sx, sy, isHovered ? r * 1.25 : r, 0, Math.PI * 2);
+        ctx.fillStyle = isDimmed ? col + '33' : col;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : col;
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
         ctx.lineWidth = isHovered ? 2 : 1;
         ctx.stroke();
 
       } else if (node.type === 'Agent') {
-        const size = isHovered ? r * 1.35 : r * 1.1;
-        ctx.moveTo(sx, sy - size * 1.3);
+        const size = isHovered ? r * 1.25 : r;
+        ctx.moveTo(sx, sy - size * 1.2);
         ctx.lineTo(sx + size, sy);
-        ctx.lineTo(sx, sy + size * 1.3);
+        ctx.lineTo(sx, sy + size * 1.2);
         ctx.lineTo(sx - size, sy);
         ctx.closePath();
         ctx.fillStyle = col + alpha;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : '#38BDF8';
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
         ctx.lineWidth = isHovered ? 2 : 1;
         ctx.stroke();
 
       } else if (node.type === 'FailureMode') {
-        const size = isHovered ? r * 1.3 : r;
+        const size = isHovered ? r * 1.25 : r;
         for (let i = 0; i < 6; i++) {
           const a = i * Math.PI / 3 - Math.PI / 6;
           const px = sx + size * Math.cos(a);
@@ -2426,50 +1915,50 @@
         ctx.closePath();
         ctx.fillStyle = col + alpha;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : '#FDA4AF';
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
         ctx.lineWidth = isHovered ? 2 : 1;
         ctx.stroke();
 
       } else if (node.type === 'Mitigation') {
-        const size = isHovered ? r * 1.3 : r;
+        const size = isHovered ? r * 1.25 : r;
         ctx.arc(sx, sy, size, 0, Math.PI * 2);
         ctx.fillStyle = col + alpha;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : '#6EE7B7';
-        ctx.lineWidth = isHovered ? 2.5 : 1.5;
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = isHovered ? 2 : 1.2;
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.moveTo(sx - size * 0.45, sy);
-        ctx.lineTo(sx + size * 0.45, sy);
-        ctx.moveTo(sx, sy - size * 0.45);
-        ctx.lineTo(sx, sy + size * 0.45);
+        ctx.moveTo(sx - size * 0.4, sy);
+        ctx.lineTo(sx + size * 0.4, sy);
+        ctx.moveTo(sx, sy - size * 0.4);
+        ctx.lineTo(sx, sy + size * 0.4);
         ctx.strokeStyle = isDimmed ? '#10B98133' : '#FFFFFF';
         ctx.lineWidth = 1;
         ctx.stroke();
 
       } else if (node.type === 'FinancialLoss') {
-        const s = (isHovered ? r * 1.25 : r * 0.95);
+        const s = (isHovered ? r * 1.2 : r * 0.95);
         ctx.rect(sx - s, sy - s, s * 2, s * 2);
         ctx.fillStyle = col + alpha;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : '#FCD34D';
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
         ctx.lineWidth = isHovered ? 2 : 1;
         ctx.stroke();
       }
 
-      // 3D Node Label
+      // Node Label
       if (!isDimmed && (isHovered || isSelected || isSearchMatch || node.type === 'Incident' || zoom > 65)) {
-        ctx.font = isSearchMatch ? '600 11px "Plus Jakarta Sans", sans-serif' : '500 11px "Plus Jakarta Sans", sans-serif';
+        ctx.font = '500 11px "Plus Jakarta Sans", sans-serif';
         const labelText = node.name.length > 24 ? node.name.slice(0, 22) + '…' : node.name;
         const textW = ctx.measureText(labelText).width;
-        ctx.fillStyle = 'rgba(10, 18, 30, 0.88)';
+        ctx.fillStyle = 'rgba(10, 12, 18, 0.88)';
         ctx.fillRect(sx - textW / 2 - 4, sy + r + 4, textW + 8, 16);
-        ctx.strokeStyle = isSearchMatch ? '#00F0FF' : col + '55';
-        ctx.lineWidth = isSearchMatch ? 1 : 0.5;
+        ctx.strokeStyle = isSearchMatch ? '#FFFFFF' : 'rgba(255, 255, 255, 0.12)';
+        ctx.lineWidth = 0.5;
         ctx.strokeRect(sx - textW / 2 - 4, sy + r + 4, textW + 8, 16);
 
-        ctx.fillStyle = (isHovered || isSelected || isSearchMatch ? '#FFFFFF' : '#CBD5E1');
+        ctx.fillStyle = (isHovered || isSelected || isSearchMatch ? '#FFFFFF' : '#A1A1AA');
         ctx.textAlign = 'center';
         ctx.fillText(labelText, sx, sy + r + 16);
         ctx.textAlign = 'left';
@@ -2481,10 +1970,10 @@
     function draw() {
       ctx.clearRect(0, 0, W, H);
 
-      // Deep space / coordinate grid
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+      // Subtle precision coordinate grid
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
       ctx.lineWidth = 1;
-      const gridSize = 80;
+      const gridSize = 70;
       for (let x = 0; x < W; x += gridSize) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
       }
@@ -2562,24 +2051,19 @@
         ctx.lineTo(pt.sx, pt.sy);
 
         if (isHl) {
-          ctx.strokeStyle = e.color || '#00E5FF';
-          ctx.lineWidth = 2.4;
-          ctx.shadowColor = e.color || '#00E5FF';
-          ctx.shadowBlur = 14;
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 1.8;
         } else if (isDimmed) {
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
           ctx.lineWidth = 0.5;
-          ctx.shadowBlur = 0;
         } else {
-          ctx.strokeStyle = (e.color || '#0EA5E9') + '66';
-          ctx.lineWidth = 1.1;
-          ctx.shadowBlur = 0;
+          ctx.strokeStyle = (e.color || '#38BDF8') + '35';
+          ctx.lineWidth = 0.9;
         }
         ctx.stroke();
-        ctx.shadowBlur = 0;
       });
 
-      // Flow Particles
+      // Flow Particles along edges
       if (!hoveredNode) {
         flowParticles.forEach(p => {
           const edge = edges[p.edgeIndex];
@@ -2597,134 +2081,10 @@
 
           const pt = project(px, py, pz);
           ctx.beginPath();
-          ctx.arc(pt.sx, pt.sy, Math.max(1.5, 3.0 * pt.d), 0, Math.PI * 2);
-          ctx.fillStyle = edge.color || '#00E5FF';
-          ctx.shadowColor = edge.color || '#00E5FF';
-          ctx.shadowBlur = 8;
+          ctx.arc(pt.sx, pt.sy, Math.max(1.2, 2.2 * pt.d), 0, Math.PI * 2);
+          ctx.fillStyle = edge.color || '#38BDF8';
           ctx.fill();
-          ctx.shadowBlur = 0;
         });
-      }
-
-      // -------------------------------------------------------------
-      // DRAW THREAT BEAMS (Laser Arcs - Check Point / Radware Inspo)
-      // -------------------------------------------------------------
-      for (let i = threatBeams.length - 1; i >= 0; i--) {
-        const b = threatBeams[i];
-        b.progress += b.speed * livePipelineSpeed;
-
-        const sNode = nodeMap[b.sourceId];
-        const tNode = nodeMap[b.targetId];
-        if (!sNode || !tNode) {
-          threatBeams.splice(i, 1);
-          continue;
-        }
-
-        const headT = Math.min(1.0, b.progress);
-        const tailT = Math.max(0.0, b.progress - 0.28);
-
-        // 3D coordinates
-        const hx = sNode.x + (tNode.x - sNode.x) * headT;
-        const hy = sNode.y + (tNode.y - sNode.y) * headT;
-        const hz = sNode.z + (tNode.z - sNode.z) * headT;
-
-        const tx = sNode.x + (tNode.x - sNode.x) * tailT;
-        const ty = sNode.y + (tNode.y - sNode.y) * tailT;
-        const tz = sNode.z + (tNode.z - sNode.z) * tailT;
-
-        const pHead = project(hx, hy, hz);
-        const pTail = project(tx, ty, tz);
-
-        if (pHead.d > 0 && pTail.d > 0) {
-          // Glowing Laser Arc Streak
-          const grad = ctx.createLinearGradient(pTail.sx, pTail.sy, pHead.sx, pHead.sy);
-          grad.addColorStop(0, b.color + '00');
-          grad.addColorStop(0.6, b.color + 'AA');
-          grad.addColorStop(1, '#FFFFFF');
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(pTail.sx, pTail.sy);
-          ctx.lineTo(pHead.sx, pHead.sy);
-          ctx.strokeStyle = grad;
-          ctx.lineWidth = Math.max(1.5, 3.5 * pHead.d * (zoom / 45));
-          ctx.shadowColor = b.color;
-          ctx.shadowBlur = 18;
-          ctx.stroke();
-
-          // Projectile energy head
-          ctx.beginPath();
-          ctx.arc(pHead.sx, pHead.sy, Math.max(2.5, 4.5 * pHead.d * (zoom / 45)), 0, Math.PI * 2);
-          ctx.fillStyle = '#FFFFFF';
-          ctx.shadowColor = b.color;
-          ctx.shadowBlur = 22;
-          ctx.fill();
-          ctx.restore();
-        }
-
-        // On arrival at target
-        if (b.progress >= 1.0) {
-          createShockwave(tNode, b.color);
-          markHotNode(tNode.id, b.color);
-
-          // Check if there is a chained next hop (e.g. FailureMode -> FinancialLoss / Mitigation)
-          if (b.chain && b.chain.length > 0) {
-            const nextHop = b.chain.shift();
-            threatBeams.push({
-              sourceId: b.targetId,
-              targetId: nextHop.targetId,
-              progress: 0.0,
-              speed: b.speed * 1.15,
-              color: nextHop.color || '#10B981',
-              chain: b.chain,
-              eventData: b.eventData
-            });
-            if (nextHop.color === '#10B981') {
-              sfxDefenseShield();
-            } else {
-              sfxThreatLaser();
-            }
-          }
-          threatBeams.splice(i, 1);
-        }
-      }
-
-      // -------------------------------------------------------------
-      // DRAW SHOCKWAVES (Concentric Ripple Impacts)
-      // -------------------------------------------------------------
-      for (let i = shockwaves.length - 1; i >= 0; i--) {
-        const w = shockwaves[i];
-        w.radius += w.speed * livePipelineSpeed;
-        w.alpha -= w.decay * livePipelineSpeed;
-
-        if (w.alpha <= 0) {
-          shockwaves.splice(i, 1);
-          continue;
-        }
-
-        const p = project(w.x, w.y, w.z);
-        if (p.d > 0) {
-          const screenR = w.radius * p.d * (zoom / 45);
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(p.sx, p.sy, screenR, 0, Math.PI * 2);
-          const hexAlpha = Math.floor(Math.max(0, w.alpha) * 255).toString(16).padStart(2, '0');
-          ctx.strokeStyle = w.color + hexAlpha;
-          ctx.lineWidth = Math.max(1, 2.5 * w.alpha);
-          ctx.shadowColor = w.color;
-          ctx.shadowBlur = 16 * w.alpha;
-          ctx.stroke();
-
-          // Secondary harmonic echo ring
-          if (screenR > 14) {
-            ctx.beginPath();
-            ctx.arc(p.sx, p.sy, screenR * 0.55, 0, Math.PI * 2);
-            ctx.strokeStyle = w.color + Math.floor(Math.max(0, w.alpha * 0.4) * 255).toString(16).padStart(2, '0');
-            ctx.lineWidth = 1;
-            ctx.stroke();
-          }
-          ctx.restore();
-        }
       }
 
       // Draw Nodes
@@ -2746,7 +2106,7 @@
 
     function animate() {
       if (autoRotate && !dragging) {
-        rotY += 0.0022;
+        rotY += 0.0016;
       }
       draw();
       requestAnimationFrame(animate);
@@ -2757,7 +2117,7 @@
     // -------------------------------------------------------------------------
     function getNodeAt(mx, my) {
       let found = null;
-      let bestDist = 28;
+      let bestDist = 26;
 
       nodes.forEach(n => {
         if (hiddenTypes.has(n.type)) return;
@@ -2832,14 +2192,14 @@
         document.getElementById('tt-type').innerText = n.type;
         document.getElementById('tt-type').style.color = n.color;
         document.getElementById('tt-name').innerText = n.name;
-        document.getElementById('tt-meta').innerText = n.description || (n.architecture ? `Arch: ${n.architecture}` : 'Knowledge graph node');
+        document.getElementById('tt-meta').innerText = n.description || (n.architecture ? `Arch: ${n.architecture}` : 'Knowledge graph entity');
 
         const connectedEdges = edges.filter(e => e.source === n.id || e.target === n.id);
         document.getElementById('tt-conns').innerText = `${connectedEdges.length} connections`;
 
         tooltip.style.display = 'block';
-        tooltip.style.left = Math.min(hit.sx + 18, W - 320) + 'px';
-        tooltip.style.top = Math.max(hit.sy - 80, 16) + 'px';
+        tooltip.style.left = Math.min(hit.sx + 16, W - 300) + 'px';
+        tooltip.style.top = Math.max(hit.sy - 70, 16) + 'px';
 
         draw();
       } else {
@@ -2853,70 +2213,59 @@
       }
     });
 
+    canvas.addEventListener('mouseleave', () => {
+      dragging = false;
+      hoveredNode = null;
+      if (!selectedNode) setHighlight(null);
+      else setHighlight(selectedNode);
+      document.getElementById('graph-tooltip').style.display = 'none';
+      draw();
+    });
+
     canvas.addEventListener('click', e => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
-
       const hit = getNodeAt(mx, my);
+
       if (hit) {
         selectedNode = hit.node;
         setHighlight(hit.node);
         renderSidePanel(hit.node);
-        sfxNodeSelect();
+        draw();
       } else {
         selectedNode = null;
         setHighlight(null);
         renderSidePanel(null);
-        sfxClick();
+        draw();
       }
-      draw();
     });
 
-    // Wheel zoom: zooms only when interacting over canvas, without page trapping
     canvas.addEventListener('wheel', e => {
-      // Zoom if user scrolls over canvas
       e.preventDefault();
-      zoom *= (e.deltaY > 0 ? 0.91 : 1.10);
-      zoom = Math.max(22, Math.min(180, zoom));
+      const delta = e.deltaY > 0 ? 0.94 : 1.06;
+      zoom = Math.max(22, Math.min(180, zoom * delta));
       draw();
     }, { passive: false });
 
-    // Touch controls
-    let lastTouchDist = 0;
+    // Touch support
     canvas.addEventListener('touchstart', e => {
       if (e.touches.length === 1) {
         dragging = true;
         lastX = e.touches[0].clientX;
         lastY = e.touches[0].clientY;
         autoRotate = false;
-      } else if (e.touches.length === 2) {
-        lastTouchDist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
       }
-    }, { passive: false });
-
+    });
     canvas.addEventListener('touchmove', e => {
-      if (e.touches.length === 1 && dragging) {
-        rotY += (e.touches[0].clientX - lastX) * 0.01;
-        rotX += (e.touches[0].clientY - lastY) * 0.01;
+      if (dragging && e.touches.length === 1) {
+        rotY += (e.touches[0].clientX - lastX) * 0.008;
+        rotX += (e.touches[0].clientY - lastY) * 0.008;
         lastX = e.touches[0].clientX;
         lastY = e.touches[0].clientY;
         draw();
-      } else if (e.touches.length === 2) {
-        const dist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-        zoom *= (dist / lastTouchDist);
-        zoom = Math.max(22, Math.min(180, zoom));
-        lastTouchDist = dist;
-        draw();
       }
-    }, { passive: false });
-
+    });
     canvas.addEventListener('touchend', () => dragging = false);
 
     // -------------------------------------------------------------------------
@@ -2933,13 +2282,6 @@
       document.querySelectorAll('#btn-layout-cluster, #btn-layout-causal, #btn-layout-impact').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`btn-layout-${layoutMode}`)?.classList.add('active');
 
-      const indicator = document.getElementById('mode-indicator');
-      const labels = { cluster: 'SYSTEM CLUSTER', causal: 'CAUSAL PIPELINE', impact: 'SEVERITY ALTITUDE' };
-      indicator.innerText = labels[layoutMode] || layoutMode.toUpperCase();
-      indicator.style.opacity = '1';
-      setTimeout(() => indicator.style.opacity = '0', 950);
-
-      sfxLayout();
       draw();
     }
 
@@ -2949,7 +2291,6 @@
       if (btn) btn.classList.toggle('active', autoRotate);
       const text = document.getElementById('rotate-text');
       if (text) text.innerText = autoRotate ? 'Auto-Spin' : 'Paused';
-      sfxClick();
     }
 
     function resetCamera() {
@@ -2959,7 +2300,6 @@
       selectedNode = null;
       setHighlight(null);
       renderSidePanel(null);
-      sfxClick();
       draw();
     }
 
@@ -2992,12 +2332,11 @@
       document.getElementById('btn-edge-mitigation').classList.toggle('active', edgeFilters.mitigated_by);
       document.getElementById('btn-edge-loss').classList.toggle('active', edgeFilters.resulted_in);
 
-      playTone(480, 0.03);
       draw();
     }
 
     // -------------------------------------------------------------------------
-    // SIDEPANEL INSPECTOR (Fixed Inner Scrolling)
+    // SIDEPANEL INSPECTOR
     // -------------------------------------------------------------------------
     function renderSidePanel(node) {
       const emptyState = document.getElementById('sidepanel-empty');
@@ -3008,7 +2347,7 @@
         emptyState.classList.remove('hidden');
         contentState.classList.add('hidden');
         badge.innerText = 'Overview';
-        badge.className = 'badge bg-slate-800 text-slate-300';
+        badge.className = 'badge bg-zinc-800 text-zinc-300';
         return;
       }
 
@@ -3016,9 +2355,9 @@
       contentState.classList.remove('hidden');
 
       badge.innerText = node.type;
-      badge.style.backgroundColor = node.color + '22';
+      badge.style.backgroundColor = node.color + '20';
       badge.style.color = node.color;
-      badge.style.border = `1px solid ${node.color}55`;
+      badge.style.border = `1px solid ${node.color}40`;
 
       document.getElementById('sp-category').innerText = `Entity · ${node.type}`;
       document.getElementById('sp-category').style.color = node.color;
@@ -3037,7 +2376,7 @@
           linkText.innerText = 'View on Geo Browser (GRC-20) ↗';
         } else {
           linkBtn.href = inc.sourceEvidenceLink;
-          linkText.innerText = inc.sourceName ? `${inc.sourceName} ↗` : 'Official Evidence Source ↗';
+          linkText.innerText = inc.sourceName ? `${inc.sourceName} ↗` : 'Official Source ↗';
         }
         linkBtn.style.display = 'flex';
       } else {
@@ -3045,15 +2384,15 @@
         linkBtn.style.display = 'none';
       }
 
-      // Properties Box
+      // Attributes Box
       const propsContainer = document.getElementById('sp-properties');
       propsContainer.innerHTML = '';
 
       const makeProp = (label, val, highlight = false) => {
         return `
-          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800/80">
-            <span class="text-slate-400 font-medium">${label}:</span>
-            <span class="font-semibold ${highlight ? 'text-amber-400 font-mono' : 'text-slate-200'}">${val}</span>
+          <div class="flex items-center justify-between p-2 rounded-lg bg-zinc-900/80 border border-white/5">
+            <span class="text-zinc-400 font-medium">${label}:</span>
+            <span class="font-medium ${highlight ? 'text-amber-400 font-mono' : 'text-zinc-200'}">${val}</span>
           </div>
         `;
       };
@@ -3061,11 +2400,11 @@
       propsContainer.innerHTML += makeProp('Entity ID', node.id);
       if (node.incidentRef?.isFromGeo || (node.id && node.id.length === 32)) {
         propsContainer.innerHTML += `
-          <div class="flex items-center justify-between p-2 rounded-xl bg-cyan-950/40 border border-cyan-800/60">
-            <span class="text-cyan-400 font-mono text-[11px] flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>Geo Testnet Entity
+          <div class="flex items-center justify-between p-2 rounded-lg bg-zinc-900/80 border border-white/10">
+            <span class="text-sky-300 font-mono text-[11px] flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Geo Testnet Entity
             </span>
-            <a href="https://www.geobrowser.io/space/fb47f7907b4cc91be446bbf9fb51ccad/${node.id}" target="_blank" rel="noopener" class="text-cyan-300 hover:text-white font-mono text-[11px] underline">
+            <a href="https://www.geobrowser.io/space/fb47f7907b4cc91be446bbf9fb51ccad/${node.id}" target="_blank" rel="noopener" class="text-sky-400 hover:text-white font-mono text-[11px] underline">
               View on Geo ↗
             </a>
           </div>
@@ -3083,7 +2422,7 @@
       const connectedEdges = edges.filter(e => e.source === node.id || e.target === node.id);
 
       if (connectedEdges.length === 0) {
-        relsContainer.innerHTML = '<p class="text-slate-500 italic">No direct connections.</p>';
+        relsContainer.innerHTML = '<p class="text-zinc-500 italic">No direct connections.</p>';
       } else {
         connectedEdges.forEach(e => {
           const isSource = e.source === node.id;
@@ -3092,11 +2431,11 @@
           const otherName = otherNode ? otherNode.name : otherId;
 
           relsContainer.innerHTML += `
-            <div onclick="selectNodeById('${otherId}')" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 cursor-pointer transition flex items-center justify-between">
-              <span class="text-[11px] text-slate-300">
-                <span class="text-cyan-400 font-mono">${e.relation}</span> &rarr; ${otherName}
+            <div onclick="selectNodeById('${otherId}')" class="p-2 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 cursor-pointer transition flex items-center justify-between">
+              <span class="text-[11px] text-zinc-300">
+                <span class="text-sky-400 font-mono">${e.relation}</span> &rarr; ${otherName}
               </span>
-              <span class="text-[10px] text-slate-500">&rarr;</span>
+              <span class="text-[10px] text-zinc-500">&rarr;</span>
             </div>
           `;
         });
@@ -3109,7 +2448,6 @@
         selectedNode = node;
         setHighlight(node);
         renderSidePanel(node);
-        playTone(600, 0.05);
         draw();
       }
     }
@@ -3121,7 +2459,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // INCIDENT CATALOG RENDERING (Cards with Verified Source Material)
+    // INCIDENT CATALOG RENDERING
     // -------------------------------------------------------------------------
     function renderIncidentCatalog() {
       const query = ((document.getElementById('search-input')?.value || document.getElementById('catalog-search')?.value) || '').trim().toLowerCase();
@@ -3137,7 +2475,7 @@
         }
         if (searchCat === 'Agent') {
           if (!query) return true;
-          return i.agent.name.toLowerCase().includes(query) || (i.agent.architecture && i.agent.architecture.toLowerCase().includes(query)) || (i.agent.description && i.agent.description.toLowerCase().includes(query));
+          return i.agent.name.toLowerCase().includes(query) || (i.agent.architecture && i.agent.architecture.toLowerCase().includes(query));
         }
         if (searchCat === 'FailureMode') {
           if (!query) return true;
@@ -3145,14 +2483,13 @@
         }
         if (searchCat === 'Mitigation') {
           if (!query) return true;
-          return i.mitigation.name.toLowerCase().includes(query) || (i.mitigation.strategy && i.mitigation.strategy.toLowerCase().includes(query)) || (i.mitigation.description && i.mitigation.description.toLowerCase().includes(query));
+          return i.mitigation.name.toLowerCase().includes(query) || (i.mitigation.strategy && i.mitigation.strategy.toLowerCase().includes(query));
         }
         if (searchCat === 'FinancialLoss') {
           if (!query) return true;
-          return String(i.financialLoss.amount).includes(query) || (i.financialLoss.description && i.financialLoss.description.toLowerCase().includes(query));
+          return String(i.financialLoss.amount).includes(query);
         }
 
-        // searchCat === 'all'
         if (!query) return true;
         return i.name.toLowerCase().includes(query) ||
                (i.description && i.description.toLowerCase().includes(query)) ||
@@ -3164,54 +2501,69 @@
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-slate-500 italic col-span-3 text-center py-8">No matching incidents found for the selected filter.</p>';
+        container.innerHTML = '<p class="text-zinc-500 italic col-span-3 text-center py-10">No matching incidents found for the selected filter.</p>';
         return;
       }
 
       filtered.forEach(inc => {
+        const sevClass = inc.severity === 'Critical' 
+          ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' 
+          : inc.severity === 'High' 
+            ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20' 
+            : 'bg-sky-500/10 text-sky-300 border border-sky-500/20';
+
+        const sevDot = inc.severity === 'Critical' 
+          ? 'bg-rose-400' 
+          : inc.severity === 'High' 
+            ? 'bg-amber-400' 
+            : 'bg-sky-400';
+
         container.innerHTML += `
-          <div class="glass-card p-5 rounded-2xl flex flex-col justify-between space-y-4">
+          <div class="glass-card p-5 rounded-xl flex flex-col justify-between space-y-4">
             <div class="space-y-3">
               <div class="flex items-start justify-between gap-2">
                 <div class="space-y-1">
-                  <span class="badge ${inc.severity === 'Critical' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : inc.severity === 'High' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'}">${inc.severity} Severity</span>
-                  <h3 class="font-bold text-white text-sm leading-snug pt-1">${inc.name}</h3>
-                  <p class="text-[11px] text-slate-400 mono">${inc.date} · ${inc.sourceName}</p>
+                  <span class="badge ${sevClass}">
+                    <span class="w-1.5 h-1.5 rounded-full ${sevDot}"></span>
+                    ${inc.severity} Severity
+                  </span>
+                  <h3 class="font-semibold text-zinc-100 text-sm leading-snug pt-1">${inc.name}</h3>
+                  <p class="text-[11px] text-zinc-400 mono">${inc.date} · ${inc.sourceName}</p>
                 </div>
-                <span class="text-amber-400 font-mono font-bold text-xs bg-amber-400/10 px-2 py-1 rounded-lg border border-amber-400/20 shrink-0">
+                <span class="text-amber-400 font-mono font-medium text-xs bg-amber-400/10 px-2 py-1 rounded-md border border-amber-400/20 shrink-0">
                   $${(inc.financialLoss.amount).toLocaleString()}
                 </span>
               </div>
 
-              <p class="text-xs text-slate-300 leading-relaxed bg-slate-900/70 p-3 rounded-xl border border-slate-800/80">${inc.description}</p>
+              <p class="text-xs text-zinc-300 leading-relaxed bg-zinc-900/60 p-3 rounded-lg border border-white/5">${inc.description}</p>
 
-              <div class="space-y-2 text-[11px]">
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
-                  <span class="text-slate-500 block text-[10px] uppercase font-bold">Involved Agent</span>
-                  <span class="text-cyan-300 font-medium">${inc.agent.name}</span>
-                  <span class="text-slate-400 block text-[10px] mt-0.5">${inc.agent.architecture}</span>
+              <div class="space-y-1.5 text-[11px]">
+                <div class="p-2.5 rounded-lg bg-zinc-900/70 border border-white/5">
+                  <span class="text-zinc-500 block text-[10px] uppercase font-mono font-medium">Involved Agent</span>
+                  <span class="text-sky-300 font-medium">${inc.agent.name}</span>
+                  <span class="text-zinc-400 block text-[10px] mt-0.5">${inc.agent.architecture}</span>
                 </div>
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
-                  <span class="text-slate-500 block text-[10px] uppercase font-bold">Failure Mode</span>
-                  <span class="text-rose-300 font-medium">${inc.failureMode.name}</span>
+                <div class="p-2.5 rounded-lg bg-zinc-900/70 border border-white/5">
+                  <span class="text-zinc-500 block text-[10px] uppercase font-mono font-medium">Failure Mode</span>
+                  <span class="text-amber-300 font-medium">${inc.failureMode.name}</span>
                 </div>
-                <div class="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-800/40">
-                  <span class="text-emerald-400 block text-[10px] uppercase font-bold">Verified Mitigation</span>
+                <div class="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-800/30">
+                  <span class="text-emerald-400 block text-[10px] uppercase font-mono font-medium">Verified Mitigation</span>
                   <span class="text-emerald-200 font-medium">${inc.mitigation.name}</span>
                 </div>
               </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
-              <button onclick="openPostMortemModal('${inc.id}')" class="px-3 py-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/35 text-cyan-300 border border-cyan-500/30 text-xs font-semibold flex items-center space-x-1.5 transition active:scale-95">
-                <span>📖 Read Post-Mortem</span>
+            <div class="pt-3 border-t border-white/5 flex items-center justify-between gap-2">
+              <button onclick="openPostMortemModal('${inc.id}')" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-200 hover:text-white border border-white/10 text-xs font-medium transition active:scale-95">
+                Read Post-Mortem →
               </button>
               <div class="flex items-center space-x-1.5">
-                <a href="${inc.sourceEvidenceLink}" target="_blank" rel="noopener" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition" title="Open Live Source Material">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                <a href="${inc.sourceEvidenceLink}" target="_blank" rel="noopener" class="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-white/5 transition" title="Open Source Link">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>
-                <button onclick="focusIncidentInGraph('${inc.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition" title="Focus in 3D Universe">
+                <button onclick="focusIncidentInGraph('${inc.id}')" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs border border-white/5 transition" title="Focus in 3D">
                   3D &uarr;
                 </button>
               </div>
@@ -3229,7 +2581,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // POST-MORTEM DOSSIER MODAL LOGIC (Verified Evidence & Root Causes)
+    // POST-MORTEM DOSSIER MODAL LOGIC
     // -------------------------------------------------------------------------
     function openPostMortemModal(incidentId) {
       const inc = incidents.find(i => i.id === incidentId);
@@ -3253,66 +2605,66 @@
 
       document.getElementById('pm-body').innerHTML = `
         <!-- Incident Abstract Banner -->
-        <div class="p-4 rounded-2xl bg-cyan-950/20 border border-cyan-800/40 space-y-2">
-          <div class="text-[10px] uppercase font-bold tracking-wider text-cyan-400">Executive Summary</div>
-          <p class="text-slate-200 leading-relaxed">${pm.summary || inc.description}</p>
+        <div class="p-4 rounded-xl bg-zinc-900/80 border border-white/10 space-y-1.5">
+          <div class="text-[10px] uppercase font-mono font-semibold tracking-wider text-zinc-400">Executive Summary</div>
+          <p class="text-zinc-200 leading-relaxed">${pm.summary || inc.description}</p>
         </div>
 
         <!-- Metrics Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mono">
-          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
-            <span class="text-slate-500 block text-[10px]">Financial Impact</span>
-            <span class="text-amber-400 font-bold">$${(inc.financialLoss.amount).toLocaleString()}</span>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs mono">
+          <div class="p-3 rounded-lg bg-zinc-900/60 border border-white/5">
+            <span class="text-zinc-500 block text-[10px]">Financial Impact</span>
+            <span class="text-amber-400 font-semibold">$${(inc.financialLoss.amount).toLocaleString()}</span>
           </div>
-          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
-            <span class="text-slate-500 block text-[10px]">Severity Class</span>
-            <span class="text-rose-400 font-bold">${inc.severity}</span>
+          <div class="p-3 rounded-lg bg-zinc-900/60 border border-white/5">
+            <span class="text-zinc-500 block text-[10px]">Severity Class</span>
+            <span class="text-rose-400 font-semibold">${inc.severity}</span>
           </div>
-          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
-            <span class="text-slate-500 block text-[10px]">Agent Architecture</span>
-            <span class="text-cyan-300 font-bold truncate block">${inc.agent.name}</span>
+          <div class="p-3 rounded-lg bg-zinc-900/60 border border-white/5">
+            <span class="text-zinc-500 block text-[10px]">Agent</span>
+            <span class="text-sky-300 font-semibold truncate block">${inc.agent.name}</span>
           </div>
-          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
-            <span class="text-slate-500 block text-[10px]">Evidence Verified</span>
-            <span class="text-emerald-400 font-bold">100% Verified</span>
+          <div class="p-3 rounded-lg bg-zinc-900/60 border border-white/5">
+            <span class="text-zinc-500 block text-[10px]">Evidence</span>
+            <span class="text-emerald-400 font-semibold">Verified</span>
           </div>
         </div>
 
         <!-- Root Cause Analysis -->
-        <div class="space-y-2">
-          <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+        <div class="space-y-1.5">
+          <h4 class="text-xs font-semibold text-white flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
             <span>Root Cause &amp; Systemic Vulnerability Mechanism</span>
           </h4>
-          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 whitespace-pre-line leading-relaxed">
+          <div class="p-3.5 rounded-lg bg-zinc-900/60 border border-white/5 text-zinc-300 whitespace-pre-line leading-relaxed">
             ${pm.rootCause || inc.failureMode.description}
           </div>
         </div>
 
         <!-- Mitigation & Safeguards -->
-        <div class="space-y-2">
-          <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <div class="space-y-1.5">
+          <h4 class="text-xs font-semibold text-white flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
             <span>Verified Mitigation &amp; Architecture Hardening</span>
           </h4>
-          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 leading-relaxed">
-            <p class="font-semibold text-emerald-300 mb-1">${inc.mitigation.name} (${inc.mitigation.strategy})</p>
-            <p class="text-slate-300">${pm.mitigationDeepDive || inc.mitigation.description}</p>
+          <div class="p-3.5 rounded-lg bg-zinc-900/60 border border-white/5 text-zinc-300 leading-relaxed">
+            <p class="font-medium text-emerald-300 mb-1">${inc.mitigation.name} (${inc.mitigation.strategy})</p>
+            <p class="text-zinc-300">${pm.mitigationDeepDive || inc.mitigation.description}</p>
           </div>
         </div>
 
         <!-- Verified External Citations -->
-        <div class="space-y-2 pt-2 border-t border-slate-800">
-          <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Verified Citation Material</div>
+        <div class="space-y-2 pt-2 border-t border-white/[0.08]">
+          <div class="text-[10px] uppercase font-mono font-semibold tracking-wider text-zinc-400">Verified Citation Material</div>
           <div class="space-y-1.5">
-            <a href="${inc.sourceEvidenceLink}" target="_blank" rel="noopener" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-cyan-300 hover:text-white transition">
+            <a href="${inc.sourceEvidenceLink}" target="_blank" rel="noopener" class="flex items-center justify-between p-2.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-zinc-300 hover:text-white transition">
               <span>Primary: ${inc.sourceName || inc.sourceEvidenceLink}</span>
-              <span class="text-slate-500">&rarr;</span>
+              <span class="text-zinc-500">&rarr;</span>
             </a>
             ${inc.secondaryLink ? `
-              <a href="${inc.secondaryLink}" target="_blank" rel="noopener" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white transition">
-                <span>Secondary Reference: ${inc.secondaryLink}</span>
-                <span class="text-slate-500">&rarr;</span>
+              <a href="${inc.secondaryLink}" target="_blank" rel="noopener" class="flex items-center justify-between p-2.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 text-zinc-300 hover:text-white transition">
+                <span>Secondary: ${inc.secondaryLink}</span>
+                <span class="text-zinc-500">&rarr;</span>
               </a>
             ` : ''}
           </div>
@@ -3320,12 +2672,10 @@
       `;
 
       document.getElementById('postmortem-modal').classList.remove('hidden');
-      sfxModal();
     }
 
     function closePostMortemModal() {
       document.getElementById('postmortem-modal').classList.add('hidden');
-      sfxClick();
     }
 
     // -------------------------------------------------------------------------
@@ -3357,7 +2707,7 @@
       });
 
       if (filteredEdges.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500 italic">No matching triples found for the selected filter.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-zinc-500 italic">No matching triples found for the selected filter.</td></tr>';
         return;
       }
 
@@ -3367,18 +2717,18 @@
         if (!s || !t) return;
 
         tbody.innerHTML += `
-          <tr class="hover:bg-slate-800/40 transition">
-            <td class="p-4 font-medium text-white flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full inline-block" style="background:${s.color}"></span>
+          <tr class="hover:bg-zinc-800/30 transition">
+            <td class="p-3.5 pl-5 font-medium text-zinc-100 flex items-center space-x-2">
+              <span class="w-1.5 h-1.5 rounded-full inline-block" style="background:${s.color}"></span>
               <span>${s.name}</span>
             </td>
-            <td class="p-4 font-mono text-cyan-400 text-xs">${e.relation}</td>
-            <td class="p-4 font-medium text-slate-200">
-              <span class="w-2 h-2 rounded-full inline-block mr-1.5" style="background:${t.color}"></span>
+            <td class="p-3.5 font-mono text-zinc-400 text-xs">${e.relation}</td>
+            <td class="p-3.5 font-medium text-zinc-200">
+              <span class="w-1.5 h-1.5 rounded-full inline-block mr-1.5" style="background:${t.color}"></span>
               <span>${t.name}</span>
             </td>
-            <td class="p-4 text-right">
-              <button onclick="focusIncidentInGraph('${s.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition">
+            <td class="p-3.5 pr-5 text-right">
+              <button onclick="focusIncidentInGraph('${s.id}')" class="px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-[11px] border border-white/5 transition">
                 Inspect 3D
               </button>
             </td>
@@ -3388,311 +2738,15 @@
     }
 
     // -------------------------------------------------------------------------
-    // LIVE THREAT EVENT PIPELINE & TELEMETRY STREAM
-    // Inspired by Check Point Threat Map, Radware Live Threat, and Rogue AI Tracker
-    // -------------------------------------------------------------------------
-
-    function initLivePipeline() {
-      // Seed with initial realistic intercepted threats for the telemetry stream
-      if (telemetryLog.length === 0) {
-        for (let i = 0; i < 4; i++) {
-          const sample = ROGUE_AI_THREAT_VECTORS[(i * 3) % ROGUE_AI_THREAT_VECTORS.length];
-          const timeOffset = (4 - i) * 14;
-          const evTime = new Date(Date.now() - timeOffset * 1000).toLocaleTimeString();
-          telemetryLog.push({
-            id: `evt-${1000 + i}`,
-            time: evTime,
-            type: sample.type,
-            vector: sample.vector,
-            agent: sample.agent,
-            severity: sample.severity,
-            loss: sample.loss,
-            mitigation: sample.mitigation,
-            description: sample.description,
-            targetNodeId: nodes.length > 0 ? nodes[i % nodes.length].id : null,
-            status: 'INTERCEPTED'
-          });
-        }
-        totalInterceptedCount = 1420 + telemetryLog.length;
-      }
-
-      updateTickerDisplay(telemetryLog[0]);
-      renderTelemetryLog();
-      updateRadarUI();
-
-      if (livePipelineActive) {
-        scheduleNextLiveEvent();
-      }
-    }
-
-    function scheduleNextLiveEvent() {
-      if (livePipelineTimer) clearTimeout(livePipelineTimer);
-      if (!livePipelineActive) return;
-
-      // Base interval between 4.2s and 7.2s, accelerated by speed multiplier
-      const baseMs = 4200 + Math.random() * 3000;
-      const delay = Math.max(800, baseMs / livePipelineSpeed);
-
-      livePipelineTimer = setTimeout(() => {
-        triggerLiveThreatEvent();
-        scheduleNextLiveEvent();
-      }, delay);
-    }
-
-    function triggerLiveThreatEvent(customTemplate) {
-      if (nodes.length === 0) return;
-
-      const template = customTemplate || ROGUE_AI_THREAT_VECTORS[Math.floor(Math.random() * ROGUE_AI_THREAT_VECTORS.length)];
-      totalInterceptedCount++;
-
-      // Pick a target incident from current graph
-      const incidentNodes = nodes.filter(n => n.type === 'Incident');
-      const targetIncNode = incidentNodes[Math.floor(Math.random() * incidentNodes.length)] || nodes[0];
-
-      // Find connected Agent, FailureMode, and Mitigation nodes
-      let agentNode = null;
-      let failureNode = null;
-      let mitNode = null;
-
-      edges.forEach(e => {
-        if (e.source === targetIncNode.id || e.target === targetIncNode.id) {
-          const otherId = e.source === targetIncNode.id ? e.target : e.source;
-          const otherNode = nodeMap[otherId];
-          if (otherNode) {
-            if (otherNode.type === 'Agent') agentNode = otherNode;
-            if (otherNode.type === 'FailureMode') failureNode = otherNode;
-            if (otherNode.type === 'Mitigation') mitNode = otherNode;
-          }
-        }
-      });
-
-      // Fallbacks if not connected
-      if (!agentNode) agentNode = nodes.find(n => n.type === 'Agent') || targetIncNode;
-      if (!failureNode) failureNode = nodes.find(n => n.type === 'FailureMode') || targetIncNode;
-      if (!mitNode) mitNode = nodes.find(n => n.type === 'Mitigation') || failureNode;
-
-      const threatColor = template.severity === 'Critical' ? '#FF0055' : template.severity === 'High' ? '#F97316' : '#38BDF8';
-
-      // Laser projectile beam 1: Agent -> Failure Mode (Threat vector traversal)
-      // Followed by chain hop: Failure Mode -> Mitigation (Interception & Absorption)
-      threatBeams.push({
-        sourceId: agentNode.id,
-        targetId: failureNode.id,
-        progress: 0.0,
-        speed: (0.018 + Math.random() * 0.008) * livePipelineSpeed,
-        color: threatColor,
-        chain: [
-          {
-            targetId: mitNode.id,
-            color: '#10B981' // Defense absorption color
-          }
-        ],
-        eventData: template
-      });
-
-      sfxThreatLaser();
-      markHotNode(agentNode.id, threatColor);
-
-      // Create telemetry log item
-      const eventItem = {
-        id: `evt-${Date.now().toString().slice(-5)}`,
-        time: new Date().toLocaleTimeString(),
-        type: template.type,
-        vector: template.vector,
-        agent: template.agent,
-        severity: template.severity,
-        loss: template.loss,
-        mitigation: template.mitigation,
-        description: template.description,
-        targetNodeId: targetIncNode.id,
-        status: 'INTERCEPTED'
-      };
-
-      telemetryLog.unshift(eventItem);
-      if (telemetryLog.length > 35) telemetryLog.pop();
-
-      updateTickerDisplay(eventItem);
-      renderTelemetryLog();
-      updateRadarUI();
-    }
-
-    function createShockwave(node, color = '#FF0055') {
-      if (!node) return;
-      shockwaves.push({
-        x: node.x,
-        y: node.y,
-        z: node.z,
-        radius: 0.4,
-        maxRadius: 16,
-        speed: 0.38,
-        alpha: 0.95,
-        decay: 0.022,
-        color: color
-      });
-      sfxImpactShockwave();
-    }
-
-    function markHotNode(nodeId, color = '#FF0055') {
-      hotNodes[nodeId] = {
-        until: Date.now() + 3200,
-        color: color
-      };
-    }
-
-    function updateRadarUI() {
-      const beacon = document.getElementById('live-beacon');
-      const statusText = document.getElementById('live-status-text');
-      const rateText = document.getElementById('live-rate-text');
-      const toggleBtn = document.getElementById('btn-toggle-pipeline');
-      const speedBtn = document.getElementById('btn-pipeline-speed');
-      const counterBadge = document.getElementById('ticker-counter-badge');
-
-      if (beacon) {
-        beacon.className = livePipelineActive ? 'w-2 h-2 rounded-full bg-emerald-400 animate-ping' : 'w-2 h-2 rounded-full bg-slate-500';
-      }
-      if (statusText) {
-        statusText.innerText = livePipelineActive ? 'LIVE RADAR' : 'RADAR PAUSED';
-        statusText.className = livePipelineActive ? 'text-[11px] font-bold tracking-wider text-emerald-300 font-mono' : 'text-[11px] font-bold tracking-wider text-slate-400 font-mono';
-      }
-      if (rateText) {
-        const rate = (0.16 * livePipelineSpeed).toFixed(2);
-        rateText.innerText = livePipelineActive ? `${rate} ev/s` : '0.00 ev/s';
-      }
-      if (toggleBtn) {
-        toggleBtn.innerText = livePipelineActive ? 'PAUSE' : 'RESUME';
-        toggleBtn.classList.toggle('active', livePipelineActive);
-      }
-      if (speedBtn) {
-        speedBtn.innerText = `${livePipelineSpeed}x SPEED`;
-      }
-      if (counterBadge) {
-        counterBadge.innerText = `${totalInterceptedCount.toLocaleString()} events`;
-      }
-    }
-
-    function updateTickerDisplay(eventItem) {
-      if (!eventItem) return;
-      const preview = document.getElementById('ticker-preview-text');
-      if (!preview) return;
-
-      const sevColor = eventItem.severity === 'Critical' ? 'text-rose-400' : eventItem.severity === 'High' ? 'text-amber-400' : 'text-cyan-400';
-      preview.innerHTML = `
-        <span class="${sevColor} font-mono font-bold text-[10px] mr-1.5">[${eventItem.severity.toUpperCase()}]</span>
-        <span class="text-white font-medium">${eventItem.agent}</span>
-        <span class="text-slate-500 mx-1">➔</span>
-        <span class="text-slate-200">${eventItem.type}</span>
-        <span class="text-slate-500 mx-1">·</span>
-        <span class="text-emerald-400 font-mono text-[11px]">${eventItem.status}</span>
-        <span class="text-slate-500 mx-1.5">|</span>
-        <span class="text-amber-400 font-mono text-[11px]">-$${(eventItem.loss || 0).toLocaleString()}</span>
-      `;
-    }
-
-    function renderTelemetryLog() {
-      const container = document.getElementById('telemetry-log-container');
-      if (!container) return;
-
-      if (telemetryLog.length === 0) {
-        container.innerHTML = `<div class="p-3 text-slate-500 text-center text-xs">Waiting for incoming telemetry packets...</div>`;
-        return;
-      }
-
-      container.innerHTML = telemetryLog.map((ev) => {
-        const sevBg = ev.severity === 'Critical' ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' : ev.severity === 'High' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30';
-        return `
-          <div class="py-2 px-2 hover:bg-slate-900/60 rounded-xl transition flex items-center justify-between gap-2">
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center space-x-2 mb-0.5">
-                <span class="font-mono text-[10px] text-slate-500">${ev.time}</span>
-                <span class="px-1.5 py-0.2 rounded border text-[9px] font-bold ${sevBg}">${ev.severity}</span>
-                <span class="font-semibold text-slate-200 text-xs truncate">${ev.agent}</span>
-              </div>
-              <div class="text-[11px] text-slate-400 truncate">
-                <span class="text-rose-400">${ev.type}:</span> ${ev.vector}
-              </div>
-              <div class="text-[10px] text-emerald-400/90 truncate flex items-center gap-1 mt-0.5">
-                <svg class="w-3 h-3 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                <span>Shield: ${ev.mitigation}</span>
-              </div>
-            </div>
-            <div class="flex flex-col items-end shrink-0 space-y-1">
-              <span class="font-mono text-[11px] text-amber-400">-$${(ev.loss || 0).toLocaleString()}</span>
-              <button onclick="focusThreatEvent('${ev.targetNodeId || ''}')" class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-cyan-600/30 hover:border-cyan-500/40 border border-slate-700/60 text-cyan-300 text-[10px] transition active:scale-95">
-                Target 3D
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function toggleLivePipeline() {
-      livePipelineActive = !livePipelineActive;
-      if (livePipelineActive) {
-        scheduleNextLiveEvent();
-        showToast('Live Threat Radar Stream Resumed');
-        playTone(660, 0.05);
-      } else {
-        if (livePipelineTimer) clearTimeout(livePipelineTimer);
-        showToast('Live Threat Radar Stream Paused');
-        playTone(330, 0.05);
-      }
-      updateRadarUI();
-    }
-
-    function cyclePipelineSpeed() {
-      if (livePipelineSpeed === 1) livePipelineSpeed = 2;
-      else if (livePipelineSpeed === 2) livePipelineSpeed = 5;
-      else livePipelineSpeed = 1;
-
-      showToast(`Pipeline Velocity set to ${livePipelineSpeed}x`);
-      playTone(550 * (livePipelineSpeed * 0.5 + 0.5), 0.05);
-      updateRadarUI();
-      if (livePipelineActive) {
-        scheduleNextLiveEvent();
-      }
-    }
-
-    function toggleTelemetryDrawer() {
-      telemetryDrawerExpanded = !telemetryDrawerExpanded;
-      const logContainer = document.getElementById('telemetry-log-container');
-      const toggleIcon = document.getElementById('ticker-toggle-icon');
-
-      if (logContainer) {
-        logContainer.classList.toggle('hidden', !telemetryDrawerExpanded);
-      }
-      if (toggleIcon) {
-        toggleIcon.innerText = telemetryDrawerExpanded ? '▼' : '▲';
-      }
-      sfxClick();
-    }
-
-    function focusThreatEvent(nodeId) {
-      if (!nodeId) return;
-      selectNodeById(nodeId);
-      const targetNode = nodeMap[nodeId];
-      if (targetNode) {
-        createShockwave(targetNode, '#00F0FF');
-      }
-    }
-
-    function simulateLiveIncident() {
-      triggerLiveThreatEvent();
-      showToast('⚡ Live Anomaly Vector Intercepted');
-    }
-
-    // -------------------------------------------------------------------------
     // ADD INCIDENT FORM
     // -------------------------------------------------------------------------
     function openModal() {
       document.getElementById('add-modal').classList.remove('hidden');
       document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
-      sfxModal();
     }
 
     function closeModal() {
       document.getElementById('add-modal').classList.add('hidden');
-      sfxClick();
     }
 
     function handleFormSubmit(e) {
@@ -3744,8 +2798,7 @@
       saveIncidents();
       buildGraphData();
       closeModal();
-      showToast('New Triples successfully appended to Knowledge Graph!');
-      sfxModal();
+      showToast('New Triples successfully appended to Knowledge Graph');
       selectNodeById(newId);
     }
 
@@ -3758,7 +2811,6 @@
     resizeCanvas();
     buildGraphData();
     animate();
-    initLivePipeline();
   </script>
 </body>
 </html>
