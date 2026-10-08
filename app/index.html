@@ -26,6 +26,45 @@
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); }
 
+    /* Ambient Aurora Glow Animation */
+    @keyframes ambientShift {
+      0%, 100% {
+        transform: scale(1) translate(0, 0);
+        opacity: 0.65;
+      }
+      50% {
+        transform: scale(1.08) translate(-1.5%, 1%);
+        opacity: 0.9;
+      }
+    }
+    .ambient-aurora {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: 
+        radial-gradient(ellipse 65% 50% at 20% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 45% at 85% 75%, rgba(244, 63, 94, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 50% 45%, rgba(16, 185, 129, 0.04) 0%, transparent 65%);
+      animation: ambientShift 16s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    /* Live Beacon Ring Animation */
+    @keyframes pulseRing {
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+      }
+      70% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+    .live-beacon {
+      animation: pulseRing 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
+
     /* Glass Surfaces */
     .glass-panel {
       background: rgba(14, 16, 23, 0.78);
@@ -33,46 +72,102 @@
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: border-color 0.25s ease, background-color 0.25s ease;
     }
+
+    /* Card Spotlight & Border Shimmer Effect (Linear / Vercel style) */
     .glass-card {
+      position: relative;
       background: rgba(15, 17, 24, 0.65);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.07);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), 
+                  border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), 
+                  background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 50%,
+        transparent 100%
+      );
+      transition: left 0.65s ease;
+      pointer-events: none;
+    }
+    .glass-card:hover::before {
+      left: 100%;
     }
     .glass-card:hover {
-      background: rgba(22, 25, 36, 0.85);
-      border-color: rgba(255, 255, 255, 0.16);
-      transform: translateY(-2px);
-      box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.5);
+      background: rgba(22, 25, 36, 0.9);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-4px) scale(1.008);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 25px -5px rgba(56, 189, 248, 0.12);
+    }
+
+    /* Staggered Card Entrance */
+    @keyframes cardEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .card-animate {
+      animation: cardEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     /* Minimalist Segmented Controls */
     .ctrl-btn {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: transparent;
+      border: 1px solid transparent;
       color: #94A3B8;
       font-size: 11px;
       font-weight: 500;
-      padding: 5px 11px;
+      padding: 5px 12px;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: color 0.18s ease, transform 0.12s ease;
       display: inline-flex;
       align-items: center;
       gap: 5px;
+      position: relative;
+      user-select: none;
     }
     .ctrl-btn:hover {
       color: #FFFFFF;
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .ctrl-btn:active {
+      transform: scale(0.96);
     }
     .ctrl-btn.active {
       color: #FFFFFF;
+    }
+
+    /* Pill sliding background on segmented container */
+    #layout-pill-bg {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
       background: rgba(255, 255, 255, 0.14);
-      border-color: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 0;
     }
 
     .badge {
@@ -91,6 +186,8 @@
       display: block;
       width: 100%;
       height: 100%;
+      position: relative;
+      z-index: 2;
     }
     #graph-canvas:active {
       cursor: grabbing;
@@ -101,23 +198,40 @@
       position: absolute;
       display: none;
       background: rgba(10, 12, 18, 0.94);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 12px;
       padding: 10px 14px;
       max-width: 300px;
       pointer-events: none;
       z-index: 40;
-      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.65), 0 0 15px rgba(56, 189, 248, 0.1);
       backdrop-filter: blur(16px);
-      transition: opacity 0.15s ease-out;
+      transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+      transform: translate3d(0, 0, 0);
     }
 
-    #mode-indicator {
-      display: none;
+    /* Modal Scale-In Animation */
+    @keyframes modalEntrance {
+      0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    .modal-animated {
+      animation: modalEntrance 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Sidepanel slide & fade transitions */
+    .sp-fade-item {
+      animation: cardEntrance 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-zinc-700 selection:text-white">
+<body class="min-h-screen flex flex-col antialiased selection:bg-zinc-700 selection:text-white relative">
 
   <!-- TOAST NOTIFICATION -->
   <div id="toast-banner" class="fixed top-5 left-1/2 -translate-x-1/2 z-[110] pointer-events-none hidden transition-all duration-300">
@@ -130,18 +244,21 @@
   <!-- TOP APP HEADER -->
   <header class="border-b border-white/[0.08] bg-zinc-950/85 backdrop-blur-xl sticky top-0 z-40 px-6 py-2.5 flex items-center justify-between">
     <div class="flex items-center space-x-3">
-      <div class="cursor-pointer flex items-center space-x-2.5" onclick="scrollToSection('section-graph')" title="FaultGraph 3D Canvas">
-        <img src="logo.png" alt="FaultGraph Logo" class="h-8 w-8 rounded-lg object-contain bg-zinc-900 border border-white/10 p-0.5 shadow-sm">
-        <span class="font-semibold text-sm tracking-tight text-zinc-100">FaultGraph</span>
+      <div class="cursor-pointer flex items-center space-x-2.5 group" onclick="scrollToSection('section-graph')" title="FaultGraph 3D Canvas">
+        <div class="relative">
+          <img src="logo.png" alt="FaultGraph Logo" class="h-8 w-8 rounded-lg object-contain bg-zinc-900 border border-white/10 p-0.5 shadow-sm group-hover:border-sky-400/50 transition-colors">
+          <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 live-beacon"></span>
+        </div>
+        <span class="font-semibold text-sm tracking-tight text-zinc-100 group-hover:text-white transition-colors">FaultGraph</span>
         <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-400 border border-white/5">GRC-20</span>
       </div>
     </div>
 
     <!-- Center Navigation Tabs -->
     <nav class="hidden md:flex items-center space-x-1 p-1 rounded-xl bg-zinc-900/60 border border-white/5 text-xs text-zinc-400">
-      <button onclick="scrollToSection('section-graph')" id="nav-btn-graph" class="px-3 py-1.5 rounded-lg text-white font-medium bg-white/10 transition">3D Graph</button>
-      <button onclick="scrollToSection('section-catalog')" id="nav-btn-catalog" class="px-3 py-1.5 rounded-lg hover:text-white transition">Incident Catalog</button>
-      <button onclick="scrollToSection('section-triples')" id="nav-btn-triples" class="px-3 py-1.5 rounded-lg hover:text-white transition">Triples Matrix</button>
+      <button onclick="scrollToSection('section-graph')" id="nav-btn-graph" class="px-3 py-1.5 rounded-lg text-white font-medium bg-white/10 transition hover:text-white">3D Graph</button>
+      <button onclick="scrollToSection('section-catalog')" id="nav-btn-catalog" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/5 transition">Incident Catalog</button>
+      <button onclick="scrollToSection('section-triples')" id="nav-btn-triples" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/5 transition">Triples Matrix</button>
     </nav>
 
     <!-- Right: Search, Stats, Geo Link, New Incident -->
@@ -149,10 +266,10 @@
       <!-- Search Input Container -->
       <div class="relative flex items-center" id="search-nav-container">
         <svg class="w-3.5 h-3.5 text-zinc-400 absolute left-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input id="search-input" type="text" oninput="handleGlobalSearch()" onfocus="handleGlobalSearch()" onkeydown="handleSearchKey(event)" placeholder="Search incidents, flaws, models..." class="w-36 sm:w-60 bg-zinc-900/80 border border-white/10 rounded-lg pl-8 pr-7 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+        <input id="search-input" type="text" oninput="handleGlobalSearch()" onfocus="handleGlobalSearch()" onkeydown="handleSearchKey(event)" placeholder="Search incidents, flaws, models..." class="w-36 sm:w-60 bg-zinc-900/80 border border-white/10 rounded-lg pl-8 pr-7 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400/30 transition">
         <button id="search-clear-btn" onclick="clearGlobalSearch()" class="hidden absolute right-2 text-zinc-400 hover:text-white text-xs font-bold px-1 transition" title="Clear search">✕</button>
 
-        <!-- Category Dropdown (accessible via autocomplete) -->
+        <!-- Category Dropdown -->
         <select id="search-category" onchange="handleGlobalSearch()" class="hidden">
           <option value="all">All Fields</option>
           <option value="Incident">Incidents</option>
@@ -168,24 +285,24 @@
         </div>
       </div>
 
-      <!-- Quick Metrics Pill -->
-      <div class="hidden lg:flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-zinc-900/80 border border-white/5 text-[11px] font-mono text-zinc-400">
-        <span class="text-zinc-200 font-semibold" id="stat-incidents">15</span>
+      <!-- Quick Metrics Pill (Animated Counter) -->
+      <div class="hidden lg:flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-zinc-900/80 border border-white/5 text-[11px] font-mono text-zinc-400 shadow-inner">
+        <span class="text-zinc-100 font-semibold" id="stat-incidents">0</span>
         <span>incidents</span>
         <span class="text-zinc-600">·</span>
-        <span class="text-amber-400/90 font-semibold" id="stat-loss">$591.0M</span>
-        <span class="hidden" id="stat-agents">15</span>
-        <span class="hidden" id="stat-mitigations">15</span>
+        <span class="text-amber-400/90 font-semibold" id="stat-loss">$0M</span>
+        <span class="hidden" id="stat-agents">0</span>
+        <span class="hidden" id="stat-mitigations">0</span>
       </div>
 
       <!-- Geo Link Badge -->
-      <a href="https://www.geobrowser.io/space/fb47f7907b4cc91be446bbf9fb51ccad" target="_blank" rel="noopener" id="geo-source-badge" class="px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-zinc-300 text-[11px] flex items-center space-x-1.5 transition" title="Connected to Geo Knowledge Graph Space fb47f7907b4cc91be446bbf9fb51ccad">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+      <a href="https://www.geobrowser.io/space/fb47f7907b4cc91be446bbf9fb51ccad" target="_blank" rel="noopener" id="geo-source-badge" class="px-2.5 py-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-zinc-300 text-[11px] flex items-center space-x-1.5 transition active:scale-95" title="Connected to Geo Knowledge Graph Space fb47f7907b4cc91be446bbf9fb51ccad">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-beacon"></span>
         <span class="font-mono text-[10px]">Geo Testnet ↗</span>
       </a>
 
       <!-- New Incident Button -->
-      <button onclick="openModal()" class="px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center space-x-1.5 transition active:scale-95 shadow-sm">
+      <button onclick="openModal()" class="px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center space-x-1.5 transition active:scale-95 shadow-sm hover:shadow-md">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/></svg>
         <span>New Incident</span>
       </button>
@@ -197,8 +314,11 @@
   <!-- ========================================================================= -->
   <section id="section-graph" class="relative w-full h-[78vh] min-h-[580px] bg-[#08090d] border-b border-white/[0.08] flex flex-col md:flex-row overflow-hidden">
 
+    <!-- Ambient Aurora Depth Layer -->
+    <div class="ambient-aurora"></div>
+
     <!-- 3D Canvas Container -->
-    <div id="canvas-container" class="flex-1 relative overflow-hidden select-none">
+    <div id="canvas-container" class="flex-1 relative overflow-hidden select-none z-10">
       <canvas id="graph-canvas"></canvas>
 
       <!-- Active Filter Pill on Canvas -->
@@ -210,8 +330,11 @@
 
       <!-- Top-Left Floating Controls Dock -->
       <div class="absolute top-4 left-4 flex flex-wrap gap-2 z-20">
-        <!-- Layout Switcher Segmented Control -->
-        <div class="glass-panel p-1 rounded-xl flex items-center space-x-1">
+        <!-- Layout Switcher Segmented Control with Sliding Indicator Pill -->
+        <div class="glass-panel p-1 rounded-xl flex items-center relative" id="layout-segmented-container">
+          <!-- Animated sliding pill backdrop -->
+          <div id="layout-pill-bg"></div>
+
           <button class="ctrl-btn active" id="btn-layout-cluster" onclick="setLayout('cluster')">
             <span>System Cluster</span>
           </button>
@@ -235,27 +358,27 @@
       </div>
 
       <!-- Bottom-Left Floating Relations Filter -->
-      <div class="absolute bottom-4 left-4 z-20 glass-panel p-1.5 rounded-xl flex flex-wrap items-center gap-1.5 text-xs">
+      <div class="absolute bottom-4 left-4 z-20 glass-panel p-1.5 rounded-xl flex flex-wrap items-center gap-1 text-xs">
         <span class="text-[10px] uppercase font-mono font-medium text-zinc-500 px-1.5">Relations:</span>
-        <button class="ctrl-btn active text-[11px]" id="btn-edge-all" onclick="toggleEdgeFilter('all')">All</button>
-        <button class="ctrl-btn active text-[11px]" id="btn-edge-agent" onclick="toggleEdgeFilter('involves_agent')">
+        <button class="ctrl-btn active text-[11px] px-2 py-1 rounded-md" id="btn-edge-all" onclick="toggleEdgeFilter('all')">All</button>
+        <button class="ctrl-btn active text-[11px] px-2 py-1 rounded-md" id="btn-edge-agent" onclick="toggleEdgeFilter('involves_agent')">
           <span class="w-1.5 h-1.5 rounded-full bg-sky-400 inline-block mr-0.5"></span>Agents
         </button>
-        <button class="ctrl-btn active text-[11px]" id="btn-edge-failure" onclick="toggleEdgeFilter('exhibits')">
+        <button class="ctrl-btn active text-[11px] px-2 py-1 rounded-md" id="btn-edge-failure" onclick="toggleEdgeFilter('exhibits')">
           <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block mr-0.5"></span>Failures
         </button>
-        <button class="ctrl-btn active text-[11px]" id="btn-edge-mitigation" onclick="toggleEdgeFilter('mitigated_by')">
+        <button class="ctrl-btn active text-[11px] px-2 py-1 rounded-md" id="btn-edge-mitigation" onclick="toggleEdgeFilter('mitigated_by')">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block mr-0.5"></span>Mitigations
         </button>
-        <button class="ctrl-btn active text-[11px]" id="btn-edge-loss" onclick="toggleEdgeFilter('resulted_in')">
+        <button class="ctrl-btn active text-[11px] px-2 py-1 rounded-md" id="btn-edge-loss" onclick="toggleEdgeFilter('resulted_in')">
           <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block mr-0.5"></span>Losses
         </button>
       </div>
 
       <!-- Zoom Controls (Right Middle) -->
       <div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col space-y-1.5 z-20 glass-panel p-1 rounded-xl">
-        <button onclick="zoomIn()" class="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white rounded-lg text-sm font-medium transition" title="Zoom In">+</button>
-        <button onclick="zoomOut()" class="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white rounded-lg text-sm font-medium transition" title="Zoom Out">−</button>
+        <button onclick="zoomIn()" class="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white rounded-lg text-sm font-medium transition active:scale-90" title="Zoom In">+</button>
+        <button onclick="zoomOut()" class="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white rounded-lg text-sm font-medium transition active:scale-90" title="Zoom Out">−</button>
       </div>
 
       <!-- Floating Tooltip HUD -->
@@ -265,12 +388,9 @@
         <div id="tt-meta" class="text-[11px] text-zinc-400 mb-2 leading-relaxed">Metadata description</div>
         <div id="tt-extra" class="pt-1.5 border-t border-white/[0.08] text-[10px] text-zinc-400 flex items-center justify-between">
           <span id="tt-conns" class="mono text-sky-300">0 connections</span>
-          <span class="text-zinc-500">Click to inspect</span>
+          <span class="text-zinc-500">Click to fly in</span>
         </div>
       </div>
-
-      <!-- Mode Label Overlay -->
-      <div id="mode-indicator" class="hidden"></div>
     </div>
 
     <!-- Slide-Out Deep Semantic Sidepanel -->
@@ -279,7 +399,7 @@
       <!-- Sidepanel Fixed Header -->
       <div class="p-4 border-b border-white/[0.08] flex items-center justify-between shrink-0">
         <span class="text-xs uppercase tracking-wider font-semibold text-zinc-400 flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-400 live-beacon"></span>
           <span>Knowledge Inspector</span>
         </span>
         <span id="sidepanel-type-badge" class="badge bg-zinc-800 text-zinc-300">Overview</span>
@@ -291,7 +411,7 @@
         <!-- Empty Placeholder -->
         <div id="sidepanel-empty" class="text-center py-16 text-zinc-500 text-xs">
           <div class="w-12 h-12 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center mx-auto mb-3 text-zinc-400 shadow-inner">
-            <svg class="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+            <svg class="w-5 h-5 text-zinc-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
           </div>
           <p class="font-medium text-zinc-300 mb-1">Select Any 3D Entity</p>
           <p class="text-zinc-500 leading-relaxed max-w-xs mx-auto">Click any node to view its verified post-mortem, parameters, and connected system relations.</p>
@@ -299,14 +419,14 @@
 
         <!-- Populated Content Area -->
         <div id="sidepanel-content" class="hidden space-y-4">
-          <div>
+          <div class="sp-fade-item">
             <div id="sp-category" class="text-[10px] uppercase font-mono font-semibold tracking-wider text-sky-400 mb-1">Incident</div>
             <h3 id="sp-title" class="font-semibold text-sm text-white leading-snug">Incident Name</h3>
             <p id="sp-desc" class="text-xs text-zinc-300 mt-2 leading-relaxed bg-zinc-900/60 p-3 rounded-xl border border-white/5">Description goes here.</p>
           </div>
 
           <!-- Verified Post-Mortem Quick Actions -->
-          <div id="sp-actions" class="space-y-2">
+          <div id="sp-actions" class="space-y-2 sp-fade-item">
             <button id="sp-read-report-btn" onclick="openPostMortemModalForCurrentNode()" class="w-full py-2 px-3 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium flex items-center justify-center space-x-2 transition active:scale-95 shadow-sm">
               <span>Read Full Post-Mortem →</span>
             </button>
@@ -316,7 +436,7 @@
           </div>
 
           <!-- Attributes & Parameters -->
-          <div class="space-y-2 pt-2 border-t border-white/[0.08]">
+          <div class="space-y-2 pt-2 border-t border-white/[0.08] sp-fade-item">
             <h4 class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider flex items-center justify-between">
               <span>Attributes</span>
               <span class="text-[10px] text-zinc-500 font-mono">Parameters</span>
@@ -327,7 +447,7 @@
           </div>
 
           <!-- Connected Triples -->
-          <div class="space-y-2 pt-2 border-t border-white/[0.08]">
+          <div class="space-y-2 pt-2 border-t border-white/[0.08] sp-fade-item">
             <div class="flex items-center justify-between">
               <h4 class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Connected Triples</h4>
               <span class="text-[10px] text-zinc-500 font-mono">GRC-20 Relations</span>
@@ -347,7 +467,7 @@
   <!-- ========================================================================= -->
   <!-- SECTION 2: INCIDENT CATALOG & VERIFIED POST-MORTEM REPORTS               -->
   <!-- ========================================================================= -->
-  <section id="section-catalog" class="py-12 px-6 sm:px-10 bg-[#08090d] border-b border-white/[0.08]">
+  <section id="section-catalog" class="py-12 px-6 sm:px-10 bg-[#08090d] border-b border-white/[0.08] relative">
     <div class="max-w-7xl mx-auto space-y-6">
 
       <!-- Section Header -->
@@ -360,11 +480,11 @@
         </div>
 
         <div class="flex items-center space-x-3 w-full md:w-auto">
-          <input type="text" id="catalog-search" oninput="handleCatalogSearch()" placeholder="Filter incidents, models, flaws..." class="w-full md:w-72 bg-zinc-900/80 border border-white/10 rounded-lg px-3.5 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+          <input type="text" id="catalog-search" oninput="handleCatalogSearch()" placeholder="Filter incidents, models, flaws..." class="w-full md:w-72 bg-zinc-900/80 border border-white/10 rounded-lg px-3.5 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-400 transition">
         </div>
       </div>
 
-      <!-- Cards Grid -->
+      <!-- Cards Grid with Staggered Animations -->
       <div id="catalog-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <!-- Injected via JavaScript -->
       </div>
@@ -383,7 +503,7 @@
           <h2 class="text-xl font-semibold text-white tracking-tight">Knowledge Graph Triples Matrix</h2>
           <p class="text-xs text-zinc-400 mt-1">Verifiable semantic relationships structured as Subject &rarr; Predicate &rarr; Object</p>
         </div>
-        <button onclick="scrollToSection('section-graph')" class="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 text-xs font-medium transition">
+        <button onclick="scrollToSection('section-graph')" class="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 text-xs font-medium transition active:scale-95">
           View in 3D &uarr;
         </button>
       </div>
@@ -413,7 +533,7 @@
   <!-- FULL POST-MORTEM REPORT MODAL                                            -->
   <!-- ========================================================================= -->
   <div id="postmortem-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-zinc-950 border border-white/10 rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl relative overflow-hidden">
+    <div class="bg-zinc-950 border border-white/10 rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl relative overflow-hidden modal-animated">
 
       <!-- Modal Header -->
       <div class="p-5 border-b border-white/[0.08] flex items-start justify-between gap-4 shrink-0 bg-zinc-900/40">
@@ -435,12 +555,12 @@
 
       <!-- Modal Footer -->
       <div class="p-4 border-t border-white/[0.08] flex items-center justify-between shrink-0 bg-zinc-900/60">
-        <span class="text-zinc-500 text-xs">FaultGraph Audit Dossier</span>
+        <span class="text-zinc-500 text-xs font-mono">FaultGraph Audit Dossier</span>
         <div class="flex items-center space-x-2.5">
-          <a id="pm-external-link" href="#" target="_blank" rel="noopener" class="px-3.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs shadow-sm transition flex items-center space-x-1.5">
+          <a id="pm-external-link" href="#" target="_blank" rel="noopener" class="px-3.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs shadow-sm transition flex items-center space-x-1.5 active:scale-95">
             <span>Open External Source ↗</span>
           </a>
-          <button onclick="closePostMortemModal()" class="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-medium text-xs transition border border-white/5">
+          <button onclick="closePostMortemModal()" class="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-medium text-xs transition border border-white/5 active:scale-95">
             Close
           </button>
         </div>
@@ -453,7 +573,7 @@
   <!-- ADD INCIDENT MODAL                                                        -->
   <!-- ========================================================================= -->
   <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-zinc-950 border border-white/10 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative space-y-4">
+    <div class="bg-zinc-950 border border-white/10 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative space-y-4 modal-animated">
       <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
         <div>
           <h3 class="text-sm font-semibold text-white tracking-tight">Add New Incident to 3D Graph</h3>
@@ -465,17 +585,17 @@
       <form id="incident-form" onsubmit="handleFormSubmit(event)" class="space-y-3.5 text-xs">
         <div>
           <label class="block text-zinc-300 font-medium mb-1">Incident Title *</label>
-          <input type="text" id="form-name" required placeholder="e.g. Flash Arbitrage LLM Order Splitting Failure" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+          <input type="text" id="form-name" required placeholder="e.g. Flash Arbitrage LLM Order Splitting Failure" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-400 transition">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-zinc-300 font-medium mb-1">Incident Date *</label>
-            <input type="date" id="form-date" required class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-zinc-500 transition">
+            <input type="date" id="form-date" required class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-zinc-400 transition">
           </div>
           <div>
             <label class="block text-zinc-300 font-medium mb-1">Severity *</label>
-            <select id="form-severity" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-zinc-500 transition">
+            <select id="form-severity" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-zinc-400 transition">
               <option value="Critical">Critical (Destroyed State / High Loss)</option>
               <option value="High">High (Privilege Breach / Slippage Loop)</option>
               <option value="Medium">Medium (Hallucination / Bounded Loss)</option>
@@ -487,37 +607,37 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-zinc-300 font-medium mb-1">Agent Name *</label>
-            <input type="text" id="form-agent" required placeholder="e.g. DeFi-Arbitrageur-v2" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+            <input type="text" id="form-agent" required placeholder="e.g. DeFi-Arbitrageur-v2" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-400 transition">
           </div>
           <div>
             <label class="block text-zinc-300 font-medium mb-1">Agent Architecture</label>
-            <input type="text" id="form-arch" placeholder="e.g. LangGraph Router" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+            <input type="text" id="form-arch" placeholder="e.g. LangGraph Router" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-400 transition">
           </div>
         </div>
 
         <div>
           <label class="block text-zinc-300 font-medium mb-1">Failure Mode (Root Cause) *</label>
-          <input type="text" id="form-failure" required placeholder="e.g. Recursive Slippage Feedback Loop" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+          <input type="text" id="form-failure" required placeholder="e.g. Recursive Slippage Feedback Loop" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-400 transition">
         </div>
 
         <div>
           <label class="block text-zinc-300 font-medium mb-1">Mitigation Strategy *</label>
-          <input type="text" id="form-mitigation" required placeholder="e.g. Dynamic Drawdown Circuit Breaker" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+          <input type="text" id="form-mitigation" required placeholder="e.g. Dynamic Drawdown Circuit Breaker" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-400 transition">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-zinc-300 font-medium mb-1">Financial Loss ($ USD)</label>
-            <input type="number" id="form-loss" placeholder="e.g. 1200000" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+            <input type="number" id="form-loss" placeholder="e.g. 1200000" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-400 transition">
           </div>
           <div>
             <label class="block text-zinc-300 font-medium mb-1">Source / Post-Mortem URL</label>
-            <input type="url" id="form-link" placeholder="https://example.com/postmortem" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition">
+            <input type="url" id="form-link" placeholder="https://example.com/postmortem" class="w-full bg-zinc-900 border border-white/10 rounded-lg p-2.5 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-400 transition">
           </div>
         </div>
 
         <div class="flex items-center justify-end space-x-2 pt-3 border-t border-white/[0.08]">
-          <button type="button" onclick="closeModal()" class="px-3.5 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-medium transition">Cancel</button>
+          <button type="button" onclick="closeModal()" class="px-3.5 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-medium transition active:scale-95">Cancel</button>
           <button type="submit" class="px-4 py-2 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium shadow-sm transition active:scale-95">Add Triples to Graph</button>
         </div>
       </form>
@@ -629,7 +749,7 @@
             let html = `
               <div class="px-3 py-1.5 text-[10px] uppercase font-mono font-semibold text-zinc-400 border-b border-white/[0.08] flex justify-between items-center bg-zinc-900/50 rounded-t-lg">
                 <span>Matching Entities (${matches.length})</span>
-                <span class="text-zinc-500 lowercase font-normal">click to focus in 3D</span>
+                <span class="text-zinc-500 lowercase font-normal">click to fly in 3D</span>
               </div>
               <div class="divide-y divide-white/[0.05] max-h-72 overflow-y-auto">
             `;
@@ -680,7 +800,7 @@
       const dropdown = document.getElementById('search-autocomplete-dropdown');
       if (dropdown) dropdown.classList.add('hidden');
 
-      focusNodeIn3D(node);
+      flyToNode(node);
     }
 
     function clearGlobalSearch() {
@@ -722,16 +842,6 @@
         const dropdown = document.getElementById('search-autocomplete-dropdown');
         if (dropdown) dropdown.classList.add('hidden');
       }
-    }
-
-    function focusNodeIn3D(node) {
-      if (!node) return;
-      scrollToSection('section-graph');
-      const angleY = Math.atan2(node.x, node.z);
-      rotY = -angleY;
-      rotX = 0.22;
-      zoom = 72;
-      selectNodeById(node.id);
     }
 
     function handleCatalogSearch() {
@@ -1606,7 +1716,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // 3D SPATIAL ENGINE & PROJECTION
+    // 3D SPATIAL ENGINE & CAMERA INTERPOLATION
     // -------------------------------------------------------------------------
     const canvas = document.getElementById('graph-canvas');
     const ctx = canvas.getContext('2d');
@@ -1617,12 +1727,19 @@
     let edges = [];
     let nodeMap = {};
 
+    // Camera parameters
     let rotX = 0.35;
     let rotY = -0.55;
     let zoom = 52;
     let autoRotate = true;
     let dragging = false;
     let lastX = 0, lastY = 0;
+
+    // Cinematic camera fly-to interpolation targets
+    let targetRotX = 0.35;
+    let targetRotY = -0.55;
+    let targetZoom = 52;
+    let cameraMoving = false;
 
     let hoveredNode = null;
     let hoveredEdge = null;
@@ -1646,7 +1763,7 @@
     let interpTo = 'cluster';
 
     let flowParticles = [];
-    const NUM_PARTICLES = 32;
+    const NUM_PARTICLES = 36;
 
     const TYPE_COLORS = {
       Incident: '#F43F5E',     // Clean Rose
@@ -1737,7 +1854,8 @@
           cx: incX, cy: incY, cz: incZ,
           px: 0.5, py: rowY, pz: rowZ,
           ix: Math.cos(spreadAngle) * spreadR, iy: sevY, iz: Math.sin(spreadAngle) * spreadR,
-          x: incX, y: incY, z: incZ
+          x: incX, y: incY, z: incZ,
+          phase: idx * 0.72
         };
         nodes.push(incNode);
         nodeMap[incNode.id] = incNode;
@@ -1755,7 +1873,8 @@
           cx: incX + Math.cos(satAngle(0)) * satR, cy: incY - 1.2, cz: incZ + Math.sin(satAngle(0)) * satR,
           px: -6.5, py: rowY - 0.4, pz: rowZ + 0.6,
           ix: Math.cos(spreadAngle - 0.4) * (spreadR + 2.2), iy: sevY + 1.2, iz: Math.sin(spreadAngle - 0.4) * (spreadR + 2.2),
-          x: incX, y: incY, z: incZ
+          x: incX, y: incY, z: incZ,
+          phase: idx * 0.72 + 1.2
         };
         nodes.push(agentNode);
         nodeMap[agentNode.id] = agentNode;
@@ -1772,7 +1891,8 @@
           cx: incX + Math.cos(satAngle(1)) * satR, cy: incY + 0.8, cz: incZ + Math.sin(satAngle(1)) * satR,
           px: -2.8, py: rowY + 0.5, pz: rowZ - 0.5,
           ix: Math.cos(spreadAngle + 0.3) * (spreadR + 1.6), iy: sevY - 1.0, iz: Math.sin(spreadAngle + 0.3) * (spreadR + 1.6),
-          x: incX, y: incY, z: incZ
+          x: incX, y: incY, z: incZ,
+          phase: idx * 0.72 + 2.4
         };
         nodes.push(failureNode);
         nodeMap[failureNode.id] = failureNode;
@@ -1790,7 +1910,8 @@
           cx: incX + Math.cos(satAngle(2)) * satR, cy: incY - 0.6, cz: incZ + Math.sin(satAngle(2)) * satR,
           px: 4.8, py: rowY - 0.9, pz: rowZ + 0.8,
           ix: Math.cos(spreadAngle + 0.8) * (spreadR - 1.2), iy: sevY + 2.2, iz: Math.sin(spreadAngle + 0.8) * (spreadR - 1.2),
-          x: incX, y: incY, z: incZ
+          x: incX, y: incY, z: incZ,
+          phase: idx * 0.72 + 3.6
         };
         nodes.push(mitNode);
         nodeMap[mitNode.id] = mitNode;
@@ -1809,7 +1930,8 @@
           cx: incX + Math.cos(satAngle(3)) * satR, cy: incY + 1.4, cz: incZ + Math.sin(satAngle(3)) * satR,
           px: 4.8, py: rowY + 0.9, pz: rowZ - 0.8,
           ix: Math.cos(spreadAngle - 0.7) * (spreadR + 2.0), iy: sevY - 2.0, iz: Math.sin(spreadAngle - 0.7) * (spreadR + 2.0),
-          x: incX, y: incY, z: incZ
+          x: incX, y: incY, z: incZ,
+          phase: idx * 0.72 + 4.8
         };
         nodes.push(lossNode);
         nodeMap[lossNode.id] = lossNode;
@@ -1833,60 +1955,101 @@
         flowParticles.push({
           edgeIndex: Math.floor(Math.random() * edges.length),
           progress: Math.random(),
-          speed: 0.004 + Math.random() * 0.006
+          speed: 0.004 + Math.random() * 0.007
         });
       }
 
       updateMetrics();
       renderIncidentCatalog();
       renderTriplesTable();
+      updatePillIndicator();
       draw();
     }
 
+    // Animated Count-Up Numbers
+    function animateCount(elemId, start, end, duration, prefix = '', suffix = '') {
+      const el = document.getElementById(elemId);
+      if (!el) return;
+      const startTime = performance.now();
+      function update(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+        const val = start + (end - start) * ease;
+        el.innerText = `${prefix}${val.toFixed(end % 1 === 0 ? 0 : 1)}${suffix}`;
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
     function updateMetrics() {
-      const countEl = document.getElementById('stat-incidents');
-      if (countEl) countEl.innerText = incidents.length;
+      const totalCount = incidents.length;
       const totalLoss = incidents.reduce((sum, item) => sum + (item.financialLoss.amount || 0), 0);
-      const lossEl = document.getElementById('stat-loss');
-      if (lossEl) lossEl.innerText = `$${(totalLoss / 1e6).toFixed(1)}M`;
+      const lossM = totalLoss / 1e6;
+
+      animateCount('stat-incidents', 0, totalCount, 750);
+      animateCount('stat-loss', 0, lossM, 900, '$', 'M');
+    }
+
+    // Cinematic Fly-To Camera Transition
+    function flyToNode(node) {
+      if (!node) return;
+      scrollToSection('section-graph');
+
+      const angleY = Math.atan2(node.x, node.z);
+      targetRotY = -angleY;
+      targetRotX = 0.22;
+      targetZoom = 76;
+      cameraMoving = true;
+
+      selectedNode = node;
+      setHighlight(node);
+      renderSidePanel(node);
+      draw();
     }
 
     // -------------------------------------------------------------------------
-    // 3D NODE RENDERING
+    // 3D NODE RENDERING WITH HARMONIC BREATHING & AURA
     // -------------------------------------------------------------------------
     function drawNodeShape(sx, sy, r, node, isHovered, isSelected, isDimmed, isConnected, isSearchMatch = false) {
       const col = node.color;
       const alpha = isDimmed ? '25' : isConnected ? 'FF' : 'E5';
+      const time = Date.now() * 0.0025;
 
       ctx.save();
 
-      // Subtle hover halo
+      // Fluid Breathing Aura for hovered or selected nodes
       if (isSelected || isHovered || (node.type === 'Incident' && !isDimmed)) {
-        ctx.beginPath();
-        ctx.arc(sx, sy, r * 1.8, 0, Math.PI * 2);
-        const glowGrad = ctx.createRadialGradient(sx, sy, r * 0.3, sx, sy, r * 1.8);
-        glowGrad.addColorStop(0, col + '40');
+        const breathe = Math.sin(time * 2.5 + (node.phase || 0)) * 0.18 + 1.0;
+        const auraR = r * (1.8 * breathe);
+        const glowGrad = ctx.createRadialGradient(sx, sy, r * 0.2, sx, sy, auraR);
+        glowGrad.addColorStop(0, col + (isHovered || isSelected ? '55' : '30'));
+        glowGrad.addColorStop(0.5, col + (isHovered || isSelected ? '22' : '10'));
         glowGrad.addColorStop(1, col + '00');
         ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(sx, sy, auraR, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // Search match indicator
+      // Animated target ring for search matches
       if (isSearchMatch) {
+        const matchPulse = r + 5 + Math.sin(time * 4) * 2.5;
         ctx.beginPath();
-        ctx.arc(sx, sy, r + 4, 0, Math.PI * 2);
+        ctx.arc(sx, sy, matchPulse, 0, Math.PI * 2);
         ctx.strokeStyle = '#FFFFFF';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 1.8;
         ctx.stroke();
       }
 
       ctx.beginPath();
 
       if (node.type === 'Incident') {
-        ctx.arc(sx, sy, isHovered ? r * 1.25 : r, 0, Math.PI * 2);
+        const currentR = isHovered ? r * 1.25 : r;
+        ctx.arc(sx, sy, currentR, 0, Math.PI * 2);
         ctx.fillStyle = isDimmed ? col + '33' : col;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.45)';
         ctx.lineWidth = isHovered ? 2 : 1;
         ctx.stroke();
 
@@ -1899,7 +2062,7 @@
         ctx.closePath();
         ctx.fillStyle = col + alpha;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.45)';
         ctx.lineWidth = isHovered ? 2 : 1;
         ctx.stroke();
 
@@ -1915,7 +2078,7 @@
         ctx.closePath();
         ctx.fillStyle = col + alpha;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.45)';
         ctx.lineWidth = isHovered ? 2 : 1;
         ctx.stroke();
 
@@ -1924,7 +2087,7 @@
         ctx.arc(sx, sy, size, 0, Math.PI * 2);
         ctx.fillStyle = col + alpha;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.45)';
         ctx.lineWidth = isHovered ? 2 : 1.2;
         ctx.stroke();
 
@@ -1942,7 +2105,7 @@
         ctx.rect(sx - s, sy - s, s * 2, s * 2);
         ctx.fillStyle = col + alpha;
         ctx.fill();
-        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)';
+        ctx.strokeStyle = isHovered ? '#FFFFFF' : 'rgba(255, 255, 255, 0.45)';
         ctx.lineWidth = isHovered ? 2 : 1;
         ctx.stroke();
       }
@@ -1980,6 +2143,8 @@
       for (let y = 0; y < H; y += gridSize) {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
       }
+
+      const time = Date.now() * 0.0018;
 
       // Smooth Layout Morphing
       if (interpT < 1.0) {
@@ -2025,10 +2190,15 @@
 
       const hasActiveHighlight = (hoveredNode !== null || hoveredEdge !== null || selectedNode !== null);
 
-      const projectedNodes = nodes.map(n => ({
-        ...project(n.x, n.y, n.z),
-        node: n
-      }));
+      // Project nodes with subtle zero-G harmonic oscillation
+      const projectedNodes = nodes.map(n => {
+        const floatY = Math.sin(time + (n.phase || 0)) * 0.12;
+        const floatX = Math.cos(time * 0.8 + (n.phase || 0)) * 0.08;
+        return {
+          ...project(n.x + floatX, n.y + floatY, n.z),
+          node: n
+        };
+      });
 
       projectedNodes.sort((a, b) => a.z - b.z);
 
@@ -2052,7 +2222,7 @@
 
         if (isHl) {
           ctx.strokeStyle = '#FFFFFF';
-          ctx.lineWidth = 1.8;
+          ctx.lineWidth = 2.0;
         } else if (isDimmed) {
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
           ctx.lineWidth = 0.5;
@@ -2061,9 +2231,24 @@
           ctx.lineWidth = 0.9;
         }
         ctx.stroke();
+
+        // Interactive light wave pulse along highlighted edges
+        if (isHl) {
+          const wavePhase = (time * 1.5) % 1.0;
+          const wx = s.x + (t.x - s.x) * wavePhase;
+          const wy = s.y + (t.y - s.y) * wavePhase;
+          const wz = s.z + (t.z - s.z) * wavePhase;
+          const pw = project(wx, wy, wz);
+          if (pw.d > 0) {
+            ctx.beginPath();
+            ctx.arc(pw.sx, pw.sy, Math.max(2.5, 4.5 * pw.d), 0, Math.PI * 2);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+          }
+        }
       });
 
-      // Flow Particles along edges
+      // Flow Particles along edges with soft radiant glow
       if (!hoveredNode) {
         flowParticles.forEach(p => {
           const edge = edges[p.edgeIndex];
@@ -2080,10 +2265,12 @@
           const pz = s.z + (t.z - s.z) * p.progress;
 
           const pt = project(px, py, pz);
-          ctx.beginPath();
-          ctx.arc(pt.sx, pt.sy, Math.max(1.2, 2.2 * pt.d), 0, Math.PI * 2);
-          ctx.fillStyle = edge.color || '#38BDF8';
-          ctx.fill();
+          if (pt.d > 0) {
+            ctx.beginPath();
+            ctx.arc(pt.sx, pt.sy, Math.max(1.5, 2.8 * pt.d), 0, Math.PI * 2);
+            ctx.fillStyle = edge.color || '#38BDF8';
+            ctx.fill();
+          }
         });
       }
 
@@ -2105,9 +2292,23 @@
     }
 
     function animate() {
-      if (autoRotate && !dragging) {
+      if (autoRotate && !dragging && !cameraMoving) {
         rotY += 0.0016;
       }
+
+      // Smooth camera interpolation
+      if (cameraMoving && !dragging) {
+        rotX += (targetRotX - rotX) * 0.08;
+        rotY += (targetRotY - rotY) * 0.08;
+        zoom += (targetZoom - zoom) * 0.08;
+        if (Math.abs(targetRotX - rotX) < 0.001 && Math.abs(targetRotY - rotY) < 0.001 && Math.abs(targetZoom - zoom) < 0.1) {
+          rotX = targetRotX;
+          rotY = targetRotY;
+          zoom = targetZoom;
+          cameraMoving = false;
+        }
+      }
+
       draw();
       requestAnimationFrame(animate);
     }
@@ -2153,6 +2354,7 @@
     // -------------------------------------------------------------------------
     canvas.addEventListener('mousedown', e => {
       dragging = true;
+      cameraMoving = false;
       lastX = e.clientX;
       lastY = e.clientY;
       autoRotate = false;
@@ -2229,10 +2431,7 @@
       const hit = getNodeAt(mx, my);
 
       if (hit) {
-        selectedNode = hit.node;
-        setHighlight(hit.node);
-        renderSidePanel(hit.node);
-        draw();
+        flyToNode(hit.node);
       } else {
         selectedNode = null;
         setHighlight(null);
@@ -2243,6 +2442,7 @@
 
     canvas.addEventListener('wheel', e => {
       e.preventDefault();
+      cameraMoving = false;
       const delta = e.deltaY > 0 ? 0.94 : 1.06;
       zoom = Math.max(22, Math.min(180, zoom * delta));
       draw();
@@ -2252,6 +2452,7 @@
     canvas.addEventListener('touchstart', e => {
       if (e.touches.length === 1) {
         dragging = true;
+        cameraMoving = false;
         lastX = e.touches[0].clientX;
         lastY = e.touches[0].clientY;
         autoRotate = false;
@@ -2269,8 +2470,18 @@
     canvas.addEventListener('touchend', () => dragging = false);
 
     // -------------------------------------------------------------------------
-    // LAYOUT SWITCHING
+    // LAYOUT SWITCHING & PILL SLIDER
     // -------------------------------------------------------------------------
+    function updatePillIndicator() {
+      const activeBtn = document.querySelector('#layout-segmented-container .ctrl-btn.active');
+      const pill = document.getElementById('layout-pill-bg');
+      if (activeBtn && pill) {
+        pill.style.left = activeBtn.offsetLeft + 'px';
+        pill.style.width = activeBtn.offsetWidth + 'px';
+      }
+    }
+    window.addEventListener('resize', updatePillIndicator);
+
     function setLayout(layoutMode) {
       if (currentLayout === layoutMode && interpT >= 1.0) return;
 
@@ -2282,6 +2493,7 @@
       document.querySelectorAll('#btn-layout-cluster, #btn-layout-causal, #btn-layout-impact').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`btn-layout-${layoutMode}`)?.classList.add('active');
 
+      updatePillIndicator();
       draw();
     }
 
@@ -2294,9 +2506,10 @@
     }
 
     function resetCamera() {
-      rotX = 0.35;
-      rotY = -0.55;
-      zoom = 52;
+      cameraMoving = true;
+      targetRotX = 0.35;
+      targetRotY = -0.55;
+      targetZoom = 52;
       selectedNode = null;
       setHighlight(null);
       renderSidePanel(null);
@@ -2304,11 +2517,13 @@
     }
 
     function zoomIn() {
+      cameraMoving = false;
       zoom = Math.min(180, zoom * 1.15);
       draw();
     }
 
     function zoomOut() {
+      cameraMoving = false;
       zoom = Math.max(22, zoom * 0.86);
       draw();
     }
@@ -2390,7 +2605,7 @@
 
       const makeProp = (label, val, highlight = false) => {
         return `
-          <div class="flex items-center justify-between p-2 rounded-lg bg-zinc-900/80 border border-white/5">
+          <div class="flex items-center justify-between p-2 rounded-lg bg-zinc-900/80 border border-white/5 transition hover:border-white/10">
             <span class="text-zinc-400 font-medium">${label}:</span>
             <span class="font-medium ${highlight ? 'text-amber-400 font-mono' : 'text-zinc-200'}">${val}</span>
           </div>
@@ -2402,7 +2617,7 @@
         propsContainer.innerHTML += `
           <div class="flex items-center justify-between p-2 rounded-lg bg-zinc-900/80 border border-white/10">
             <span class="text-sky-300 font-mono text-[11px] flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Geo Testnet Entity
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-beacon"></span>Geo Testnet Entity
             </span>
             <a href="https://www.geobrowser.io/space/fb47f7907b4cc91be446bbf9fb51ccad/${node.id}" target="_blank" rel="noopener" class="text-sky-400 hover:text-white font-mono text-[11px] underline">
               View on Geo ↗
@@ -2431,11 +2646,11 @@
           const otherName = otherNode ? otherNode.name : otherId;
 
           relsContainer.innerHTML += `
-            <div onclick="selectNodeById('${otherId}')" class="p-2 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 cursor-pointer transition flex items-center justify-between">
-              <span class="text-[11px] text-zinc-300">
+            <div onclick="selectNodeById('${otherId}')" class="p-2 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 border border-white/5 cursor-pointer transition flex items-center justify-between group active:scale-98">
+              <span class="text-[11px] text-zinc-300 group-hover:text-white transition-colors">
                 <span class="text-sky-400 font-mono">${e.relation}</span> &rarr; ${otherName}
               </span>
-              <span class="text-[10px] text-zinc-500">&rarr;</span>
+              <span class="text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">&rarr;</span>
             </div>
           `;
         });
@@ -2445,10 +2660,7 @@
     function selectNodeById(id) {
       const node = nodeMap[id];
       if (node) {
-        selectedNode = node;
-        setHighlight(node);
-        renderSidePanel(node);
-        draw();
+        flyToNode(node);
       }
     }
 
@@ -2459,7 +2671,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // INCIDENT CATALOG RENDERING
+    // INCIDENT CATALOG RENDERING WITH STAGGERED REVEALS
     // -------------------------------------------------------------------------
     function renderIncidentCatalog() {
       const query = ((document.getElementById('search-input')?.value || document.getElementById('catalog-search')?.value) || '').trim().toLowerCase();
@@ -2505,7 +2717,7 @@
         return;
       }
 
-      filtered.forEach(inc => {
+      filtered.forEach((inc, idx) => {
         const sevClass = inc.severity === 'Critical' 
           ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' 
           : inc.severity === 'High' 
@@ -2518,8 +2730,10 @@
             ? 'bg-amber-400' 
             : 'bg-sky-400';
 
+        const delay = Math.min(idx * 35, 500);
+
         container.innerHTML += `
-          <div class="glass-card p-5 rounded-xl flex flex-col justify-between space-y-4">
+          <div class="glass-card card-animate p-5 rounded-xl flex flex-col justify-between space-y-4" style="animation-delay: ${delay}ms">
             <div class="space-y-3">
               <div class="flex items-start justify-between gap-2">
                 <div class="space-y-1">
@@ -2538,16 +2752,16 @@
               <p class="text-xs text-zinc-300 leading-relaxed bg-zinc-900/60 p-3 rounded-lg border border-white/5">${inc.description}</p>
 
               <div class="space-y-1.5 text-[11px]">
-                <div class="p-2.5 rounded-lg bg-zinc-900/70 border border-white/5">
+                <div class="p-2.5 rounded-lg bg-zinc-900/70 border border-white/5 transition hover:border-white/10">
                   <span class="text-zinc-500 block text-[10px] uppercase font-mono font-medium">Involved Agent</span>
                   <span class="text-sky-300 font-medium">${inc.agent.name}</span>
                   <span class="text-zinc-400 block text-[10px] mt-0.5">${inc.agent.architecture}</span>
                 </div>
-                <div class="p-2.5 rounded-lg bg-zinc-900/70 border border-white/5">
+                <div class="p-2.5 rounded-lg bg-zinc-900/70 border border-white/5 transition hover:border-white/10">
                   <span class="text-zinc-500 block text-[10px] uppercase font-mono font-medium">Failure Mode</span>
                   <span class="text-amber-300 font-medium">${inc.failureMode.name}</span>
                 </div>
-                <div class="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-800/30">
+                <div class="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-800/30 transition hover:border-emerald-700/40">
                   <span class="text-emerald-400 block text-[10px] uppercase font-mono font-medium">Verified Mitigation</span>
                   <span class="text-emerald-200 font-medium">${inc.mitigation.name}</span>
                 </div>
@@ -2560,10 +2774,10 @@
                 Read Post-Mortem →
               </button>
               <div class="flex items-center space-x-1.5">
-                <a href="${inc.sourceEvidenceLink}" target="_blank" rel="noopener" class="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-white/5 transition" title="Open Source Link">
+                <a href="${inc.sourceEvidenceLink}" target="_blank" rel="noopener" class="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-white/5 transition active:scale-90" title="Open Source Link">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>
-                <button onclick="focusIncidentInGraph('${inc.id}')" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs border border-white/5 transition" title="Focus in 3D">
+                <button onclick="focusIncidentInGraph('${inc.id}')" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs border border-white/5 transition active:scale-95" title="Focus in 3D">
                   3D &uarr;
                 </button>
               </div>
@@ -2574,10 +2788,10 @@
     }
 
     function focusIncidentInGraph(id) {
-      scrollToSection('section-graph');
-      setTimeout(() => {
-        selectNodeById(id);
-      }, 300);
+      const node = nodeMap[id];
+      if (node) {
+        flyToNode(node);
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -2717,7 +2931,7 @@
         if (!s || !t) return;
 
         tbody.innerHTML += `
-          <tr class="hover:bg-zinc-800/30 transition">
+          <tr class="hover:bg-zinc-800/40 transition">
             <td class="p-3.5 pl-5 font-medium text-zinc-100 flex items-center space-x-2">
               <span class="w-1.5 h-1.5 rounded-full inline-block" style="background:${s.color}"></span>
               <span>${s.name}</span>
@@ -2728,7 +2942,7 @@
               <span>${t.name}</span>
             </td>
             <td class="p-3.5 pr-5 text-right">
-              <button onclick="focusIncidentInGraph('${s.id}')" class="px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-[11px] border border-white/5 transition">
+              <button onclick="focusIncidentInGraph('${s.id}')" class="px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-[11px] border border-white/5 transition active:scale-95">
                 Inspect 3D
               </button>
             </td>
@@ -2799,7 +3013,7 @@
       buildGraphData();
       closeModal();
       showToast('New Triples successfully appended to Knowledge Graph');
-      selectNodeById(newId);
+      flyToNode(nodeMap[newId]);
     }
 
     // Initialize application
